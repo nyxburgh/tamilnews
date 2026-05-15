@@ -1,0 +1,204 @@
+/* ═══════════════════════════════════════════════════
+   TAMIL NEWS PORTAL — CONTRIBUTOR PORTAL CSS
+   Extends admin.css with contributor-specific styles
+═══════════════════════════════════════════════════ */
+
+/* ── GOOGLE AVATAR ───────────────────────────────── */
+.tn-google-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+  flex-shrink: 0;
+  border: 2px solid rgba(255,255,255,0.1);
+}
+
+/* ── CONTRIBUTOR SIDEBAR ACCENT ──────────────────── */
+.tn-sidebar .tn-logo-icon {
+  background: linear-gradient(135deg, #10b981, #059669);
+}
+
+.tn-nav-item.active::before {
+  background: #10b981;
+}
+
+/* ── STATUS BADGES ───────────────────────────────── */
+.cntr-status-info {
+  font-size: 13px;
+}
+
+/* ── ARTICLE CARD ────────────────────────────────── */
+.cntr-article-card {
+  background: var(--card-bg);
+  border: 1px solid var(--card-border);
+  border-radius: 10px;
+  padding: 16px 20px;
+  margin-bottom: 12px;
+  transition: border-color .15s;
+}
+
+.cntr-article-card:hover {
+  border-color: rgba(255,255,255,0.15);
+}
+
+.cntr-article-card .status-strip {
+  width: 3px;
+  border-radius: 2px;
+  min-height: 40px;
+}
+
+/* ── GUIDELINES BOX ──────────────────────────────── */
+.cntr-guidelines {
+  background: rgba(16,185,129,0.06);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 8px;
+  padding: 14px 16px;
+}
+
+/* ── REVIEW STATUS BANNER ────────────────────────── */
+.cntr-review-banner {
+  background: rgba(245,158,11,0.08);
+  border: 1px solid rgba(245,158,11,0.2);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+.cntr-published-banner {
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* ── GOOGLE SIGN-IN BUTTON ───────────────────────── */
+.btn-google {
+  background: #fff;
+  color: #1f1f1f;
+  border: 1px solid #dadce0;
+  font-weight: 500;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  gap: 10px;
+  padding: 10px 20px;
+  border-radius: 6px;
+  text-decoration: none;
+  transition: background .15s, box-shadow .15s;
+}
+
+.btn-google:hover {
+  background: #f8f8f8;
+  box-shadow: 0 1px 6px rgba(0,0,0,0.2);
+  color: #1f1f1f;
+}
+
+/* ── RATING STARS (frontend) ─────────────────────── */
+.tn-star-rating {
+  display: flex;
+  gap: 4px;
+}
+
+.tn-star {
+  font-size: 22px;
+  color: rgba(255,255,255,0.2);
+  cursor: pointer;
+  transition: color .1s;
+  user-select: none;
+}
+
+.tn-star.active,
+.tn-star:hover,
+.tn-star-rating:hover .tn-star {
+  color: #f59e0b;
+}
+
+.tn-star-rating .tn-star:hover ~ .tn-star {
+  color: rgba(255,255,255,0.2);
+}
+
+.tn-rating-display {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+}
+
+.tn-rating-avg {
+  font-size: 22px;
+  font-weight: 700;
+  color: #f59e0b;
+}
+
+.tn-rating-stars-sm {
+  color: #f59e0b;
+  font-size: 14px;
+  letter-spacing: 1px;
+}
+
+.tn-rating-count {
+  font-size: 12px;
+  color: var(--text-muted);
+}
+
+/* ── REVIEW BOX ──────────────────────────────────── */
+.tn-review-item {
+  border-bottom: 1px solid var(--card-border);
+  padding: 14px 0;
+}
+
+.tn-review-item:last-child {
+  border-bottom: none;
+}
+
+.tn-reviewer-avatar {
+  width: 32px;
+  height: 32px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ── CONTRIBUTOR BADGE (frontend article) ────────── */
+.tn-contributor-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 8px;
+  background: rgba(16,185,129,0.08);
+  border: 1px solid rgba(16,185,129,0.2);
+  border-radius: 6px;
+  padding: 6px 12px;
+  font-size: 13px;
+}
+
+.tn-contributor-badge img {
+  width: 24px;
+  height: 24px;
+  border-radius: 50%;
+  object-fit: cover;
+}
+
+/* ── LOGIN PAGE ──────────────────────────────────── */
+.tn-auth-body .tn-login-card {
+  max-width: 420px;
+  margin: 0 auto;
+}
+
+/* ── PENDING APPROVAL CARD ───────────────────────── */
+.tn-pending-card {
+  background: rgba(245,158,11,0.06);
+  border: 1px solid rgba(245,158,11,0.25);
+  border-radius: 10px;
+  padding: 20px 24px;
+  text-align: center;
+}
+
+/* ── RESPONSIVE ──────────────────────────────────── */
+@media (max-width: 768px) {
+  .tn-star { font-size: 28px; }
+}
