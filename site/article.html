@@ -1,0 +1,1115 @@
+<!DOCTYPE html>
+<html lang="ta">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>தமிழ்நாட்டில் வரலாறு காணாத மழை | தமிழ் செய்தி</title>
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Anton&family=Noto+Sans+Tamil:wght@400;500;600;700&family=Oswald:wght@400;500;600;700&family=Source+Sans+3:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+:root {
+  --red: #C0001A; --red-dark: #8B0012; --red-light: #FF1A35;
+  --charcoal: #1A1A1A; --charcoal-2: #2D2D2D;
+  --gold: #E8A000; --gold-light: #FFB800;
+  --bg: #F5F5F0; --white: #FFFFFF;
+  --gray-1: #F0EFE9; --gray-2: #D8D6CE;
+  --gray-3: #9A9890; --gray-4: #6B6A64;
+  --text: #1A1A1A; --text-muted: #5A5A5A;
+  --star-on: #E8A000; --star-off: #D8D6CE;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--bg); color: var(--text);
+  overflow-x: hidden; padding-bottom: 62px;
+}
+a { text-decoration: none; color: inherit; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:0.2} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(12px)} to{opacity:1;transform:translateY(0)} }
+
+/* ─── TICKER ─── */
+.ticker-bar {
+  background: var(--charcoal); color: white;
+  height: 34px; display: flex; align-items: center; overflow: hidden;
+}
+.ticker-label {
+  background: var(--red); color: white;
+  font-family: 'Oswald', sans-serif; font-size: 12px; font-weight: 600;
+  letter-spacing: 1.5px; text-transform: uppercase;
+  padding: 0 14px; height: 100%;
+  display: flex; align-items: center; white-space: nowrap; flex-shrink: 0; gap: 6px;
+}
+.ticker-dot { width: 7px; height: 7px; border-radius: 50%; background: var(--gold); animation: blink 1s infinite; }
+.ticker-track { overflow: hidden; flex: 1; padding-left: 20px; }
+.ticker-inner {
+  display: flex; gap: 60px; white-space: nowrap;
+  animation: ticker 40s linear infinite;
+  font-size: 13px; font-family: 'Noto Sans Tamil', sans-serif;
+}
+@keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+.ticker-item::before { content: '◆'; color: var(--gold); margin-right: 10px; font-size: 9px; }
+
+/* ─── HEADER ─── */
+.header {
+  background: var(--white); border-bottom: 3px solid var(--red);
+  position: sticky; top: 0; z-index: 100;
+  box-shadow: 0 2px 12px rgba(0,0,0,0.08);
+}
+.header-top {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 12px 20px 10px; max-width: 1200px; margin: 0 auto; gap: 12px;
+}
+.logo-ta { font-family: 'Noto Sans Tamil', sans-serif; font-size: 26px; font-weight: 700; color: var(--red); line-height: 1; }
+.logo-en { font-family: 'Anton', sans-serif; font-size: 11px; color: var(--gray-4); letter-spacing: 3px; text-transform: uppercase; margin-top: 1px; }
+.search-bar { display: flex; align-items: center; background: var(--gray-1); border: 1.5px solid var(--gray-2); border-radius: 4px; overflow: hidden; width: 220px; }
+.search-bar input { border: none; background: transparent; padding: 7px 10px; font-size: 13px; font-family: 'Source Sans 3', sans-serif; color: var(--text); width: 100%; outline: none; }
+.search-bar button { background: var(--red); border: none; color: white; padding: 7px 12px; cursor: pointer; font-size: 14px; }
+.login-btn {
+  display: flex; align-items: center; gap: 7px;
+  background: var(--white); border: 1.5px solid var(--gray-2); border-radius: 4px;
+  padding: 6px 14px; font-family: 'Source Sans 3', sans-serif;
+  font-size: 13px; font-weight: 600; color: var(--charcoal);
+  cursor: pointer; white-space: nowrap; transition: border-color 0.15s, box-shadow 0.15s; flex-shrink: 0;
+}
+.login-btn:hover { border-color: var(--gray-3); box-shadow: 0 2px 8px rgba(0,0,0,0.08); }
+.user-avatar-wrap { position: relative; display: none; }
+.user-avatar {
+  width: 34px; height: 34px; border-radius: 50%; background: var(--red); color: white;
+  font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer; border: 2px solid var(--gray-2); transition: border-color 0.15s;
+}
+.user-avatar:hover { border-color: var(--red); }
+.user-dropdown {
+  display: none; position: absolute; top: calc(100% + 8px); right: 0;
+  background: var(--white); border: 1px solid var(--gray-2);
+  border-radius: 6px; box-shadow: 0 8px 24px rgba(0,0,0,0.12);
+  min-width: 180px; z-index: 300; overflow: hidden;
+}
+.user-dropdown.open { display: block; }
+.user-dropdown-header { padding: 12px 14px; border-bottom: 1px solid var(--gray-1); background: var(--gray-1); }
+.user-dropdown-name { font-size: 13px; font-weight: 600; }
+.user-dropdown-email { font-size: 11px; color: var(--gray-4); margin-top: 2px; }
+.user-dropdown-item {
+  display: flex; align-items: center; gap: 9px; padding: 10px 14px;
+  font-size: 13px; color: var(--text); cursor: pointer; transition: background 0.12s;
+  border-bottom: 1px solid var(--gray-1);
+}
+.user-dropdown-item:last-child { border-bottom: none; }
+.user-dropdown-item:hover { background: var(--gray-1); }
+.user-dropdown-item.logout { color: var(--red); }
+.nav { background: var(--charcoal); overflow-x: auto; scrollbar-width: none; }
+.nav::-webkit-scrollbar { display: none; }
+.nav-inner { display: flex; max-width: 1200px; margin: 0 auto; padding: 0 20px; }
+.nav-link {
+  font-family: 'Noto Sans Tamil', sans-serif; font-size: 13px; font-weight: 600;
+  color: rgba(255,255,255,0.85); padding: 10px 16px; white-space: nowrap;
+  transition: all 0.15s; border-bottom: 3px solid transparent; display: flex; align-items: center;
+}
+.nav-link:hover { color: white; border-bottom-color: var(--gold); }
+.nav-link.active { color: white; border-bottom-color: var(--red-light); background: rgba(192,0,26,0.2); }
+
+/* ─── BREADCRUMB ─── */
+.breadcrumb {
+  max-width: 1200px; margin: 0 auto;
+  padding: 12px 20px 0;
+  display: flex; align-items: center; gap: 6px;
+  font-size: 12px; color: var(--gray-4); flex-wrap: wrap;
+}
+.breadcrumb a { color: var(--red); }
+.breadcrumb span { color: var(--gray-3); }
+
+/* ─── ARTICLE LAYOUT ─── */
+.article-wrap {
+  max-width: 1200px; margin: 0 auto; padding: 16px 20px 30px;
+  display: grid; grid-template-columns: 1fr 300px; gap: 28px;
+}
+.article-main { min-width: 0; }
+
+/* ─── ARTICLE HEADER ─── */
+.art-category {
+  display: inline-flex; align-items: center; gap: 6px;
+  font-family: 'Oswald', sans-serif; font-size: 12px; font-weight: 600;
+  letter-spacing: 1px; text-transform: uppercase;
+  color: var(--red); margin-bottom: 10px;
+}
+.art-category::before { content: ''; width: 14px; height: 2px; background: var(--red); display: inline-block; }
+.art-title {
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: 28px; font-weight: 700; color: var(--charcoal);
+  line-height: 1.45; margin-bottom: 14px;
+}
+.art-meta-row {
+  display: flex; align-items: center; gap: 16px; flex-wrap: wrap;
+  padding: 12px 0; border-top: 1px solid var(--gray-2); border-bottom: 1px solid var(--gray-2);
+  margin-bottom: 18px; font-size: 12.5px; color: var(--gray-4);
+}
+.art-author { display: flex; align-items: center; gap: 7px; }
+.art-author-avatar {
+  width: 30px; height: 30px; border-radius: 50%;
+  background: var(--charcoal); color: white; font-family: 'Oswald', sans-serif;
+  font-size: 12px; font-weight: 600; display: flex; align-items: center; justify-content: center;
+}
+.art-author-name { font-weight: 600; color: var(--charcoal); }
+.art-meta-sep { color: var(--gray-2); }
+
+/* ─── SHARE ROW ─── */
+.share-row {
+  display: flex; align-items: center; gap: 8px; margin-bottom: 20px; flex-wrap: wrap;
+}
+.share-label { font-size: 12px; color: var(--gray-4); font-weight: 600; }
+.share-btn {
+  display: flex; align-items: center; gap: 6px;
+  padding: 7px 14px; border-radius: 4px; border: none;
+  font-size: 12.5px; font-weight: 600; cursor: pointer;
+  transition: opacity 0.15s; white-space: nowrap;
+}
+.share-wa  { background: #25D366; color: white; }
+.share-fb  { background: #1877F2; color: white; }
+.share-tw  { background: #1DA1F2; color: white; }
+.share-copy { background: var(--gray-1); border: 1px solid var(--gray-2); color: var(--charcoal); }
+.share-btn:hover { opacity: 0.85; }
+
+/* ─── HERO IMAGE ─── */
+.art-hero-img {
+  width: 100%; border-radius: 6px; display: block; margin-bottom: 6px;
+  max-height: 440px; object-fit: cover;
+}
+.art-img-caption { font-size: 11.5px; color: var(--gray-4); text-align: center; margin-bottom: 20px; font-style: italic; }
+
+/* ─── ARTICLE BODY ─── */
+.art-body {
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: 16px; line-height: 1.85; color: var(--text);
+  margin-bottom: 24px;
+}
+.art-body p { margin-bottom: 16px; }
+.art-body h3 {
+  font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 600;
+  color: var(--charcoal); margin: 28px 0 12px;
+  padding-left: 12px; border-left: 3px solid var(--red);
+}
+.art-body .highlight {
+  background: #FEF4E0; border-left: 3px solid var(--gold);
+  padding: 14px 16px; border-radius: 0 4px 4px 0;
+  margin: 20px 0; font-size: 15px; font-style: italic; color: var(--charcoal-2);
+}
+.art-body .in-article-ad {
+  background: var(--gray-1); border: 1.5px dashed var(--gray-2); border-radius: 4px;
+  height: 90px; display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: var(--gray-3); letter-spacing: 1px; text-transform: uppercase;
+  font-family: 'Oswald', sans-serif; margin: 24px 0; gap: 6px;
+}
+
+/* ─── TAGS ─── */
+.art-tags { display: flex; flex-wrap: wrap; gap: 7px; margin-bottom: 24px; }
+.art-tag {
+  font-family: 'Noto Sans Tamil', sans-serif; font-size: 12px;
+  padding: 4px 12px; border-radius: 20px;
+  background: var(--white); border: 1px solid var(--gray-2);
+  color: var(--text-muted); cursor: pointer; transition: all 0.15s;
+}
+.art-tag:hover { background: var(--red); border-color: var(--red); color: white; }
+
+/* ─── DIVIDER ─── */
+.art-divider { height: 1px; background: var(--gray-2); margin: 24px 0; }
+
+/* ════════════════════════════════════════
+   ⭐ RATING & REVIEW SECTION
+════════════════════════════════════════ */
+.review-section {
+  background: var(--white); border-radius: 8px;
+  border: 1px solid var(--gray-2);
+  overflow: hidden; margin-bottom: 28px;
+  animation: fadeUp 0.4s 0.1s ease both;
+}
+.review-section-head {
+  background: var(--charcoal); padding: 14px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+}
+.review-section-title {
+  font-family: 'Oswald', sans-serif; font-size: 17px; font-weight: 600;
+  color: white; letter-spacing: 0.5px; text-transform: uppercase;
+  display: flex; align-items: center; gap: 8px;
+}
+.review-count-badge {
+  background: var(--red); color: white;
+  font-size: 11px; font-weight: 600; padding: 2px 8px; border-radius: 10px;
+}
+
+/* ── OVERALL RATING SUMMARY ── */
+.rating-summary {
+  display: flex; gap: 0; border-bottom: 1px solid var(--gray-1);
+}
+.rating-score-block {
+  padding: 20px 24px; text-align: center; border-right: 1px solid var(--gray-1);
+  min-width: 130px; flex-shrink: 0;
+}
+.rating-big-num {
+  font-family: 'Anton', sans-serif; font-size: 52px; color: var(--charcoal); line-height: 1;
+}
+.rating-big-stars { display: flex; justify-content: center; gap: 3px; margin: 6px 0; }
+.rating-big-star { font-size: 18px; }
+.rating-total-count { font-size: 12px; color: var(--gray-4); }
+
+.rating-bars { flex: 1; padding: 16px 20px; display: flex; flex-direction: column; justify-content: center; gap: 6px; }
+.rating-bar-row { display: flex; align-items: center; gap: 10px; }
+.rating-bar-label { font-size: 12px; color: var(--gray-4); width: 36px; text-align: right; flex-shrink: 0; display: flex; align-items: center; gap: 2px; }
+.rating-bar-label span { color: var(--star-on); font-size: 11px; }
+.rating-bar-track { flex: 1; height: 8px; background: var(--gray-1); border-radius: 4px; overflow: hidden; }
+.rating-bar-fill { height: 100%; background: var(--gold); border-radius: 4px; transition: width 0.6s ease; }
+.rating-bar-count { font-size: 11px; color: var(--gray-4); width: 28px; flex-shrink: 0; }
+
+/* ── WRITE REVIEW ── */
+.write-review-wrap { padding: 20px; border-bottom: 1px solid var(--gray-1); }
+.write-review-title {
+  font-family: 'Oswald', sans-serif; font-size: 15px; font-weight: 600;
+  color: var(--charcoal); margin-bottom: 14px; text-transform: uppercase; letter-spacing: 0.4px;
+}
+
+/* Star Picker */
+.star-picker { display: flex; gap: 6px; margin-bottom: 14px; align-items: center; }
+.star-picker-label { font-size: 13px; color: var(--gray-4); margin-right: 4px; font-family: 'Noto Sans Tamil', sans-serif; }
+.star-pick {
+  font-size: 28px; cursor: pointer; color: var(--star-off);
+  transition: color 0.1s, transform 0.1s; line-height: 1;
+  -webkit-tap-highlight-color: transparent;
+}
+.star-pick.active { color: var(--star-on); }
+.star-pick:hover { transform: scale(1.15); }
+.star-pick-text { font-size: 13px; color: var(--gray-4); margin-left: 6px; font-family: 'Noto Sans Tamil', sans-serif; min-width: 80px; }
+
+/* Login prompt (shown when not logged in) */
+.login-prompt-box {
+  background: var(--gray-1); border-radius: 6px; border: 1px solid var(--gray-2);
+  padding: 20px; text-align: center; display: block;
+}
+.login-prompt-icon { font-size: 32px; margin-bottom: 8px; }
+.login-prompt-text {
+  font-family: 'Noto Sans Tamil', sans-serif; font-size: 14px; color: var(--text-muted);
+  margin-bottom: 14px; line-height: 1.6;
+}
+.login-prompt-btn {
+  display: inline-flex; align-items: center; gap: 8px;
+  background: var(--red); color: white; border: none;
+  padding: 10px 22px; border-radius: 4px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: 'Source Sans 3', sans-serif; transition: background 0.15s;
+}
+.login-prompt-btn:hover { background: var(--red-dark); }
+
+/* Review form (shown when logged in) */
+.review-form { display: none; }
+.review-textarea {
+  width: 100%; min-height: 100px;
+  border: 1.5px solid var(--gray-2); border-radius: 6px;
+  padding: 12px 14px; font-size: 14px;
+  font-family: 'Noto Sans Tamil', sans-serif; color: var(--text);
+  resize: vertical; outline: none; background: var(--white);
+  transition: border-color 0.15s; margin-bottom: 12px;
+}
+.review-textarea:focus { border-color: var(--charcoal); }
+.review-textarea::placeholder { color: var(--gray-3); }
+.review-form-footer { display: flex; align-items: center; justify-content: space-between; flex-wrap: wrap; gap: 10px; }
+.review-char-count { font-size: 11px; color: var(--gray-3); }
+.review-submit-btn {
+  background: var(--red); color: white; border: none;
+  padding: 10px 24px; border-radius: 4px; font-size: 14px; font-weight: 600;
+  cursor: pointer; font-family: 'Source Sans 3', sans-serif;
+  display: flex; align-items: center; gap: 7px; transition: background 0.15s;
+}
+.review-submit-btn:hover { background: var(--red-dark); }
+.review-submit-btn:disabled { background: var(--gray-3); cursor: not-allowed; }
+
+/* ── REVIEWS LIST ── */
+.reviews-list { padding: 0 20px 8px; }
+.reviews-list-head {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 0 10px;
+}
+.reviews-list-title { font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600; text-transform: uppercase; letter-spacing: 0.4px; }
+.reviews-sort {
+  font-size: 12px; color: var(--gray-4); cursor: pointer;
+  border: 1px solid var(--gray-2); background: var(--white);
+  padding: 4px 10px; border-radius: 4px; font-family: 'Source Sans 3', sans-serif;
+}
+
+.review-card {
+  border-top: 1px solid var(--gray-1); padding: 16px 0;
+  animation: fadeUp 0.3s ease both;
+}
+.review-card-top { display: flex; align-items: flex-start; gap: 10px; margin-bottom: 8px; }
+.reviewer-avatar {
+  width: 36px; height: 36px; border-radius: 50%; flex-shrink: 0;
+  display: flex; align-items: center; justify-content: center;
+  font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600; color: white;
+}
+.reviewer-info { flex: 1; min-width: 0; }
+.reviewer-name { font-size: 13.5px; font-weight: 600; color: var(--charcoal); }
+.reviewer-meta { font-size: 11px; color: var(--gray-4); display: flex; gap: 10px; align-items: center; margin-top: 2px; }
+.reviewer-stars { display: flex; gap: 2px; }
+.reviewer-star { font-size: 13px; color: var(--star-off); }
+.reviewer-star.on { color: var(--star-on); }
+.review-text {
+  font-family: 'Noto Sans Tamil', sans-serif; font-size: 14px;
+  color: var(--text-muted); line-height: 1.7; padding-left: 46px;
+}
+.review-helpful {
+  display: flex; align-items: center; gap: 14px;
+  padding-left: 46px; margin-top: 8px;
+  font-size: 12px; color: var(--gray-4);
+}
+.helpful-btn {
+  display: flex; align-items: center; gap: 4px; cursor: pointer;
+  padding: 3px 8px; border-radius: 4px; border: 1px solid var(--gray-2);
+  background: var(--white); font-size: 12px; color: var(--gray-4);
+  transition: all 0.12s; font-family: 'Source Sans 3', sans-serif;
+}
+.helpful-btn:hover { border-color: var(--gold); color: var(--charcoal); }
+.helpful-btn.liked { background: #FEF4E0; border-color: var(--gold); color: var(--amber, #A06800); }
+
+.load-more-btn {
+  display: block; width: 100%; margin: 8px 0 16px;
+  background: var(--white); border: 1.5px solid var(--gray-2); border-radius: 4px;
+  padding: 11px; font-size: 13px; font-weight: 600; color: var(--charcoal);
+  cursor: pointer; font-family: 'Source Sans 3', sans-serif; transition: all 0.15s;
+  text-align: center;
+}
+.load-more-btn:hover { background: var(--gray-1); border-color: var(--gray-3); }
+
+/* ─── RELATED NEWS ─── */
+.related-section { margin-bottom: 24px; }
+.related-title {
+  font-family: 'Oswald', sans-serif; font-size: 16px; font-weight: 600;
+  text-transform: uppercase; letter-spacing: 0.5px; color: var(--charcoal);
+  padding-bottom: 10px; margin-bottom: 14px;
+  border-bottom: 2px solid var(--red); display: flex; align-items: center; gap: 8px;
+}
+.related-title::before { content: ''; width: 4px; height: 20px; background: var(--red); border-radius: 2px; }
+.related-grid { display: flex; flex-direction: column; gap: 0; }
+.related-item {
+  display: flex; gap: 12px; padding: 12px 0;
+  border-bottom: 1px solid var(--gray-1); cursor: pointer;
+  transition: background 0.12s;
+}
+.related-item:last-child { border-bottom: none; }
+.related-item:hover { background: var(--gray-1); margin: 0 -8px; padding: 12px 8px; border-radius: 4px; }
+.related-img { width: 80px; height: 60px; object-fit: cover; border-radius: 4px; flex-shrink: 0; }
+.related-body { flex: 1; }
+.related-cat { font-size: 10px; color: var(--red); font-family: 'Oswald', sans-serif; font-weight: 600; letter-spacing: 0.5px; text-transform: uppercase; margin-bottom: 3px; }
+.related-title-text { font-family: 'Noto Sans Tamil', sans-serif; font-size: 13px; font-weight: 600; color: var(--text); line-height: 1.5; margin-bottom: 4px; }
+.related-time { font-size: 11px; color: var(--gray-4); }
+
+/* ─── SIDEBAR ─── */
+.article-sidebar {}
+.sidebar-sticky { position: sticky; top: 80px; }
+.sidebar-widget { background: var(--white); border: 1px solid var(--gray-2); border-radius: 6px; overflow: hidden; margin-bottom: 16px; }
+.sidebar-widget-head {
+  background: var(--charcoal); padding: 10px 14px;
+  font-family: 'Oswald', sans-serif; font-size: 14px; font-weight: 600;
+  color: white; text-transform: uppercase; letter-spacing: 0.5px;
+  display: flex; align-items: center; gap: 6px;
+}
+.sidebar-trending-item {
+  display: flex; align-items: flex-start; gap: 10px;
+  padding: 10px 14px; border-bottom: 1px solid var(--gray-1); cursor: pointer;
+}
+.sidebar-trending-item:last-child { border-bottom: none; }
+.sidebar-trending-num {
+  font-family: 'Anton', sans-serif; font-size: 20px;
+  color: var(--red); line-height: 1; flex-shrink: 0; width: 22px;
+}
+.sidebar-trending-title { font-family: 'Noto Sans Tamil', sans-serif; font-size: 12.5px; font-weight: 600; color: var(--text); line-height: 1.5; }
+.sidebar-trending-time { font-size: 11px; color: var(--gray-4); margin-top: 2px; }
+.ad-sidebar {
+  background: var(--gray-1); border: 1.5px dashed var(--gray-2); border-radius: 6px;
+  height: 250px; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  color: var(--gray-3); font-size: 11px; letter-spacing: 1px;
+  text-transform: uppercase; font-family: 'Oswald', sans-serif; gap: 4px; margin-bottom: 16px;
+}
+
+/* ─── MOBILE BOTTOM NAV ─── */
+.mobile-bottom-nav {
+  display: none; position: fixed; bottom: 0; left: 0; right: 0;
+  z-index: 200; background: var(--white); border-top: 2px solid var(--red);
+  box-shadow: 0 -4px 20px rgba(0,0,0,0.12); height: 62px;
+  padding-bottom: env(safe-area-inset-bottom);
+}
+.mobile-bottom-nav-inner { display: flex; height: 62px; align-items: stretch; }
+.mob-nav-item {
+  flex: 1; display: flex; flex-direction: column; align-items: center; justify-content: center;
+  gap: 3px; cursor: pointer; color: var(--gray-4); transition: color 0.15s;
+  position: relative; padding: 0 4px; -webkit-tap-highlight-color: transparent;
+}
+.mob-nav-item.active { color: var(--red); }
+.mob-nav-item.active::before {
+  content: ''; position: absolute; top: 0; left: 20%; right: 20%;
+  height: 2px; background: var(--red); border-radius: 0 0 3px 3px;
+}
+.mob-nav-icon { font-size: 20px; line-height: 1; }
+.mob-nav-label { font-family: 'Noto Sans Tamil', sans-serif; font-size: 9.5px; font-weight: 600; white-space: nowrap; }
+.mob-nav-badge {
+  position: absolute; top: 6px; right: calc(50% - 16px);
+  background: var(--red); color: white; font-size: 9px; font-weight: 700;
+  min-width: 16px; height: 16px; border-radius: 8px;
+  display: flex; align-items: center; justify-content: center; padding: 0 3px;
+}
+
+/* ─── LOGIN MODAL ─── */
+.modal-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,0.55); z-index: 500;
+  align-items: center; justify-content: center; backdrop-filter: blur(3px);
+}
+.modal-overlay.open { display: flex; }
+.modal-box {
+  background: var(--white); border-radius: 10px; width: 360px;
+  max-width: calc(100vw - 32px); overflow: hidden;
+  box-shadow: 0 20px 60px rgba(0,0,0,0.25);
+  animation: modalIn 0.22s ease both;
+}
+@keyframes modalIn { from{opacity:0;transform:scale(0.94) translateY(12px)} to{opacity:1;transform:scale(1) translateY(0)} }
+.modal-header { background: var(--red); padding: 20px 22px 18px; position: relative; }
+.modal-close {
+  position: absolute; top: 12px; right: 14px;
+  background: rgba(255,255,255,0.2); border: none; color: white;
+  width: 26px; height: 26px; border-radius: 50%; font-size: 15px;
+  cursor: pointer; display: flex; align-items: center; justify-content: center;
+  transition: background 0.15s;
+}
+.modal-close:hover { background: rgba(255,255,255,0.35); }
+.modal-logo-ta { font-family: 'Noto Sans Tamil', sans-serif; font-size: 22px; font-weight: 700; color: white; }
+.modal-logo-en { font-family: 'Anton', sans-serif; font-size: 10px; letter-spacing: 2.5px; color: rgba(255,255,255,0.65); text-transform: uppercase; margin-top: 2px; }
+.modal-body { padding: 26px 22px 28px; }
+.modal-title { font-family: 'Oswald', sans-serif; font-size: 20px; font-weight: 600; color: var(--charcoal); margin-bottom: 4px; }
+.modal-subtitle { font-family: 'Noto Sans Tamil', sans-serif; font-size: 13px; color: var(--gray-4); margin-bottom: 22px; line-height: 1.6; }
+.modal-benefit { display: flex; align-items: center; gap: 10px; padding: 8px 0; border-bottom: 1px solid var(--gray-1); font-size: 13px; color: var(--text-muted); font-family: 'Noto Sans Tamil', sans-serif; }
+.modal-benefit:last-of-type { border-bottom: none; }
+.modal-benefit-icon { font-size: 16px; flex-shrink: 0; }
+.modal-divider { display: flex; align-items: center; gap: 10px; margin: 16px 0; color: var(--gray-3); font-size: 11px; }
+.modal-divider::before, .modal-divider::after { content: ''; flex: 1; height: 1px; background: var(--gray-2); }
+.google-btn {
+  display: flex; align-items: center; justify-content: center; gap: 12px;
+  width: 100%; background: var(--white); border: 1.5px solid var(--gray-2); border-radius: 6px;
+  padding: 13px 16px; font-family: 'Source Sans 3', sans-serif;
+  font-size: 15px; font-weight: 600; color: var(--charcoal);
+  cursor: pointer; transition: box-shadow 0.15s, border-color 0.15s; margin-bottom: 16px;
+}
+.google-btn:hover { box-shadow: 0 4px 16px rgba(0,0,0,0.1); border-color: var(--gray-3); }
+.modal-note { font-size: 11.5px; color: var(--gray-4); text-align: center; line-height: 1.6; }
+.modal-note a { color: var(--red); text-decoration: underline; }
+
+/* ─── RESPONSIVE ─── */
+@media (max-width: 768px) {
+  .mobile-bottom-nav { display: block; }
+  .article-wrap { grid-template-columns: 1fr; gap: 16px; padding: 12px 14px 24px; }
+  .article-sidebar { display: none; }
+  .art-title { font-size: 20px; }
+  .art-body { font-size: 15px; }
+  .rating-summary { flex-direction: column; }
+  .rating-score-block { border-right: none; border-bottom: 1px solid var(--gray-1); padding: 16px; }
+  .rating-big-num { font-size: 44px; }
+  .review-text { padding-left: 0; }
+  .review-helpful { padding-left: 0; }
+  .search-bar { flex: 1; }
+  .login-btn .login-label { display: none; }
+  .login-btn { padding: 6px 10px; }
+  .header-top { padding: 10px 14px 8px; gap: 10px; }
+  .write-review-wrap { padding: 14px; }
+  .reviews-list { padding: 0 14px 8px; }
+}
+@media (min-width: 769px) and (max-width: 1024px) {
+  .article-wrap { grid-template-columns: 1fr 260px; }
+}
+</style>
+</head>
+<body>
+
+<!-- TICKER -->
+<div class="ticker-bar">
+  <div class="ticker-label" style="position:relative;padding-right:20px;">
+    <span class="ticker-dot"></span>உடனடி செய்தி
+  </div>
+  <div class="ticker-track">
+    <div class="ticker-inner">
+      <span class="ticker-item">தமிழ்நாட்டில் கனமழை எச்சரிக்கை: 12 மாவட்டங்களில் பள்ளிகளுக்கு விடுமுறை</span>
+      <span class="ticker-item">சென்னை பங்குச் சந்தை: சென்செக்ஸ் 400 புள்ளிகள் சரிவு</span>
+      <span class="ticker-item">விஜய் தளபதி அடுத்த படம் அதிகாரப்பூர்வ அறிவிப்பு</span>
+      <span class="ticker-item">NEET 2025 தேர்வு தேதி அறிவிப்பு — மாணவர்களுக்கு முக்கிய தகவல்</span>
+      <span class="ticker-item">தமிழ்நாட்டில் கனமழை எச்சரிக்கை: 12 மாவட்டங்களில் பள்ளிகளுக்கு விடுமுறை</span>
+      <span class="ticker-item">சென்னை பங்குச் சந்தை: சென்செக்ஸ் 400 புள்ளிகள் சரிவு</span>
+      <span class="ticker-item">விஜய் தளபதி அடுத்த படம் அதிகாரப்பூர்வ அறிவிப்பு</span>
+      <span class="ticker-item">NEET 2025 தேர்வு தேதி அறிவிப்பு — மாணவர்களுக்கு முக்கிய தகவல்</span>
+    </div>
+  </div>
+</div>
+
+<!-- HEADER -->
+<header class="header">
+  <div class="header-top">
+    <a href="index.html" class="logo-block">
+      <div class="logo-ta">தமிழ் செய்தி</div>
+      <div class="logo-en">TAMIL SEITHI · SINCE 2024</div>
+    </a>
+    <div class="search-bar">
+      <input type="text" placeholder="செய்தி தேடுங்கள்...">
+      <button>🔍</button>
+    </div>
+    <button class="login-btn" id="loginBtn" onclick="openModal()">
+      <svg width="18" height="18" viewBox="0 0 18 18" xmlns="http://www.w3.org/2000/svg">
+        <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+        <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+        <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+        <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+      </svg>
+      <span class="login-label">உள்நுழைக / Login</span>
+    </button>
+    <div class="user-avatar-wrap" id="userAvatarWrap">
+      <div class="user-avatar" id="userAvatar" onclick="toggleDropdown()">RK</div>
+      <div class="user-dropdown" id="userDropdown">
+        <div class="user-dropdown-header">
+          <div class="user-dropdown-name">Rajesh Kumar</div>
+          <div class="user-dropdown-email">rajesh@gmail.com</div>
+        </div>
+        <div class="user-dropdown-item">👤 என் சுயவிவரம்</div>
+        <div class="user-dropdown-item">⭐ என் மதிப்பீடுகள்</div>
+        <div class="user-dropdown-item">🔔 அறிவிப்புகள்</div>
+        <div class="user-dropdown-item logout" onclick="logout()">↩ வெளியேறு</div>
+      </div>
+    </div>
+  </div>
+  <nav class="nav">
+    <div class="nav-inner">
+      <a href="#" class="nav-link">🏠 முகப்பு</a>
+      <a href="#" class="nav-link active">தமிழ்நாடு</a>
+      <a href="#" class="nav-link">இந்தியா</a>
+      <a href="#" class="nav-link">உலகம்</a>
+      <a href="#" class="nav-link">சினிமா</a>
+      <a href="#" class="nav-link">விளையாட்டு</a>
+      <a href="#" class="nav-link">தொழில்நுட்பம்</a>
+      <a href="#" class="nav-link">ஆன்மீகம்</a>
+      <a href="#" class="nav-link">வேலைவாய்ப்பு</a>
+      <a href="#" class="nav-link" style="margin-left:auto;color:var(--gold)">📺 வீடியோ</a>
+    </div>
+  </nav>
+</header>
+
+<!-- BREADCRUMB -->
+<div class="breadcrumb">
+  <a href="#">முகப்பு</a>
+  <span>›</span>
+  <a href="#">தமிழ்நாடு</a>
+  <span>›</span>
+  <span style="color:var(--text-muted)">தமிழ்நாட்டில் வரலாறு காணாத மழை</span>
+</div>
+
+<!-- ARTICLE + SIDEBAR -->
+<div class="article-wrap">
+
+  <!-- MAIN ARTICLE -->
+  <article class="article-main">
+
+    <div class="art-category">தமிழ்நாடு</div>
+    <h1 class="art-title">தமிழ்நாட்டில் வரலாறு காணாத மழை — 50 ஆண்டுகளில் இல்லாத அளவு மழைப்பொழிவு பதிவு; பல மாவட்டங்களில் வெள்ளப்பெருக்கு</h1>
+
+    <div class="art-meta-row">
+      <div class="art-author">
+        <div class="art-author-avatar">செ</div>
+        <div>
+          <div class="art-author-name">செல்வம் குமார்</div>
+          <div style="font-size:11px;color:var(--gray-4)">சிரேஷ்ட நிருபர், சென்னை</div>
+        </div>
+      </div>
+      <span class="art-meta-sep">·</span>
+      <span>🕐 ஏப்ரல் 19, 2026 · காலை 8:30</span>
+      <span class="art-meta-sep">·</span>
+      <span>📖 5 நிமிட வாசிப்பு</span>
+      <span class="art-meta-sep">·</span>
+      <span>👁 1,24,500 வாசிப்புகள்</span>
+    </div>
+
+    <!-- SHARE ROW -->
+    <div class="share-row">
+      <span class="share-label">பகிர்:</span>
+      <button class="share-btn share-wa" onclick="showToast('WhatsApp-ல் பகிரப்பட்டது!')">💬 WhatsApp</button>
+      <button class="share-btn share-fb" onclick="showToast('Facebook-ல் பகிரப்பட்டது!')">📘 Facebook</button>
+      <button class="share-btn share-tw" onclick="showToast('Twitter-ல் பகிரப்பட்டது!')">🐦 Twitter</button>
+      <button class="share-btn share-copy" onclick="showToast('இணைப்பு நகலெடுக்கப்பட்டது! ✓')">🔗 நகல்</button>
+    </div>
+
+    <!-- HERO IMAGE -->
+    <img class="art-hero-img" src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=900&q=80" alt="வெள்ளம்">
+    <div class="art-img-caption">சென்னையில் கடும் மழையால் நிரம்பிய சாலைகள் — புகைப்படம்: AP</div>
+
+    <!-- ARTICLE BODY -->
+    <div class="art-body">
+      <p>தமிழ்நாட்டில் கடந்த 24 மணி நேரத்தில் பதிவான மழைப்பொழிவு கடந்த 50 ஆண்டுகளில் இல்லாத அளவு என வானிலை ஆய்வு மையம் தெரிவித்துள்ளது. சென்னை, கும்பகோணம், நாகப்பட்டினம் உட்பட 14 மாவட்டங்களில் மழை தொடர்ந்து பொழிந்து வருகிறது.</p>
+
+      <p>சென்னையில் மட்டும் 24 மணி நேரத்தில் 320 மிமீ மழை பதிவாகியுள்ளது. இது நகரின் வரலாற்றில் ஒரு நாளில் பதிவான அதிகபட்ச மழையாகும். சாலைகளில் வெள்ளம் சூழ்ந்திருக்க, பல பகுதிகளில் மின் சக்தி துண்டிக்கப்பட்டுள்ளது.</p>
+
+      <div class="highlight">
+        "இந்த அளவு மழை 1974-க்கு பிறகு முதல் முறையாக பதிவாகிறது. அடுத்த 48 மணி நேரமும் கனமழை தொடரும் என எச்சரிக்கை விடுக்கப்படுகிறது." — வானிலை ஆய்வு மைய இயக்குனர்
+      </div>
+
+      <h3>மாவட்டங்களில் நிலவரம்</h3>
+
+      <p>நாகப்பட்டினம் மாவட்டத்தில் 15 கிராமங்கள் வெள்ள நீரில் மூழ்கியுள்ளன. 2,000-க்கும் மேற்பட்ட குடும்பங்கள் நிவாரண முகாம்களில் தங்கியுள்ளனர். இராணுவம் மற்றும் NDRF குழுக்கள் மீட்பு பணிகளில் ஈடுபட்டுள்ளன.</p>
+
+      <div class="in-article-ad">📢 Advertisement · 728 × 90</div>
+
+      <p>தஞ்சாவூரில் காவிரி ஆறு ஆபத்து அளவுக்கு மேல் பாய்கிறது. அணைகளிலிருந்து அதிகமான நீர் திறக்கப்படுவதால் கீழ்க்கரை பகுதிகளில் வாழும் மக்கள் எச்சரிக்கையுடன் இருக்க வேண்டும் என அதிகாரிகள் கோரிக்கை விடுத்துள்ளனர்.</p>
+
+      <h3>அரசு நடவடிக்கைகள்</h3>
+      <p>முதல்வர் இன்று காலை அவசர ஆலோசனை கூட்டம் நடத்தினார். பாதிக்கப்பட்ட பகுதிகளில் 500 நிவாரண முகாம்கள் திறக்கப்பட்டுள்ளன. நாளை மாவட்டங்களில் பொது விடுமுறை அறிவிக்கப்பட்டுள்ளது.</p>
+    </div>
+
+    <!-- TAGS -->
+    <div style="font-size:12px;color:var(--gray-4);margin-bottom:8px;font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:0.5px;text-transform:uppercase">தலைப்புகள்</div>
+    <div class="art-tags">
+      <span class="art-tag">#மழை</span>
+      <span class="art-tag">#வெள்ளம்</span>
+      <span class="art-tag">#சென்னை</span>
+      <span class="art-tag">#தமிழ்நாடு</span>
+      <span class="art-tag">#NDRF</span>
+      <span class="art-tag">#நிவாரணம்</span>
+      <span class="art-tag">#காலநிலை</span>
+    </div>
+
+    <div class="art-divider"></div>
+
+    <!-- ═══════════════════════════════════
+         ⭐ RATING & REVIEW SECTION
+    ═══════════════════════════════════ -->
+    <div class="review-section">
+
+      <!-- Section Head -->
+      <div class="review-section-head">
+        <div class="review-section-title">
+          ⭐ மதிப்பீடுகள் &amp; கருத்துகள்
+          <span class="review-count-badge" id="reviewCount">24 கருத்துகள்</span>
+        </div>
+        <div style="font-size:12px;color:rgba(255,255,255,0.5)">Ratings &amp; Reviews</div>
+      </div>
+
+      <!-- Overall Rating Summary -->
+      <div class="rating-summary">
+        <div class="rating-score-block">
+          <div class="rating-big-num" id="overallScore">4.2</div>
+          <div class="rating-big-stars" id="overallStars"></div>
+          <div class="rating-total-count" id="overallCount">24 மதிப்பீடுகள்</div>
+        </div>
+        <div class="rating-bars" id="ratingBars"></div>
+      </div>
+
+      <!-- WRITE REVIEW -->
+      <div class="write-review-wrap">
+        <div class="write-review-title">✍ உங்கள் மதிப்பீட்டை தரவும்</div>
+
+        <!-- Logged-out prompt -->
+        <div class="login-prompt-box" id="loginPromptBox">
+          <div class="login-prompt-icon">🔐</div>
+          <div class="login-prompt-text">
+            செய்திகளை மதிப்பிட மற்றும் கருத்து சொல்ல<br>Google மூலம் உள்நுழையுங்கள்
+          </div>
+          <button class="login-prompt-btn" onclick="openModal()">
+            <svg width="18" height="18" viewBox="0 0 18 18">
+              <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+              <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+              <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+              <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+            </svg>
+            Google மூலம் உள்நுழைக
+          </button>
+        </div>
+
+        <!-- Logged-in review form (hidden initially) -->
+        <div class="review-form" id="reviewForm">
+          <!-- Star Picker -->
+          <div class="star-picker">
+            <span class="star-picker-label">மதிப்பீடு:</span>
+            <span class="star-pick" data-val="1" onclick="pickStar(1)">★</span>
+            <span class="star-pick" data-val="2" onclick="pickStar(2)">★</span>
+            <span class="star-pick" data-val="3" onclick="pickStar(3)">★</span>
+            <span class="star-pick" data-val="4" onclick="pickStar(4)">★</span>
+            <span class="star-pick" data-val="5" onclick="pickStar(5)">★</span>
+            <span class="star-pick-text" id="starLabel">மதிப்பிடவும்</span>
+          </div>
+          <textarea
+            class="review-textarea"
+            id="reviewText"
+            placeholder="இந்த செய்தி பற்றிய உங்கள் கருத்தை எழுதுங்கள்... (தமிழில் அல்லது English-ல்)"
+            maxlength="500"
+            oninput="updateCount()">
+          </textarea>
+          <div class="review-form-footer">
+            <span class="review-char-count"><span id="charCount">0</span> / 500</span>
+            <button class="review-submit-btn" id="submitBtn" onclick="submitReview()" disabled>
+              ⭐ மதிப்பீட்டை சமர்ப்பிக்க
+            </button>
+          </div>
+        </div>
+      </div>
+
+      <!-- REVIEWS LIST -->
+      <div class="reviews-list">
+        <div class="reviews-list-head">
+          <div class="reviews-list-title">வாசகர் கருத்துகள்</div>
+          <select class="reviews-sort" onchange="sortReviews(this.value)">
+            <option value="recent">புதியது முதல்</option>
+            <option value="helpful">உதவியானது</option>
+            <option value="high">அதிக மதிப்பீடு</option>
+            <option value="low">குறைந்த மதிப்பீடு</option>
+          </select>
+        </div>
+        <div id="reviewsList"></div>
+        <button class="load-more-btn" id="loadMoreBtn" onclick="loadMore()">மேலும் கருத்துகள் காண →</button>
+      </div>
+    </div>
+
+    <!-- RELATED NEWS -->
+    <div class="related-section">
+      <div class="related-title">தொடர்புடைய செய்திகள்</div>
+      <div class="related-grid">
+        <div class="related-item">
+          <img class="related-img" src="https://images.unsplash.com/photo-1500382017468-9049fed747ef?w=200&q=70" alt="">
+          <div class="related-body">
+            <div class="related-cat">தமிழ்நாடு</div>
+            <div class="related-title-text">காவிரி ஆறு ஆபத்து அளவு தாண்டியது — கீழ்க்கரை பகுதி மக்களுக்கு எச்சரிக்கை</div>
+            <div class="related-time">3 மணி முன்பு</div>
+          </div>
+        </div>
+        <div class="related-item">
+          <img class="related-img" src="https://images.unsplash.com/photo-1486325212027-8081e485255e?w=200&q=70" alt="">
+          <div class="related-body">
+            <div class="related-cat">இந்தியா</div>
+            <div class="related-title-text">நாட்டில் 8 மாநிலங்களில் மழை எச்சரிக்கை — IMD அறிவிப்பு</div>
+            <div class="related-time">5 மணி முன்பு</div>
+          </div>
+        </div>
+        <div class="related-item">
+          <img class="related-img" src="https://images.unsplash.com/photo-1488521787991-ed7bbaae773c?w=200&q=70" alt="">
+          <div class="related-body">
+            <div class="related-cat">தமிழ்நாடு</div>
+            <div class="related-title-text">பாதிக்கப்பட்ட குடும்பங்களுக்கு ₹6,000 நிவாரண உதவி — அரசு அறிவிப்பு</div>
+            <div class="related-time">7 மணி முன்பு</div>
+          </div>
+        </div>
+        <div class="related-item">
+          <img class="related-img" src="https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=200&q=70" alt="">
+          <div class="related-body">
+            <div class="related-cat">சென்னை</div>
+            <div class="related-title-text">சென்னை விமான நிலையத்தில் 40 விமானங்கள் ரத்து — பயணிகள் அவதி</div>
+            <div class="related-time">9 மணி முன்பு</div>
+          </div>
+        </div>
+      </div>
+    </div>
+
+  </article>
+
+  <!-- SIDEBAR -->
+  <aside class="article-sidebar">
+    <div class="sidebar-sticky">
+      <div class="ad-sidebar">
+        <span style="font-size:20px;opacity:0.5">📢</span>
+        <span>Advertisement</span>
+        <span>300 × 250</span>
+      </div>
+
+      <div class="sidebar-widget">
+        <div class="sidebar-widget-head">🔥 டிரெண்டிங்</div>
+        <div class="sidebar-trending-item">
+          <span class="sidebar-trending-num">1</span>
+          <div><div class="sidebar-trending-title">Dhoni IPL 2025-ல் விளையாடுகிறார் — CSK அறிவிப்பு</div><div class="sidebar-trending-time">1 மணி முன்பு</div></div>
+        </div>
+        <div class="sidebar-trending-item">
+          <span class="sidebar-trending-num">2</span>
+          <div><div class="sidebar-trending-title">விஜய் தளபதி 69 இயக்குனர் அறிவிப்பு</div><div class="sidebar-trending-time">2 மணி முன்பு</div></div>
+        </div>
+        <div class="sidebar-trending-item">
+          <span class="sidebar-trending-num">3</span>
+          <div><div class="sidebar-trending-title">NEET 2025 தேதி உறுதி — மே 4</div><div class="sidebar-trending-time">4 மணி முன்பு</div></div>
+        </div>
+        <div class="sidebar-trending-item">
+          <span class="sidebar-trending-num">4</span>
+          <div><div class="sidebar-trending-title">iPhone 17 விலை இந்தியாவில் ₹79,900</div><div class="sidebar-trending-time">6 மணி முன்பு</div></div>
+        </div>
+      </div>
+
+      <div class="sidebar-widget">
+        <div class="sidebar-widget-head">📰 கடைசி செய்திகள்</div>
+        <div class="sidebar-trending-item">
+          <div><div class="sidebar-trending-title" style="color:var(--red)">● தமிழ்நாடு அரசு பள்ளிகள் நாளை மூடல்</div><div class="sidebar-trending-time">30 நிமிடம் முன்பு</div></div>
+        </div>
+        <div class="sidebar-trending-item">
+          <div><div class="sidebar-trending-title">காவிரி நீர் திறப்பு — 15,000 கியூசெக்</div><div class="sidebar-trending-time">1 மணி முன்பு</div></div>
+        </div>
+        <div class="sidebar-trending-item">
+          <div><div class="sidebar-trending-title">NDRF குழுக்கள் 6 மாவட்டங்களில் செயல்படுகின்றன</div><div class="sidebar-trending-time">2 மணி முன்பு</div></div>
+        </div>
+      </div>
+    </div>
+  </aside>
+
+</div>
+
+<!-- MOBILE BOTTOM NAV -->
+<nav class="mobile-bottom-nav">
+  <div class="mobile-bottom-nav-inner">
+    <div class="mob-nav-item" onclick="setActive(this); window.location='index.html'">
+      <div class="mob-nav-icon">🏠</div>
+      <div class="mob-nav-label">முகப்பு</div>
+    </div>
+    <div class="mob-nav-item" onclick="setActive(this)">
+      <div class="mob-nav-badge">5</div>
+      <div class="mob-nav-icon">🔴</div>
+      <div class="mob-nav-label">உடனடி</div>
+    </div>
+    <div class="mob-nav-item" onclick="setActive(this)">
+      <div class="mob-nav-icon">📺</div>
+      <div class="mob-nav-label">வீடியோ</div>
+    </div>
+    <div class="mob-nav-item" onclick="setActive(this)">
+      <div class="mob-nav-icon">🔖</div>
+      <div class="mob-nav-label">சேமிப்பு</div>
+    </div>
+    <div class="mob-nav-item" id="mobLoginTab" onclick="handleMobLogin()">
+      <div class="mob-nav-icon">👤</div>
+      <div class="mob-nav-label" id="mobLoginLabel">உள்நுழை</div>
+    </div>
+  </div>
+</nav>
+
+<!-- LOGIN MODAL -->
+<div class="modal-overlay" id="loginModal" onclick="handleOverlayClick(event)">
+  <div class="modal-box">
+    <div class="modal-header">
+      <button class="modal-close" onclick="closeModal()">✕</button>
+      <div class="modal-logo-ta">தமிழ் செய்தி</div>
+      <div class="modal-logo-en">TAMIL SEITHI · DIGITAL NEWS</div>
+    </div>
+    <div class="modal-body">
+      <div class="modal-title">உள்நுழைந்து மதிப்பிடுங்கள்!</div>
+      <div class="modal-subtitle">கருத்து சொல்ல மற்றும் மதிப்பீட்டிற்கு Google உள்நுழைவு மட்டுமே</div>
+      <div class="modal-benefit"><span class="modal-benefit-icon">⭐</span> செய்திகளை மதிப்பிடுங்கள்</div>
+      <div class="modal-benefit"><span class="modal-benefit-icon">💬</span> கருத்துகள் சொல்லுங்கள்</div>
+      <div class="modal-benefit"><span class="modal-benefit-icon">🔔</span> உடனடி அறிவிப்புகள்</div>
+      <div class="modal-benefit"><span class="modal-benefit-icon">🔖</span> செய்திகளை சேமியுங்கள்</div>
+      <div class="modal-divider">Google மூலம் மட்டும்</div>
+      <button class="google-btn" onclick="simulateGoogleLogin()">
+        <svg width="20" height="20" viewBox="0 0 18 18">
+          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+          <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+        </svg>
+        Google மூலம் உள்நுழைக / Sign in with Google
+      </button>
+      <div class="modal-note">உள்நுழைவதன் மூலம் <a href="#">விதிமுறைகள்</a> மற்றும் <a href="#">தனியுரிமை</a> ஏற்கிறீர்கள்.</div>
+    </div>
+  </div>
+</div>
+
+<script>
+/* ══ STATE ══ */
+let isLoggedIn = false;
+let selectedStar = 0;
+const starLabels = ['','மிகவும் மோசம்','மோசம்','சரியானது','நல்லது','மிகவும் நல்லது'];
+
+/* ══ SAMPLE DATA ══ */
+const sampleReviews = [
+  { name:'Priya S', initials:'PS', color:'#C0001A', stars:5, time:'2 மணி முன்பு', text:'மிகவும் விரிவான செய்தி. வெள்ளத்தால் பாதிக்கப்பட்டவர்களுக்கு அரசு உடனடியாக உதவ வேண்டும்.', helpful:23, liked:false },
+  { name:'Karthik M', initials:'KM', color:'#1A1A1A', stars:4, time:'4 மணி முன்பு', text:'Good reporting. The article covers all the important aspects clearly. நிவாரண பணிகளை அரசு வேகமாக செய்ய வேண்டும்.', helpful:17, liked:false },
+  { name:'Anitha R', initials:'AR', color:'#1D9E75', stars:5, time:'6 மணி முன்பு', text:'இந்த செய்தி மக்களுக்கு மிகவும் உதவியாக உள்ளது. மழை பற்றிய தகவல்கள் சரியாக கொடுக்கப்பட்டுள்ளன.', helpful:31, liked:false },
+  { name:'Senthil K', initials:'SK', color:'#BA7517', stars:3, time:'8 மணி முன்பு', text:'செய்தி சரிதான், ஆனால் மீட்பு பணிகளைப் பற்றி இன்னும் விரிவாக தர வேண்டும்.', helpful:8, liked:false },
+];
+
+/* ══ RATING BARS DATA ══ */
+const barData = [
+  {stars:5, count:14}, {stars:4, count:6}, {stars:3, count:3}, {stars:2, count:1}, {stars:1, count:0}
+];
+const totalRatings = barData.reduce((s,b) => s+b.count, 0);
+
+/* ══ INIT ══ */
+window.addEventListener('DOMContentLoaded', () => {
+  renderOverallStars(4.2);
+  renderBars();
+  renderReviews(sampleReviews);
+});
+
+function renderOverallStars(score) {
+  const el = document.getElementById('overallStars');
+  el.innerHTML = [1,2,3,4,5].map(i => {
+    const fill = i <= Math.floor(score) ? '#E8A000' : i - score < 1 && i - score > 0 ? '#E8A000' : '#D8D6CE';
+    return `<span style="color:${i<=score?'#E8A000':'#D8D6CE'};font-size:18px">★</span>`;
+  }).join('');
+}
+
+function renderBars() {
+  const el = document.getElementById('ratingBars');
+  el.innerHTML = barData.map(b => {
+    const pct = totalRatings > 0 ? Math.round((b.count / totalRatings) * 100) : 0;
+    return `<div class="rating-bar-row">
+      <div class="rating-bar-label">${b.stars}<span>★</span></div>
+      <div class="rating-bar-track"><div class="rating-bar-fill" style="width:${pct}%"></div></div>
+      <div class="rating-bar-count">${b.count}</div>
+    </div>`;
+  }).join('');
+}
+
+function renderReviews(reviews) {
+  const el = document.getElementById('reviewsList');
+  el.innerHTML = reviews.map((r, i) => `
+    <div class="review-card">
+      <div class="review-card-top">
+        <div class="reviewer-avatar" style="background:${r.color}">${r.initials}</div>
+        <div class="reviewer-info">
+          <div class="reviewer-name">${r.name}</div>
+          <div class="reviewer-meta">
+            <div class="reviewer-stars">${[1,2,3,4,5].map(s=>`<span class="reviewer-star${s<=r.stars?' on':''}" >★</span>`).join('')}</div>
+            <span>${r.time}</span>
+          </div>
+        </div>
+      </div>
+      <div class="review-text">${r.text}</div>
+      <div class="review-helpful">
+        <span>உதவியானதா?</span>
+        <button class="helpful-btn${r.liked?' liked':''}" onclick="toggleHelpful(this,${i})">
+          👍 <span class="hcount">${r.helpful}</span>
+        </button>
+        <button class="helpful-btn" onclick="showToast('புகாரில் ஆளாக்கப்பட்டது')">🚩 புகார்</button>
+      </div>
+    </div>
+  `).join('');
+}
+
+function toggleHelpful(btn, idx) {
+  const r = sampleReviews[idx];
+  r.liked = !r.liked;
+  r.helpful += r.liked ? 1 : -1;
+  btn.classList.toggle('liked');
+  btn.querySelector('.hcount').textContent = r.helpful;
+}
+
+/* ══ STAR PICKER ══ */
+function pickStar(val) {
+  selectedStar = val;
+  document.querySelectorAll('.star-pick').forEach((s,i) => {
+    s.classList.toggle('active', i < val);
+  });
+  document.getElementById('starLabel').textContent = starLabels[val];
+  updateSubmitBtn();
+}
+
+document.querySelectorAll('.star-pick').forEach(s => {
+  s.addEventListener('mouseover', () => {
+    const v = parseInt(s.dataset.val);
+    document.querySelectorAll('.star-pick').forEach((x,i) => x.style.color = i<v?'var(--star-on)':'var(--star-off)');
+  });
+  s.addEventListener('mouseout', () => {
+    document.querySelectorAll('.star-pick').forEach((x,i) => x.style.color = i<selectedStar?'var(--star-on)':'var(--star-off)');
+  });
+});
+
+function updateCount() {
+  const len = document.getElementById('reviewText').value.length;
+  document.getElementById('charCount').textContent = len;
+  updateSubmitBtn();
+}
+
+function updateSubmitBtn() {
+  const btn = document.getElementById('submitBtn');
+  btn.disabled = !(selectedStar > 0);
+}
+
+/* ══ SUBMIT REVIEW ══ */
+function submitReview() {
+  const text = document.getElementById('reviewText').value.trim();
+  if (!selectedStar) return;
+  const newReview = {
+    name: 'Rajesh Kumar', initials: 'RK', color: '#C0001A',
+    stars: selectedStar, time: 'இப்போதுதான்',
+    text: text || starLabels[selectedStar] + ' — மதிப்பீடு மட்டும்.',
+    helpful: 0, liked: false
+  };
+  sampleReviews.unshift(newReview);
+  renderReviews(sampleReviews);
+  document.getElementById('reviewText').value = '';
+  document.getElementById('charCount').textContent = '0';
+  selectedStar = 0;
+  document.querySelectorAll('.star-pick').forEach(s => { s.classList.remove('active'); s.style.color='var(--star-off)'; });
+  document.getElementById('starLabel').textContent = 'மதிப்பிடவும்';
+  document.getElementById('submitBtn').disabled = true;
+  const count = sampleReviews.length;
+  document.getElementById('reviewCount').textContent = count + ' கருத்துகள்';
+  document.getElementById('overallCount').textContent = count + ' மதிப்பீடுகள்';
+  showToast('✓ உங்கள் மதிப்பீடு சமர்ப்பிக்கப்பட்டது! நன்றி.');
+}
+
+function loadMore() {
+  showToast('மேலும் கருத்துகள் ஏற்றப்படுகின்றன...');
+  document.getElementById('loadMoreBtn').textContent = 'அனைத்து கருத்துகளும் காட்டப்பட்டுள்ளன';
+  document.getElementById('loadMoreBtn').disabled = true;
+}
+
+function sortReviews(val) { showToast('வரிசைப்படுத்தப்பட்டது: ' + val); }
+
+/* ══ AUTH ══ */
+function openModal() { document.getElementById('loginModal').classList.add('open'); }
+function closeModal() { document.getElementById('loginModal').classList.remove('open'); }
+function handleOverlayClick(e) { if(e.target===e.currentTarget) closeModal(); }
+
+function toggleDropdown() { document.getElementById('userDropdown').classList.toggle('open'); }
+document.addEventListener('click', e => {
+  const w = document.getElementById('userAvatarWrap');
+  if (w && !w.contains(e.target)) document.getElementById('userDropdown').classList.remove('open');
+});
+
+function handleMobLogin() {
+  if (isLoggedIn) toggleDropdown();
+  else openModal();
+}
+
+function simulateGoogleLogin() {
+  isLoggedIn = true;
+  closeModal();
+  document.getElementById('loginBtn').style.display = 'none';
+  document.getElementById('userAvatarWrap').style.display = 'block';
+  document.getElementById('loginPromptBox').style.display = 'none';
+  document.getElementById('reviewForm').style.display = 'block';
+  document.getElementById('mobLoginLabel').textContent = 'ராஜேஷ்';
+  document.getElementById('mobLoginTab').querySelector('.mob-nav-icon').textContent = '🟢';
+  showToast('✓ Google மூலம் வெற்றிகரமாக உள்நுழைந்தீர்கள்!');
+}
+
+function logout() {
+  isLoggedIn = false;
+  document.getElementById('userAvatarWrap').style.display = 'none';
+  document.getElementById('userDropdown').classList.remove('open');
+  document.getElementById('loginBtn').style.display = '';
+  document.getElementById('loginPromptBox').style.display = 'block';
+  document.getElementById('reviewForm').style.display = 'none';
+  document.getElementById('mobLoginLabel').textContent = 'உள்நுழை';
+  document.getElementById('mobLoginTab').querySelector('.mob-nav-icon').textContent = '👤';
+  showToast('வெளியேறினீர்கள். மீண்டும் வாருங்கள்!');
+}
+
+function setActive(el) {
+  document.querySelectorAll('.mob-nav-item').forEach(i => i.classList.remove('active'));
+  el.classList.add('active');
+}
+
+function showToast(msg) {
+  const t = document.createElement('div');
+  t.textContent = msg;
+  t.style.cssText = `position:fixed;bottom:80px;left:50%;transform:translateX(-50%);
+    background:var(--charcoal);color:white;font-family:'Noto Sans Tamil',sans-serif;
+    font-size:13px;padding:10px 20px;border-radius:6px;z-index:999;
+    box-shadow:0 4px 16px rgba(0,0,0,0.2);white-space:nowrap;`;
+  document.body.appendChild(t);
+  setTimeout(() => t.remove(), 3000);
+}
+</script>
+</body>
+</html>
