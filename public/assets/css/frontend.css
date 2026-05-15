@@ -1,0 +1,1049 @@
+/* ═══════════════════════════════════════════════════
+   TAMIL NEWS PORTAL — FRONTEND CSS
+   Light theme · Noto Sans Tamil · Oswald · Anton
+   Matches: index.html + article.html design
+═══════════════════════════════════════════════════ */
+:root {
+  --red: #C0001A; --red-dark: #8B0012; --red-light: #FF1A35;
+  --charcoal: #1A1A1A; --charcoal-2: #2D2D2D;
+  --gold: #E8A000; --gold-light: #FFB800;
+  --bg: #F5F5F0; --white: #FFFFFF;
+  --gray-1: #F0EFE9; --gray-2: #D8D6CE;
+  --gray-3: #9A9890; --gray-4: #6B6A64;
+  --text: #1A1A1A; --text-muted: #5A5A5A;
+  --star-on: #E8A000; --star-off: #D8D6CE;
+  --purple: #7F77DD;
+}
+*, *::before, *::after { box-sizing: border-box; margin: 0; padding: 0; }
+html { scroll-behavior: smooth; }
+body {
+  font-family: 'Source Sans 3', sans-serif;
+  background: var(--bg); color: var(--text);
+  overflow-x: hidden;
+}
+a { text-decoration: none; color: inherit; }
+img { display: block; max-width: 100%; }
+@keyframes blink { 0%,100%{opacity:1} 50%{opacity:.2} }
+@keyframes ticker { 0%{transform:translateX(0)} 100%{transform:translateX(-50%)} }
+@keyframes fadeUp { from{opacity:0;transform:translateY(16px)} to{opacity:1;transform:translateY(0)} }
+
+/* ─── TICKER ─── */
+.ticker-bar { background:var(--charcoal);color:white;height:34px;display:flex;align-items:center;overflow:hidden; }
+.ticker-label {
+  background:var(--red);color:white;
+  font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:1.5px;text-transform:uppercase;
+  padding:0 14px;height:100%;display:flex;align-items:center;white-space:nowrap;flex-shrink:0;gap:6px;
+  position:relative;
+}
+.ticker-label::after {
+  content:'';width:0;height:0;
+  border-top:17px solid transparent;border-bottom:17px solid transparent;border-left:10px solid var(--red);
+  position:absolute;left:100%;top:0;
+}
+.ticker-dot { width:7px;height:7px;border-radius:50%;background:var(--gold);animation:blink 1s infinite; }
+.ticker-track { overflow:hidden;flex:1;padding-left:24px; }
+.ticker-inner {
+  display:flex;gap:60px;white-space:nowrap;
+  animation:ticker 40s linear infinite;
+  font-size:13px;font-family:'Noto Sans Tamil',sans-serif;
+}
+.ticker-item { cursor:pointer; }
+.ticker-item::before { content:'◆';color:var(--gold);margin-right:10px;font-size:9px; }
+
+/* ─── HEADER ─── */
+.header {
+  background:var(--white);border-bottom:3px solid var(--red);
+  position:sticky;top:0;z-index:100;box-shadow:0 2px 12px rgba(0,0,0,.08);
+}
+.header-top {
+  display:flex;align-items:center;justify-content:space-between;gap:16px;
+  padding:12px 20px 10px;max-width:1200px;margin:0 auto;
+}
+.logo-ta { font-family:'Noto Sans Tamil',sans-serif;font-size:28px;font-weight:700;color:var(--red);line-height:1;letter-spacing:-.5px; }
+.logo-en { font-family:'Anton',sans-serif;font-size:13px;color:var(--gray-4);letter-spacing:3px;text-transform:uppercase;margin-top:1px; }
+.header-meta { text-align:right;font-size:11.5px;color:var(--gray-4);line-height:1.6; }
+.header-meta .date { font-weight:600;color:var(--charcoal); }
+.search-bar { display:flex;align-items:center;background:var(--gray-1);border:1.5px solid var(--gray-2);border-radius:4px;overflow:hidden;width:220px; }
+.search-bar input { border:none;background:transparent;padding:7px 10px;font-size:13px;font-family:'Source Sans 3',sans-serif;color:var(--text);width:100%;outline:none; }
+.search-bar button { background:var(--red);border:none;color:white;padding:7px 12px;cursor:pointer;font-size:14px; }
+
+/* Mobile search row — shown below header on mobile */
+.mobile-search-row {
+  display:none;
+  padding:8px 14px;
+  background:var(--white);
+  border-bottom:1px solid var(--gray-2);
+}
+.mobile-search-row .search-bar { width:100%; }
+.login-btn {
+  display:flex;align-items:center;gap:7px;background:var(--white);border:1.5px solid var(--gray-2);
+  border-radius:4px;padding:6px 14px;font-family:'Source Sans 3',sans-serif;font-size:13px;font-weight:600;
+  color:var(--charcoal);cursor:pointer;white-space:nowrap;transition:border-color .15s,box-shadow .15s;flex-shrink:0;
+}
+.login-btn:hover { border-color:var(--gray-3);box-shadow:0 2px 8px rgba(0,0,0,.08); }
+.user-avatar-wrap { position:relative;flex-shrink:0; }
+.user-avatar {
+  width:34px;height:34px;border-radius:50%;background:var(--red);color:white;
+  font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;
+  display:flex;align-items:center;justify-content:center;cursor:pointer;
+  border:2px solid var(--gray-2);transition:border-color .15s;
+}
+.user-avatar:hover { border-color:var(--red); }
+.user-avatar-img { width:34px;height:34px;border-radius:50%;object-fit:cover;cursor:pointer;border:2px solid var(--gray-2); }
+.user-dropdown {
+  display:none;position:absolute;top:calc(100% + 8px);right:0;
+  background:var(--white);border:1px solid var(--gray-2);border-radius:6px;
+  box-shadow:0 8px 24px rgba(0,0,0,.12);min-width:180px;z-index:300;overflow:hidden;
+}
+.user-dropdown.open { display:block; }
+.user-dropdown-header { padding:12px 14px;border-bottom:1px solid var(--gray-1);background:var(--gray-1); }
+.user-dropdown-name { font-size:13px;font-weight:600; }
+.user-dropdown-email { font-size:11px;color:var(--gray-4);margin-top:2px; }
+.user-dropdown-item { display:flex;align-items:center;gap:9px;padding:10px 14px;font-size:13px;cursor:pointer;transition:background .12s;border-bottom:1px solid var(--gray-1); }
+.user-dropdown-item:last-child { border-bottom:none; }
+.user-dropdown-item:hover { background:var(--gray-1); }
+.user-dropdown-item.logout { color:var(--red); }
+
+/* ─── NAV ─── */
+.nav { background:var(--charcoal);overflow-x:auto;scrollbar-width:none; }
+.nav::-webkit-scrollbar { display:none; }
+.nav-inner { display:flex;max-width:1200px;margin:0 auto;padding:0 20px; }
+.nav-link {
+  font-family:'Noto Sans Tamil',sans-serif;font-size:13px;font-weight:600;
+  color:rgba(255,255,255,.85);padding:10px 16px;white-space:nowrap;
+  transition:all .15s;border-bottom:3px solid transparent;display:flex;align-items:center;
+}
+.nav-link:hover { color:white;border-bottom-color:var(--gold); }
+.nav-link.active { color:white;border-bottom-color:var(--red-light);background:rgba(192,0,26,.2); }
+
+/* ─── MAIN ─── */
+.main { max-width:1200px;margin:0 auto;padding:20px; }
+
+/* ─── SECTION HEAD ─── */
+.section-head { display:flex;align-items:center;gap:12px;margin-bottom:14px; }
+.section-head-bar { width:4px;height:24px;background:var(--red);border-radius:2px; }
+.section-head-title { font-family:'Oswald',sans-serif;font-size:18px;font-weight:600;color:var(--charcoal);letter-spacing:.5px;text-transform:uppercase; }
+.section-head-ta { font-family:'Noto Sans Tamil',sans-serif;font-size:14px;color:var(--gray-4); }
+.section-head-line { flex:1;height:1px;background:var(--gray-2); }
+.section-head-more { font-size:12px;color:var(--red);font-weight:600;display:flex;align-items:center;gap:3px;white-space:nowrap; }
+
+/* ─── HERO GRID ─── */
+.hero-grid { display:grid;grid-template-columns:1fr 340px;grid-template-rows:auto auto;gap:16px;margin-bottom:28px;animation:fadeUp .5s ease both; }
+.hero-main { grid-row:1/3;position:relative;border-radius:6px;overflow:hidden;cursor:pointer;background:var(--charcoal);display:block; }
+.hero-main img { width:100%;height:440px;object-fit:cover;opacity:.85;transition:opacity .3s,transform .4s; }
+.hero-main:hover img { opacity:.75;transform:scale(1.02); }
+.hero-main-overlay { position:absolute;bottom:0;left:0;right:0;background:linear-gradient(to top,rgba(0,0,0,.92) 0%,rgba(0,0,0,.4) 60%,transparent 100%);padding:24px 20px 20px; }
+.breaking-badge { display:inline-flex;align-items:center;gap:5px;background:var(--red);color:white;font-family:'Oswald',sans-serif;font-size:11px;font-weight:600;letter-spacing:1.5px;padding:3px 10px;border-radius:2px;margin-bottom:8px;text-transform:uppercase; }
+.badge-gold { background:var(--gold);color:var(--charcoal); }
+.hero-main-title { font-family:'Noto Sans Tamil',sans-serif;font-size:22px;font-weight:700;color:white;line-height:1.45;margin-bottom:8px; }
+.hero-main-meta { font-size:12px;color:rgba(255,255,255,.6);display:flex;gap:14px; }
+
+.hero-side-card { background:var(--white);border-radius:6px;overflow:hidden;cursor:pointer;border:1px solid var(--gray-2);display:flex;flex-direction:column;transition:box-shadow .2s; }
+.hero-side-card:hover { box-shadow:0 4px 16px rgba(0,0,0,.1); }
+.hero-side-card img { width:100%;height:155px;object-fit:cover;transition:transform .3s; }
+.hero-side-card:hover img { transform:scale(1.03); }
+.hero-side-card-body { padding:12px 14px 14px;flex:1;display:flex;flex-direction:column;gap:6px; }
+.hero-side-card-title { font-family:'Noto Sans Tamil',sans-serif;font-size:14px;font-weight:700;color:var(--text);line-height:1.5; }
+
+/* ─── CATEGORY TAGS ─── */
+.cat-tag { font-size:10px;font-weight:600;font-family:'Oswald',sans-serif;letter-spacing:.5px;text-transform:uppercase;padding:2px 7px;border-radius:2px; }
+.cat-red    { background:#FDECEA;color:var(--red); }
+.cat-gold   { background:#FEF4E0;color:#A06800; }
+.cat-blue   { background:#E8F0FE;color:#1A56A8; }
+.cat-green  { background:#E6F4EA;color:#1B6B2E; }
+.cat-purple { background:#EDE7F6;color:#5E35B1; }
+.cat-teal   { background:#E0F2F1;color:#00695C; }
+.card-meta  { font-size:11px;color:var(--gray-4);display:flex;gap:10px;align-items:center;margin-top:auto; }
+
+/* ─── TOP STORIES ─── */
+.top-stories-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px;animation:fadeUp .5s .1s ease both; }
+.story-card { background:var(--white);border-radius:6px;overflow:hidden;border:1px solid var(--gray-2);cursor:pointer;transition:box-shadow .2s,transform .2s;display:block; }
+.story-card:hover { box-shadow:0 6px 20px rgba(0,0,0,.1);transform:translateY(-2px); }
+.story-card img { width:100%;height:160px;object-fit:cover; }
+.story-card-body { padding:12px 14px 14px; }
+.story-card-title { font-family:'Noto Sans Tamil',sans-serif;font-size:14px;font-weight:700;color:var(--text);line-height:1.55;margin-bottom:8px; }
+.story-card-excerpt { font-size:12.5px;color:var(--text-muted);line-height:1.6;margin-bottom:10px;font-family:'Noto Sans Tamil',sans-serif;display:-webkit-box;-webkit-line-clamp:2;-webkit-box-orient:vertical;overflow:hidden; }
+
+/* ─── TWO COL ─── */
+.two-col { display:grid;grid-template-columns:1fr 300px;gap:24px;margin-bottom:28px;animation:fadeUp .5s .15s ease both; }
+
+/* ─── CATEGORY BLOCK ─── */
+.cat-block { margin-bottom:28px; }
+.horiz-list { display:flex;flex-direction:column;gap:0; }
+.horiz-item { display:flex;gap:12px;padding:10px 0;border-bottom:1px solid var(--gray-1);cursor:pointer;transition:background .12s;align-items:flex-start; }
+.horiz-item:last-child { border-bottom:none; }
+.horiz-item:hover { background:var(--gray-1);margin:0 -8px;padding:10px 8px;border-radius:4px; }
+.horiz-img { width:90px;height:68px;object-fit:cover;border-radius:4px;flex-shrink:0; }
+.horiz-body { flex:1; }
+.horiz-title { font-family:'Noto Sans Tamil',sans-serif;font-size:13.5px;font-weight:700;color:var(--text);line-height:1.5;margin-bottom:4px; }
+.horiz-meta { font-size:11px;color:var(--gray-4); }
+
+/* ─── SIDEBAR ─── */
+.sidebar {}
+.sidebar-sticky { position:sticky;top:80px; }
+.sidebar-widget { background:var(--white);border:1px solid var(--gray-2);border-radius:6px;overflow:hidden;margin-bottom:16px; }
+.sidebar-widget-head { background:var(--charcoal);padding:10px 14px;font-family:'Oswald',sans-serif;font-size:14px;font-weight:600;color:white;text-transform:uppercase;letter-spacing:.5px;display:flex;align-items:center;gap:6px; }
+.sidebar-trending-item { display:flex;align-items:flex-start;gap:10px;padding:10px 14px;border-bottom:1px solid var(--gray-1);cursor:pointer;transition:background .1s; }
+.sidebar-trending-item:last-child { border-bottom:none; }
+.sidebar-trending-item:hover { background:var(--gray-1); }
+.sidebar-trending-num { font-family:'Anton',sans-serif;font-size:20px;color:var(--red);line-height:1;flex-shrink:0;width:22px; }
+.sidebar-trending-title { font-family:'Noto Sans Tamil',sans-serif;font-size:12.5px;font-weight:600;color:var(--text);line-height:1.5; }
+.sidebar-trending-time { font-size:11px;color:var(--gray-4);margin-top:2px; }
+.ad-sidebar { background:var(--gray-1);border:1.5px dashed var(--gray-2);border-radius:6px;height:250px;display:flex;flex-direction:column;align-items:center;justify-content:center;color:var(--gray-3);font-size:12px;margin-bottom:16px; }
+
+/* ─── VIDEO GRID ─── */
+.video-grid { display:grid;grid-template-columns:repeat(3,1fr);gap:14px;margin-bottom:28px; }
+.video-card { cursor:pointer;display:block; }
+.video-thumb { position:relative;border-radius:6px;overflow:hidden;background:var(--charcoal);margin-bottom:8px; }
+.video-thumb img { width:100%;height:130px;object-fit:cover;opacity:.85;transition:opacity .2s; }
+.video-card:hover .video-thumb img { opacity:.7; }
+.video-play { position:absolute;top:50%;left:50%;transform:translate(-50%,-50%);background:rgba(192,0,26,.85);color:white;width:40px;height:40px;border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:16px;transition:transform .2s; }
+.video-card:hover .video-play { transform:translate(-50%,-50%) scale(1.1); }
+.video-title { font-family:'Noto Sans Tamil',sans-serif;font-size:13px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:4px; }
+.video-meta { font-size:11px;color:var(--gray-4); }
+
+/* ─── AD SLOTS ─── */
+.ad-slot { text-align:center;margin-bottom:16px; }
+.ad-placeholder { background:var(--gray-1);border:1.5px dashed var(--gray-2);border-radius:4px;color:var(--gray-3);font-size:12px;display:flex;align-items:center;justify-content:center;height:100%; }
+.ad-header .ad-placeholder { height:80px; }
+.ad-inarticle { margin:24px 0;height:90px; }
+
+/* ─── FOOTER ─── */
+.footer { background:var(--charcoal);color:white;margin-top:32px; }
+.footer-inner { max-width:1200px;margin:0 auto;padding:40px 20px 24px; }
+.footer-top { display:grid;grid-template-columns:2fr 1fr 1fr 1fr;gap:32px;padding-bottom:24px;border-bottom:1px solid rgba(255,255,255,.1);margin-bottom:16px; }
+.footer-brand-name { font-family:'Noto Sans Tamil',sans-serif;font-size:22px;font-weight:700;color:white;margin-bottom:4px; }
+.footer-brand-sub { font-family:'Oswald',sans-serif;font-size:11px;letter-spacing:2px;color:var(--red-light);text-transform:uppercase;margin-bottom:10px; }
+.footer-desc { font-size:12.5px;line-height:1.7;color:rgba(255,255,255,.55);font-family:'Noto Sans Tamil',sans-serif; }
+.footer-col-title { font-family:'Oswald',sans-serif;font-size:13px;font-weight:600;color:white;text-transform:uppercase;letter-spacing:1px;margin-bottom:12px;padding-bottom:6px;border-bottom:1px solid rgba(192,0,26,.5); }
+.footer-link { display:block;font-size:13px;color:rgba(255,255,255,.6);padding:3px 0;transition:color .15s;font-family:'Noto Sans Tamil',sans-serif; }
+.footer-link:hover { color:var(--gold); }
+.footer-bottom { display:flex;justify-content:space-between;align-items:center;font-size:11.5px;color:rgba(255,255,255,.4); }
+.footer-social { display:flex;gap:10px; }
+.social-btn { width:30px;height:30px;border-radius:4px;background:rgba(255,255,255,.08);display:flex;align-items:center;justify-content:center;font-size:13px;cursor:pointer;transition:background .15s;color:rgba(255,255,255,.7); }
+.social-btn:hover { background:var(--red);color:white; }
+
+/* ─── MOBILE BOTTOM NAV ─── */
+.mobile-bottom-nav { display:none;position:fixed;bottom:0;left:0;right:0;z-index:200;background:var(--white);border-top:2px solid var(--red);box-shadow:0 -4px 20px rgba(0,0,0,.12);height:62px;padding-bottom:env(safe-area-inset-bottom); }
+.mobile-bottom-nav-inner { display:flex;height:62px;align-items:stretch; }
+.mob-nav-item { flex:1;display:flex;flex-direction:column;align-items:center;justify-content:center;gap:3px;cursor:pointer;color:var(--gray-4);transition:color .15s;position:relative;padding:0 4px;-webkit-tap-highlight-color:transparent;text-decoration:none; }
+.mob-nav-item.active { color:var(--red); }
+.mob-nav-item.active::before { content:'';position:absolute;top:0;left:20%;right:20%;height:2px;background:var(--red);border-radius:0 0 3px 3px; }
+.mob-nav-icon { font-size:20px;line-height:1; }
+.mob-nav-label { font-family:'Noto Sans Tamil',sans-serif;font-size:9.5px;font-weight:600;white-space:nowrap; }
+.mob-nav-item.breaking-btn { color:var(--red); }
+.mob-nav-item.breaking-btn .mob-nav-icon { animation:blink 1s infinite; }
+.mob-nav-badge { position:absolute;top:6px;right:calc(50% - 16px);background:var(--red);color:white;font-size:9px;font-weight:700;min-width:16px;height:16px;border-radius:8px;display:flex;align-items:center;justify-content:center;padding:0 3px; }
+
+/* ─── MODAL ─── */
+.modal-overlay { display:none;position:fixed;inset:0;background:rgba(0,0,0,.5);z-index:500;align-items:flex-end;justify-content:center;backdrop-filter:blur(2px); }
+.modal-overlay.open { display:flex; }
+.modal-box { background:var(--white);border-radius:16px 16px 0 0;width:100%;max-width:480px;overflow:hidden;animation:fadeUp .3s ease; }
+.modal-header { background:var(--charcoal);padding:20px;text-align:center;position:relative; }
+.modal-close { position:absolute;top:14px;right:16px;background:rgba(255,255,255,.1);border:none;color:white;width:28px;height:28px;border-radius:50%;cursor:pointer;font-size:14px;display:flex;align-items:center;justify-content:center; }
+.modal-logo-ta { font-family:'Noto Sans Tamil',sans-serif;font-size:20px;font-weight:700;color:var(--gold);margin-bottom:2px; }
+.modal-logo-en { font-family:'Oswald',sans-serif;font-size:10px;letter-spacing:2px;color:rgba(255,255,255,.5);text-transform:uppercase; }
+.modal-body { padding:24px; }
+.modal-title { font-family:'Noto Sans Tamil',sans-serif;font-size:18px;font-weight:700;color:var(--charcoal);margin-bottom:4px; }
+.modal-subtitle { font-family:'Noto Sans Tamil',sans-serif;font-size:13px;color:var(--text-muted);margin-bottom:16px; }
+.modal-benefit { display:flex;align-items:center;gap:10px;padding:8px 0;border-bottom:1px solid var(--gray-1);font-family:'Noto Sans Tamil',sans-serif;font-size:13.5px;color:var(--text); }
+.modal-benefit-icon { width:24px;height:24px;background:var(--gray-1);border-radius:50%;display:flex;align-items:center;justify-content:center;font-size:13px;flex-shrink:0; }
+.modal-divider { text-align:center;font-size:12px;color:var(--gray-3);margin:16px 0;position:relative; }
+.modal-divider::before,.modal-divider::after { content:'';position:absolute;top:50%;width:40%;height:1px;background:var(--gray-2); }
+.modal-divider::before { left:0; }
+.modal-divider::after { right:0; }
+.google-btn { width:100%;display:flex;align-items:center;justify-content:center;gap:12px;padding:12px 20px;border:1.5px solid var(--gray-2);border-radius:6px;background:var(--white);font-family:'Source Sans 3',sans-serif;font-size:14px;font-weight:600;color:var(--charcoal);cursor:pointer;transition:border-color .15s,box-shadow .15s;text-decoration:none;margin-bottom:12px; }
+.google-btn:hover { border-color:var(--gray-3);box-shadow:0 2px 8px rgba(0,0,0,.1); }
+.modal-note { font-size:11px;color:var(--gray-4);text-align:center;line-height:1.6; }
+.modal-note a { color:var(--red); }
+
+/* ─── ARTICLE PAGE ─── */
+.breadcrumb { max-width:1200px;margin:0 auto;padding:12px 20px 0;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray-4);flex-wrap:wrap; }
+.breadcrumb a { color:var(--red); }
+.breadcrumb span { color:var(--gray-3); }
+.article-wrap { max-width:1200px;margin:0 auto;padding:16px 20px 30px;display:grid;grid-template-columns:1fr 300px;gap:28px; }
+.article-main { min-width:0; }
+.art-category { display:inline-flex;align-items:center;gap:6px;font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--red);margin-bottom:10px; }
+.art-category::before { content:'';width:14px;height:2px;background:var(--red);display:inline-block; }
+.art-title { font-family:'Noto Sans Tamil',sans-serif;font-size:28px;font-weight:700;color:var(--charcoal);line-height:1.45;margin-bottom:14px; }
+.art-meta-row { display:flex;align-items:center;gap:16px;flex-wrap:wrap;padding:12px 0;border-top:1px solid var(--gray-2);border-bottom:1px solid var(--gray-2);margin-bottom:18px;font-size:12.5px;color:var(--gray-4); }
+.art-author { display:flex;align-items:center;gap:7px; }
+.art-author-avatar { width:30px;height:30px;border-radius:50%;background:var(--charcoal);color:white;font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;display:flex;align-items:center;justify-content:center;overflow:hidden; }
+.art-author-name { font-weight:600;color:var(--charcoal); }
+.art-meta-sep { color:var(--gray-2); }
+.contributor-badge-sm { font-size:10px;background:#E6F4EA;color:#1B6B2E;padding:2px 7px;border-radius:3px;font-weight:600; }
+
+.share-row { display:flex;align-items:center;gap:8px;margin-bottom:20px;flex-wrap:wrap; }
+.share-label { font-size:12px;color:var(--gray-4);font-weight:600; }
+.share-btn { display:flex;align-items:center;gap:6px;padding:7px 14px;border-radius:4px;border:none;font-size:12.5px;font-weight:600;cursor:pointer;transition:opacity .15s;white-space:nowrap; }
+.share-wa   { background:#25D366;color:white; }
+.share-fb   { background:#1877F2;color:white; }
+.share-tw   { background:#1DA1F2;color:white; }
+.share-copy { background:var(--gray-1);border:1px solid var(--gray-2);color:var(--charcoal); }
+.share-btn:hover { opacity:.85; }
+
+.art-hero-img { width:100%;border-radius:6px;max-height:440px;object-fit:cover;margin-bottom:6px; }
+.art-img-caption { font-size:11.5px;color:var(--gray-4);text-align:center;margin-bottom:20px;font-style:italic; }
+
+.video-embed-wrap { position:relative;padding-bottom:56.25%;height:0;border-radius:6px;overflow:hidden;margin-bottom:20px; }
+.video-embed-wrap iframe { position:absolute;top:0;left:0;width:100%;height:100%; }
+
+.art-body { font-family:'Noto Sans Tamil',sans-serif;font-size:16px;line-height:1.85;color:var(--text);margin-bottom:24px; }
+.art-body p { margin-bottom:18px; }
+.art-body h2,.art-body h3 { font-family:'Noto Sans Tamil',sans-serif;font-weight:700;color:var(--charcoal);margin:24px 0 12px; }
+.art-body blockquote { border-left:4px solid var(--red);padding:12px 20px;margin:20px 0;background:var(--gray-1);border-radius:0 6px 6px 0;font-style:italic;color:var(--text-muted); }
+.art-body img { border-radius:6px;margin:16px 0; }
+
+.art-tags { display:flex;flex-wrap:wrap;gap:8px;align-items:center;margin-bottom:24px;padding-top:16px;border-top:1px solid var(--gray-2); }
+.art-tags-label { font-size:12px;color:var(--gray-4);font-weight:600; }
+.art-tag { background:var(--gray-1);border:1px solid var(--gray-2);color:var(--charcoal);font-size:12px;padding:4px 12px;border-radius:4px;transition:background .15s; }
+.art-tag:hover { background:var(--gray-2); }
+
+.whatsapp-share-block { margin:24px 0; }
+.whatsapp-share-btn { display:flex;align-items:center;gap:16px;background:#E9FBF0;border:1.5px solid #25D366;border-radius:10px;padding:16px 20px;cursor:pointer;transition:background .15s;text-decoration:none;color:var(--text); }
+.whatsapp-share-btn:hover { background:#D4F7E2; }
+.whatsapp-share-title { font-family:'Noto Sans Tamil',sans-serif;font-size:15px;font-weight:700;color:#1B6B2E;margin-bottom:2px; }
+.whatsapp-share-sub { font-size:12px;color:var(--text-muted); }
+
+.related-section { margin-bottom:32px; }
+.related-title { font-family:'Oswald',sans-serif;font-size:16px;font-weight:600;text-transform:uppercase;letter-spacing:.5px;color:var(--charcoal);padding-bottom:10px;margin-bottom:14px;border-bottom:2px solid var(--red);display:flex;align-items:center;gap:8px; }
+.related-title::before { content:'';width:4px;height:20px;background:var(--red);border-radius:2px; }
+.related-grid { display:flex;flex-direction:column;gap:0; }
+.related-item { display:flex;gap:12px;padding:12px 0;border-bottom:1px solid var(--gray-1);cursor:pointer;transition:background .12s;text-decoration:none;color:var(--text); }
+.related-item:last-child { border-bottom:none; }
+.related-item:hover { background:var(--gray-1);margin:0 -8px;padding:12px 8px;border-radius:4px; }
+.related-img { width:80px;height:60px;object-fit:cover;border-radius:4px;flex-shrink:0; }
+.related-cat { font-size:10px;color:var(--red);font-family:'Oswald',sans-serif;font-weight:600;letter-spacing:.5px;text-transform:uppercase;margin-bottom:3px; }
+.related-title-text { font-family:'Noto Sans Tamil',sans-serif;font-size:13px;font-weight:600;color:var(--text);line-height:1.5;margin-bottom:4px; }
+.related-time { font-size:11px;color:var(--gray-4); }
+
+/* ─── RATING SECTION ─── */
+.rating-section { background:var(--white);border:1px solid var(--gray-2);border-radius:8px;overflow:hidden;margin-bottom:28px; }
+.rating-section-head { padding:16px 20px;border-bottom:1px solid var(--gray-1);background:var(--gray-1); }
+.rating-section-title { font-family:'Noto Sans Tamil',sans-serif;font-size:16px;font-weight:700;color:var(--charcoal);margin-bottom:2px; }
+.rating-section-sub { font-size:12.5px;color:var(--gray-4);font-family:'Noto Sans Tamil',sans-serif; }
+.rating-overall { display:flex;align-items:center;gap:20px;padding:16px 20px;border-bottom:1px solid var(--gray-1);flex-wrap:wrap; }
+.rating-big-num { font-family:'Anton',sans-serif;font-size:48px;color:var(--charcoal);line-height:1; }
+.rating-bars { flex:1;min-width:160px; }
+.rating-bar-row { display:flex;align-items:center;gap:8px;margin-bottom:4px; }
+.rating-bar-label { font-size:11px;color:var(--gray-4);width:22px;flex-shrink:0; }
+.rating-bar-track { flex:1;height:6px;background:var(--gray-2);border-radius:3px;overflow:hidden; }
+.rating-bar-fill { height:100%;background:var(--gold);border-radius:3px;transition:width .5s ease; }
+.rating-bar-count { font-size:11px;color:var(--gray-4);width:18px;text-align:right;flex-shrink:0; }
+
+.star-picker-row { display:flex;align-items:center;gap:6px;margin-bottom:12px;flex-wrap:wrap; }
+.star-pick { font-size:28px;color:var(--star-off);cursor:pointer;transition:color .1s;user-select:none; }
+.star-pick.active { color:var(--star-on); }
+.star-label { font-family:'Noto Sans Tamil',sans-serif;font-size:13px;color:var(--text-muted);margin-left:6px; }
+
+.review-form { padding:16px 20px;border-bottom:1px solid var(--gray-1); }
+.review-form-title { font-family:'Noto Sans Tamil',sans-serif;font-size:14px;font-weight:700;color:var(--charcoal);margin-bottom:12px; }
+.review-textarea { width:100%;padding:10px 12px;border:1.5px solid var(--gray-2);border-radius:6px;font-family:'Noto Sans Tamil',sans-serif;font-size:14px;color:var(--text);resize:vertical;outline:none;transition:border-color .15s; }
+.review-textarea:focus { border-color:var(--red); }
+.review-form-footer { display:flex;justify-content:space-between;align-items:center;margin-top:8px; }
+.char-count { font-size:11px;color:var(--gray-3); }
+.review-submit-btn { background:var(--red);color:white;border:none;padding:8px 24px;border-radius:4px;font-family:'Noto Sans Tamil',sans-serif;font-size:13px;font-weight:600;cursor:pointer;transition:opacity .15s; }
+.review-submit-btn:disabled { opacity:.5;cursor:default; }
+.review-submit-btn:not(:disabled):hover { opacity:.9; }
+
+.login-prompt-box { padding:24px 20px;text-align:center;border-bottom:1px solid var(--gray-1); }
+.login-prompt-icon { font-size:36px;margin-bottom:8px; }
+.login-prompt-title { font-family:'Noto Sans Tamil',sans-serif;font-size:15px;font-weight:700;color:var(--charcoal);margin-bottom:4px; }
+.login-prompt-sub { font-family:'Noto Sans Tamil',sans-serif;font-size:13px;color:var(--gray-4);margin-bottom:16px; }
+.login-prompt-btn { background:var(--red);color:white;border:none;padding:10px 24px;border-radius:4px;font-family:'Noto Sans Tamil',sans-serif;font-size:13px;font-weight:600;cursor:pointer; }
+
+.reviews-list-head { display:flex;align-items:center;justify-content:space-between;padding:12px 20px;border-bottom:1px solid var(--gray-1);font-size:13px;color:var(--gray-4); }
+.review-card { padding:14px 20px;border-bottom:1px solid var(--gray-1); }
+.review-card-top { display:flex;align-items:flex-start;gap:10px;margin-bottom:8px; }
+.reviewer-avatar { width:34px;height:34px;border-radius:50%;object-fit:cover;flex-shrink:0; }
+.reviewer-name { font-size:13px;font-weight:600;color:var(--charcoal); }
+.reviewer-meta { display:flex;align-items:center;gap:8px;margin-top:2px;font-size:11px;color:var(--gray-4); }
+.reviewer-stars { display:flex;gap:1px; }
+.reviewer-star { color:var(--star-off);font-size:13px; }
+.reviewer-star.on { color:var(--star-on); }
+.review-text { font-family:'Noto Sans Tamil',sans-serif;font-size:13.5px;line-height:1.7;color:var(--text-muted); }
+
+/* ─── CATEGORY PAGE ─── */
+.cat-page-header { max-width:1200px;margin:0 auto;padding:20px 20px 0;display:flex;align-items:center;gap:16px;margin-bottom:20px; }
+.cat-page-bar { width:5px;height:48px;background:var(--red);border-radius:2px;flex-shrink:0; }
+.cat-page-title { font-family:'Noto Sans Tamil',sans-serif;font-size:24px;font-weight:700;color:var(--charcoal); }
+.cat-page-en { font-family:'Oswald',sans-serif;font-size:16px;color:var(--gray-4);margin-left:8px; }
+.cat-page-desc { font-size:13px;color:var(--text-muted);margin-top:4px; }
+.cat-page-meta { font-size:12px;color:var(--gray-4);margin-top:2px; }
+.empty-state { text-align:center;padding:60px 20px;color:var(--gray-4); }
+
+/* ─── PAGINATION ─── */
+.pagination-wrap { display:flex;justify-content:center;gap:8px;padding:24px 0;flex-wrap:wrap; }
+.page-btn { padding:8px 16px;border:1.5px solid var(--gray-2);border-radius:4px;font-size:13px;color:var(--charcoal);background:var(--white);cursor:pointer;transition:all .15s;text-decoration:none; }
+.page-btn:hover { border-color:var(--red);color:var(--red); }
+.page-btn.active { background:var(--red);border-color:var(--red);color:white; }
+
+/* ─── SEARCH PAGE ─── */
+.search-page-bar { display:flex;gap:10px;margin-bottom:24px;padding:0 20px;max-width:1200px;margin-left:auto;margin-right:auto; }
+.search-page-input { flex:1;padding:12px 16px;border:2px solid var(--gray-2);border-radius:6px;font-size:16px;font-family:'Noto Sans Tamil',sans-serif;outline:none;transition:border-color .15s; }
+.search-page-input:focus { border-color:var(--red); }
+.search-page-btn { background:var(--red);color:white;border:none;padding:12px 24px;border-radius:6px;font-size:14px;font-weight:600;cursor:pointer; }
+
+/* ─── RESPONSIVE MOBILE (<768px) ─── */
+@media (max-width:768px) {
+  /* Body */
+  body { padding-bottom:62px; }
+
+  /* Bottom nav */
+  .mobile-bottom-nav { display:block; }
+
+  /* Header */
+  .header-meta      { display:none; }
+  .login-btn        { display:none !important; }
+  .user-avatar-wrap { display:none !important; }
+  .search-bar       { display:none !important; }
+  .mobile-search-row { display:block; }
+  .header-top       { padding:10px 14px 8px; justify-content:center; gap:0; }
+  .logo-block       { text-align:center; width:100%; }
+  .logo-ta          { font-size:20px; }
+  .logo-en          { font-size:9px; letter-spacing:1.5px; }
+
+  /* Hero */
+  .hero-grid           { grid-template-columns:1fr; }
+  .hero-main           { grid-row:auto; }
+  .hero-main img       { height:220px; }
+  .hero-main-title     { font-size:16px; }
+  .hero-side-card      { flex-direction:row; }
+  .hero-side-card img  { width:100px; height:80px; flex-shrink:0; }
+  .hero-side-card-title { font-size:13px; }
+
+  /* Grids */
+  .top-stories-grid { grid-template-columns:1fr; }
+  .video-grid       { grid-template-columns:1fr 1fr; }
+  .two-col          { grid-template-columns:1fr; }
+
+  /* Article */
+  .article-wrap    { grid-template-columns:1fr; padding:10px 12px 24px; }
+  .article-sidebar { display:none; }
+  .art-title       { font-size:20px; }
+  .art-meta-row    { font-size:11px; gap:8px; }
+  .breadcrumb      { font-size:11px; padding:8px 12px 0; }
+
+  /* Share */
+  .share-row { gap:6px; }
+  .share-btn { padding:6px 10px; font-size:12px; }
+
+  /* Category page */
+  .cat-page-header { padding:14px 12px 0; }
+  .cat-page-title  { font-size:20px; }
+
+  /* Search */
+  .search-page-bar  { flex-direction:column; gap:8px; padding:0 12px; }
+  .search-page-btn  { width:100%; }
+
+  /* Pagination */
+  .pagination-wrap { gap:5px; }
+  .page-btn        { padding:6px 12px; font-size:12px; }
+
+  /* Footer */
+  .footer-top   { grid-template-columns:1fr; gap:16px; }
+  .footer-inner { padding:24px 16px 16px; }
+  .footer-bottom { flex-direction:column; gap:8px; }
+
+  /* Main padding */
+  .main { padding:12px; }
+
+  /* WhatsApp block */
+  .whatsapp-share-btn { flex-direction:column; text-align:center; }
+
+  /* Related */
+  .related-grid { gap:0; }
+
+  /* Rating */
+  .rating-overall { flex-direction:column; gap:12px; }
+  .rating-big-num { font-size:40px; }
+  .rating-bars    { width:100%; }
+
+  /* Live blog */
+  .live-scoreboard { padding:14px; gap:16px; }
+  .live-score-num  { font-size:32px; }
+  .live-title      { font-size:20px; }
+}
+
+/* ─── RESPONSIVE TABLET (769–1024px) ─── */
+@media (min-width:769px) and (max-width:1024px) {
+  .hero-grid        { grid-template-columns:1fr 260px; }
+  .top-stories-grid { grid-template-columns:1fr 1fr; }
+  .two-col          { grid-template-columns:1fr 240px; }
+  .video-grid       { grid-template-columns:repeat(3,1fr); }
+  .article-wrap     { grid-template-columns:1fr 260px; }
+}
+
+@media (min-width:769px) and (max-width:1024px) {
+  .hero-grid { grid-template-columns:1fr 280px; }
+  .top-stories-grid { grid-template-columns:1fr 1fr; }
+  .two-col { grid-template-columns:1fr 260px; }
+  .video-grid { grid-template-columns:repeat(3,1fr); }
+}
+
+/* ─── PREMIUM GATE ─── */
+.premium-gate {
+  background: linear-gradient(135deg, #1A1A1A 0%, #2D2D2D 100%);
+  border-radius: 12px;
+  padding: 40px 30px;
+  text-align: center;
+  margin: 24px 0;
+  color: white;
+  position: relative;
+  overflow: hidden;
+}
+.premium-gate::before {
+  content: '';
+  position: absolute;
+  top: 0; left: 0; right: 0;
+  height: 3px;
+  background: linear-gradient(90deg, #E8A000, #C0001A, #E8A000);
+}
+.premium-gate-icon { font-size: 48px; margin-bottom: 12px; }
+.premium-gate-title { font-size: 22px; font-weight: 700; color: #E8A000; margin-bottom: 8px; font-family: 'Noto Sans Tamil', sans-serif; }
+.premium-gate-sub   { font-size: 14px; color: rgba(255,255,255,.7); margin-bottom: 24px; font-family: 'Noto Sans Tamil', sans-serif; line-height: 1.6; }
+.premium-gate-actions { margin-bottom: 16px; }
+.premium-gate-btn-primary {
+  display: inline-flex; align-items: center; gap: 10px;
+  padding: 12px 28px; border-radius: 6px;
+  background: white; color: #1A1A1A;
+  font-weight: 700; font-size: 14px; text-decoration: none;
+  transition: opacity .15s;
+}
+.premium-gate-btn-primary:hover { opacity: .9; color: #1A1A1A; }
+.premium-gate-note { font-size: 13px; color: rgba(255,255,255,.5); }
+.premium-gate-note a { color: #E8A000; }
+
+.premium-blur-wrap { position: relative; margin-bottom: 20px; }
+.premium-blurred {
+  max-height: 200px;
+  overflow: hidden;
+  -webkit-mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+  mask-image: linear-gradient(to bottom, black 30%, transparent 100%);
+  pointer-events: none;
+  user-select: none;
+}
+
+/* Premium badge on article cards */
+.premium-badge {
+  display: inline-flex;
+  align-items: center;
+  gap: 4px;
+  background: #E8A000;
+  color: #1A1A1A;
+  font-size: 10px;
+  font-weight: 700;
+  padding: 2px 7px;
+  border-radius: 3px;
+  letter-spacing: .3px;
+}
+
+/* ─── LIVE BLOG BANNER (homepage) ─── */
+.live-blogs-bar {
+  display: flex;
+  flex-direction: column;
+  gap: 8px;
+  margin-bottom: 16px;
+}
+
+.live-blog-banner {
+  display: flex;
+  align-items: center;
+  gap: 12px;
+  background: linear-gradient(135deg, #1A1A1A 0%, #2D1010 100%);
+  border-radius: 8px;
+  padding: 14px 20px;
+  text-decoration: none;
+  color: white;
+  border-left: 4px solid #C0001A;
+  transition: opacity .15s;
+  position: relative;
+  overflow: hidden;
+  flex-wrap: wrap;
+}
+
+.live-blog-banner::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: rgba(192,0,26,.05);
+}
+
+.live-blog-banner:hover { opacity: .92; color: white; }
+
+.live-blog-banner-dot {
+  width: 10px;
+  height: 10px;
+  border-radius: 50%;
+  background: #C0001A;
+  flex-shrink: 0;
+  animation: blink 1s infinite;
+}
+
+.live-blog-banner-label {
+  font-family: 'Oswald', sans-serif;
+  font-size: 11px;
+  font-weight: 700;
+  letter-spacing: 2px;
+  color: #C0001A;
+  background: rgba(192,0,26,.15);
+  padding: 2px 8px;
+  border-radius: 3px;
+  flex-shrink: 0;
+}
+
+.live-blog-banner-title {
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: 15px;
+  font-weight: 700;
+  flex: 1;
+  min-width: 0;
+}
+
+.live-blog-banner-meta {
+  font-size: 12px;
+  color: rgba(255,255,255,.5);
+  flex-shrink: 0;
+}
+
+.live-blog-banner-score {
+  font-size: 13px;
+  color: #E8A000;
+  font-weight: 700;
+  flex-shrink: 0;
+}
+
+.live-blog-banner-follow {
+  font-size: 13px;
+  font-weight: 600;
+  color: rgba(255,255,255,.7);
+  flex-shrink: 0;
+  white-space: nowrap;
+}
+
+/* ─── FONT SIZE TOGGLE (article page) ─── */
+.font-size-toggle {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-left: auto;
+}
+.font-btn {
+  width: 28px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1.5px solid var(--gray-2);
+  background: var(--white);
+  cursor: pointer;
+  font-weight: 700;
+  color: var(--text);
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  transition: all .15s;
+  font-size: 13px;
+}
+.font-btn:hover { border-color: var(--red); color: var(--red); }
+.font-btn.active { background: var(--red); color: white; border-color: var(--red); }
+
+.art-body-sm { font-size: 14px !important; }
+.art-body-md { font-size: 16px !important; }
+.art-body-lg { font-size: 18px !important; }
+.art-body-xl { font-size: 20px !important; }
+
+@media (max-width: 768px) {
+  .live-blog-banner { padding: 12px 14px; gap: 8px; }
+  .live-blog-banner-title { font-size: 13px; }
+  .live-blog-banner-follow { display: none; }
+}
+
+/* ═══════════════════════════════════════════
+   UNIVERSAL PAGINATION — tn-pag
+   Works in admin (dark), portal (white), frontend
+═══════════════════════════════════════════ */
+.tn-pag-wrap {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px;
+  padding: 12px 16px;
+  flex-wrap: wrap;
+}
+.tn-pag-info {
+  font-size: 12px;
+  color: #9A9890;
+  white-space: nowrap;
+}
+.tn-pag-info span { margin: 0 3px; }
+
+.tn-pag {
+  display: flex;
+  list-style: none;
+  margin: 0; padding: 0;
+  gap: 4px;
+  flex-wrap: wrap;
+}
+.tn-pag-btn {
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  min-width: 32px;
+  height: 32px;
+  padding: 0 8px;
+  border-radius: 6px;
+  font-size: 13px;
+  font-weight: 500;
+  text-decoration: none;
+  transition: all .15s;
+  cursor: pointer;
+  border: 1.5px solid transparent;
+  line-height: 1;
+  white-space: nowrap;
+}
+/* Active page */
+.tn-pag-btn.tn-pag-active {
+  background: #C0001A;
+  color: #fff;
+  border-color: #C0001A;
+  font-weight: 700;
+}
+/* Disabled */
+.tn-pag-btn.disabled { opacity: .35; cursor: default; pointer-events: none; }
+/* Dots */
+.tn-pag-btn.tn-pag-dots { border: none; font-size: 14px; min-width: 24px; }
+
+/* Dark theme (admin) */
+body:not(.portal-body):not(.ep-body) .tn-pag-btn:not(.tn-pag-active):not(.disabled):not(.tn-pag-dots) {
+  color: #9ca3af;
+  border-color: rgba(255,255,255,.12);
+  background: rgba(255,255,255,.04);
+}
+body:not(.portal-body):not(.ep-body) .tn-pag-btn:not(.tn-pag-active):not(.disabled):not(.tn-pag-dots):hover {
+  background: rgba(255,255,255,.1);
+  color: #fff;
+  border-color: rgba(255,255,255,.25);
+}
+body:not(.portal-body):not(.ep-body) .tn-pag-wrap { border-top: 1px solid rgba(255,255,255,.08); }
+body:not(.portal-body):not(.ep-body) .tn-pag-info { color: #6b7280; }
+body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
+
+/* White theme (portal / editor_portal / frontend) */
+.portal-body .tn-pag-btn:not(.tn-pag-active):not(.disabled):not(.tn-pag-dots),
+.ep-body .tn-pag-btn:not(.tn-pag-active):not(.disabled):not(.tn-pag-dots),
+.tn-pag-btn:not(.tn-pag-active):not(.disabled):not(.tn-pag-dots) {
+  color: #6B6A64;
+  border-color: #D8D6CE;
+  background: #FFFFFF;
+}
+.portal-body .tn-pag-btn:not(.tn-pag-active):not(.disabled):not(.tn-pag-dots):hover,
+.ep-body .tn-pag-btn:not(.tn-pag-active):not(.disabled):not(.tn-pag-dots):hover,
+.tn-pag-btn:not(.tn-pag-active):not(.disabled):not(.tn-pag-dots):hover {
+  background: #F0EFE9;
+  border-color: #9A9890;
+  color: #1A1A1A;
+}
+.portal-body .tn-pag-wrap,
+.ep-body .tn-pag-wrap { border-top: 1px solid #F0EFE9; }
+
+/* Mobile */
+@media (max-width: 768px) {
+  .tn-pag-wrap { padding: 10px 12px; }
+  .tn-pag-btn  { min-width: 30px; height: 30px; font-size: 12px; padding: 0 7px; }
+  .tn-pag-info { font-size: 11px; }
+}
+
+/* ─── NEWSPAPER ARCHIVE ─── */
+.np-grid {
+  display: grid;
+  grid-template-columns: repeat(auto-fill, minmax(200px, 1fr));
+  gap: 16px;
+  margin-bottom: 20px;
+}
+.np-card {
+  background: var(--white);
+  border: 1px solid var(--gray-2);
+  border-radius: 10px;
+  overflow: hidden;
+  transition: box-shadow .2s, transform .2s;
+}
+.np-card:hover { box-shadow: 0 8px 24px rgba(0,0,0,.12); transform: translateY(-2px); }
+.np-card-cover {
+  display: block; position: relative; aspect-ratio: 3/4;
+  background: #F0EFE9; overflow: hidden; text-decoration: none;
+}
+.np-card-cover img { width: 100%; height: 100%; object-fit: cover; }
+.np-card-placeholder {
+  display: flex; flex-direction: column; align-items: center;
+  justify-content: center; height: 100%;
+  background: linear-gradient(135deg, #1A1A1A, #2D1010);
+  color: white; text-align: center; gap: 4px;
+}
+.np-card-date-big  { font-size: 40px; font-weight: 900; line-height: 1; color: #C0001A; }
+.np-card-month-big { font-size: 13px; font-weight: 600; opacity: .7; text-transform: uppercase; }
+.np-card-overlay {
+  position: absolute; inset: 0; background: rgba(0,0,0,.5);
+  display: flex; align-items: center; justify-content: center;
+  opacity: 0; transition: opacity .2s; color: white; font-size: 16px; font-weight: 700;
+}
+.np-card-cover:hover .np-card-overlay { opacity: 1; }
+.np-card-body         { padding: 12px; }
+.np-card-edition-date { font-size: 12px; font-weight: 700; color: var(--red); margin-bottom: 2px; }
+.np-card-title-ta     { font-size: 13px; font-family: 'Noto Sans Tamil', sans-serif; margin-bottom: 4px; }
+.np-card-meta         { font-size: 11px; color: var(--gray-4); display: flex; gap: 4px; flex-wrap: wrap; margin-bottom: 10px; }
+.np-card-actions      { display: flex; gap: 6px; }
+.np-btn               { flex: 1; text-align: center; padding: 6px 8px; border-radius: 6px; font-size: 12px; font-weight: 600; text-decoration: none; transition: opacity .15s; }
+.np-btn-read          { background: var(--red); color: white; }
+.np-btn-read:hover    { opacity: .88; color: white; }
+.np-btn-download      { background: #F0EFE9; color: var(--text); border: 1px solid var(--gray-2); }
+.np-btn-download:hover { background: var(--gray-2); }
+@media (max-width: 768px) {
+  .np-grid { grid-template-columns: repeat(2, 1fr); gap: 10px; }
+  .np-btn  { font-size: 11px; padding: 5px 4px; }
+}
+
+/* ═══════════════════════════════════════════════════
+   வேள் சுடர் — LOGO + HEADER ANIMATION
+═══════════════════════════════════════════════════ */
+
+/* Logo link */
+.vel-logo-link { text-decoration: none; display: inline-block; }
+
+/* Logo mark — வேள் சுடர் */
+.vel-logo {
+  display: inline-flex;
+  align-items: center;
+  gap: 0;
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: 28px;
+  font-weight: 900;
+  line-height: 1;
+  letter-spacing: -0.5px;
+  transition: filter .3s;
+}
+
+
+/* First word: வேள் — red text */
+.vel-word1 {
+  color: #C0001A;
+  padding: 0 4px 0 0;
+
+}
+
+/* Second word: சுடர் — white on red box */
+.vel-word2 {
+  color: #FFFFFF;
+  background: #C0001A;
+  padding: 2px 8px 4px;
+  border-radius: 4px;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.15);
+  position: relative;
+}
+
+/* Tagline */
+.vel-tagline {
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: 10px;
+  font-weight: 600;
+  color: #9A9890;
+  letter-spacing: 0.5px;
+  margin-top: 3px;
+  text-align: center;
+  line-height: 1;
+}
+
+/* ── HEADER ANIMATED BACKGROUND ── */
+.header {
+  position: relative;
+  overflow: hidden;
+  z-index: 10;
+}
+
+/* Canvas sits behind header content */
+#headerCanvas {
+  position: absolute;
+  top: 0; left: 0; width: 100%; height: 100%;
+  z-index: 0;
+  pointer-events: none;
+  opacity: 0.07;
+}
+
+/* Ensure header content sits above canvas */
+.header-top,
+.header-cats,
+.mobile-search-row {
+  position: relative;
+  z-index: 1;
+}
+
+/* Header glow border at bottom */
+.header::after {
+  content: '';
+  position: absolute;
+  bottom: 0; left: 0; right: 0;
+  height: 2px;
+  background: linear-gradient(90deg,
+    transparent 0%,
+    rgba(192,0,26,.6) 20%,
+    #C0001A 50%,
+    rgba(192,0,26,.6) 80%,
+    transparent 100%);
+  animation: glowSweep 3s ease-in-out infinite;
+}
+@keyframes glowSweep {
+  0%, 100% { opacity: .5; }
+  50%       { opacity: 1; }
+}
+
+/* Mobile logo */
+@media (max-width: 768px) {
+  .vel-logo    { font-size: 22px; }
+  .vel-word2   { padding: 2px 6px 3px; }
+  .vel-tagline { font-size: 9px; }
+}
+
+/* ── LOGO BRAND WRAP ── */
+.vel-brand-wrap {
+  display: inline-flex;
+  align-items: center;
+  gap: 10px;
+}
+
+/* Actual logo image */
+.vel-img {
+  height: 52px;
+  width: auto;
+  object-fit: contain;
+  flex-shrink: 0;
+}
+
+/* Monogram placeholder (VS mixed) — shown until real image is ready */
+.vel-monogram {
+  width: 52px;
+  height: 52px;
+  border-radius: 10px;
+  background: #C0001A;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+  position: relative;
+  overflow: hidden;
+}
+.vel-monogram::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  background: linear-gradient(135deg, rgba(255,255,255,.12) 0%, transparent 60%);
+}
+.vel-mono-v {
+  font-family: 'Inter', sans-serif;
+  font-size: 20px;
+  font-weight: 900;
+  color: white;
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+  letter-spacing: -1px;
+}
+.vel-mono-s {
+  font-family: 'Inter', sans-serif;
+  font-size: 13px;
+  font-weight: 700;
+  color: rgba(255,255,255,.75);
+  line-height: 1;
+  position: relative;
+  z-index: 1;
+  align-self: flex-end;
+  margin-bottom: 2px;
+}
+
+@media (max-width: 768px) {
+  .vel-img       { height: 40px; }
+  .vel-monogram  { width: 40px; height: 40px; border-radius: 8px; }
+  .vel-mono-v    { font-size: 17px; }
+  .vel-mono-s    { font-size: 11px; }
+  .vel-brand-wrap { gap: 8px; }
+}
+
+
+
+/* ─── SUBCATEGORY PILLS (mobile top) ─── */
+.subcat-pills {
+  display: none; /* hidden on desktop — side menu shows instead */
+  gap: 8px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.subcat-pill {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  font-family: 'Noto Sans Tamil', sans-serif;
+  text-decoration: none;
+  border: 1.5px solid var(--gray-2);
+  color: var(--gray-4);
+  background: var(--white);
+  transition: all .15s;
+  white-space: nowrap;
+}
+.subcat-pill:hover  { border-color: var(--red); color: var(--red); }
+.subcat-pill.active { background: var(--red); color: white; border-color: var(--red); }
+
+/* ─── CATEGORY WITH SIDE MENU (desktop) ─── */
+.cat-with-side {
+  display: grid;
+  grid-template-columns: 200px 1fr;
+  gap: 24px;
+  align-items: start;
+}
+
+/* Side menu */
+.cat-side-menu {
+  background: var(--white);
+  border: 1px solid var(--gray-2);
+  border-radius: 10px;
+  overflow: hidden;
+  position: sticky;
+  top: 80px;
+}
+.cat-side-title {
+  font-size: 11px;
+  font-weight: 700;
+  text-transform: uppercase;
+  letter-spacing: 1px;
+  color: var(--gray-4);
+  padding: 12px 16px 8px;
+  border-bottom: 1px solid var(--gray-1);
+}
+.cat-side-item {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  padding: 10px 16px;
+  font-size: 13px;
+  font-weight: 500;
+  font-family: 'Noto Sans Tamil', sans-serif;
+  color: var(--text);
+  text-decoration: none;
+  border-bottom: 1px solid var(--gray-1);
+  transition: all .12s;
+}
+.cat-side-item:last-child { border-bottom: none; }
+.cat-side-item i { font-size: 11px; color: var(--gray-3); flex-shrink: 0; }
+.cat-side-item:hover  { background: var(--gray-1); color: var(--red); }
+.cat-side-item:hover i { color: var(--red); }
+.cat-side-item.active {
+  background: rgba(192,0,26,.06);
+  color: var(--red);
+  font-weight: 700;
+  border-left: 3px solid var(--red);
+}
+.cat-side-item.active i { color: var(--red); }
+
+/* ─── MOBILE: hide side menu, show pills ─── */
+@media (max-width: 768px) {
+  .cat-with-side { grid-template-columns: 1fr; gap: 0; }
+  .cat-side-menu { display: none; }
+  .subcat-pills  { display: flex; }
+}
