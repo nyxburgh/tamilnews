@@ -1,0 +1,11 @@
+# Tamil News Portal — Cron Jobs
+# Add to server crontab: crontab -e
+
+# Scheduled publishing — every 5 minutes
+*/5 * * * * php /var/www/tamilnews/cron/scheduled_publish.php >> /var/www/tamilnews/storage/logs/scheduled_publish.log 2>&1
+
+# YouTube import — every hour
+0 * * * * php /var/www/tamilnews/cron/youtube_import.php >> /var/www/tamilnews/storage/logs/youtube_import.log 2>&1
+
+# RSS intake — every 30 minutes
+*/30 * * * * php /var/www/tamilnews/cron/rss_intake.php >> /var/www/tamilnews/storage/logs/rss_intake.log 2>&1
