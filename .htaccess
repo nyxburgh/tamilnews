@@ -1,0 +1,10 @@
+Options -Indexes
+RewriteEngine On
+RewriteBase /tamilnews/
+
+# Block sensitive directories
+RewriteRule ^(\.env|storage|app|config|cron)(/|$) - [F,L]
+
+# Route everything through public/
+RewriteCond %{REQUEST_URI} !^/tamilnews/public/
+RewriteRule ^(.*)$ public/$1 [L]
