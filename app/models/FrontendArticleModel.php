@@ -190,17 +190,42 @@ class FrontendArticleModel extends Model
     {
         $offset = ($page - 1) * $perPage;
         $like   = '%' . $query . '%';
-        $data   = $this->fetchAll(
+
+        // Search: title, excerpt, content + Tamil/English tags
+        $data = $this->fetchAll(
             $this->baseSelect() .
-            " WHERE a.status='published' AND (a.title LIKE ? OR a.excerpt LIKE ? OR a.content LIKE ?)
+            " LEFT JOIN tn_article_tags at2 ON at2.article_id = a.id
+              LEFT JOIN tn_tags t2 ON t2.id = at2.tag_id
+              WHERE a.status='published'
+              AND (
+                a.title   LIKE ? OR
+                a.excerpt LIKE ? OR
+                a.content LIKE ? OR
+                t2.name         LIKE ? OR
+                t2.name_tamil   LIKE ? OR
+                a.title         LIKE ? OR
+                c.name          LIKE ? OR
+                c.name_tamil    LIKE ?
+              )
+              GROUP BY a.id
               ORDER BY a.published_at DESC LIMIT ? OFFSET ?",
-            [$like, $like, $like, $perPage, $offset]
+            [$like, $like, $like, $like, $like, $like, $like, $like, $perPage, $offset]
         );
+
         $total = (int)$this->fetchColumn(
-            "SELECT COUNT(*) FROM tn_articles a
-             WHERE a.status='published' AND (a.title LIKE ? OR a.excerpt LIKE ?)",
-            [$like, $like]
+            "SELECT COUNT(DISTINCT a.id) FROM tn_articles a
+             LEFT JOIN tn_article_tags at2 ON at2.article_id = a.id
+             LEFT JOIN tn_tags t2 ON t2.id = at2.tag_id
+             LEFT JOIN tn_categories c ON c.id = a.category_id
+             WHERE a.status='published'
+             AND (
+               a.title       LIKE ? OR a.excerpt  LIKE ? OR
+               t2.name       LIKE ? OR t2.name_tamil LIKE ? OR
+               c.name        LIKE ? OR c.name_tamil  LIKE ?
+             )",
+            [$like, $like, $like, $like, $like, $like]
         );
+
         return ['data' => $data, 'total' => $total, 'page' => $page, 'per_page' => $perPage];
     }
 

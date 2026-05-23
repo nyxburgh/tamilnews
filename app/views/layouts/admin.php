@@ -108,6 +108,12 @@
     </a>
     <?php endif; ?>
 
+    <div class="tn-nav-label mt-2">Advertising</div>
+    <a href="<?= $routeBase ?>/admin/business-ads" class="tn-nav-item <?= isActive('/admin/business-ads', $current) ?>">
+      <i class="bi bi-megaphone"></i> Business Ads
+      <?php try { $bac=(new \App\Models\BusinessAdModel())->pendingCount(); if($bac>0): ?><span class="tn-badge"><?= $bac ?></span><?php endif; } catch(\Exception $e) {} ?>
+    </a>
+
     <?php if (\App\Core\Auth::can('manage_contributors')): ?>
     <div class="tn-nav-label mt-2">People</div>
     <a href="<?= $routeBase ?>/admin/contributors" class="tn-nav-item <?= isActive('/admin/contributors', $current) ?>">

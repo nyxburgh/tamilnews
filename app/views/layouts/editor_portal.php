@@ -156,6 +156,12 @@ try {
 <a href="<?= $r ?>/admin/print" class="ep-nav-item <?= epActive('/admin/print',$current) ?>">
   <i class="bi bi-printer"></i> Print Editions
 </a>
+      <div class="ep-nav-label">Advertising</div>
+      <a href="<?= $r ?>/admin/business-ads" class="ep-nav-item <?= epActive('/admin/business-ads',$current) ?>">
+        <i class="bi bi-megaphone"></i> Business Ads
+        <?php try { $bac=(new \App\Models\BusinessAdModel())->pendingCount(); if($bac>0): ?><span class="ep-badge"><?= $bac ?></span><?php endif; } catch(\Exception $e) {} ?>
+      </a>
+
       <div class="ep-nav-label">My Work</div>
       <a href="<?= $r ?>/portal/articles" class="ep-nav-item <?= epActive('/portal/articles',$current) ?>">
         <i class="bi bi-person-lines-fill"></i> My Articles

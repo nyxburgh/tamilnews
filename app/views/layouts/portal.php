@@ -104,7 +104,10 @@ function pActive(string $path, string $current): string {
         $notifCount = $notifModel->unreadCount(!$isContributor ? (\App\Core\Auth::id() ?? 0) : 0);
       } catch(\Exception $e) {}
       ?>
-      <a href="<?= $r ?>/portal/notifications" class="portal-notif-btn" title="Notifications">
+      <a href="<?= $r ?>/admin/business-ads" class="portal-nav-link <?= str_contains($currentPath,'/business-ads')?'active':'' ?>">
+      <i class="bi bi-megaphone"></i> Ads
+    </a>
+    <a href="<?= $r ?>/portal/notifications" class="portal-notif-btn" title="Notifications">
         <i class="bi bi-bell"></i>
         <?php if ($notifCount > 0): ?>
         <span class="portal-notif-badge"><?= $notifCount > 9 ? '9+' : $notifCount ?></span>
@@ -167,7 +170,7 @@ if ($alertType && $alertMsg):
   <span>Logged in as <strong style="color:<?= $roleColor ?>"><?= $roleLabel ?></strong></span>
 </div>
 
-<!-- MOBILE STICKY FOOTER (3 icons) -->
+<!-- MOBILE STICKY FOOTER (5 icons) -->
 <nav class="portal-mob-footer">
   <a href="<?= $dashUrl ?>" class="portal-mob-item <?= str_contains($current,'/dashboard') ? 'active' : '' ?>">
     <i class="bi bi-speedometer2"></i>
@@ -179,13 +182,13 @@ if ($alertType && $alertMsg):
   </a>
   <a href="<?= $writeUrl ?>" class="portal-mob-write">
     <div class="portal-mob-write-btn" style="background:<?= $roleColor ?>">
-      <i class="bi bi-plus-lg"></i>
+      <i class="bi bi-pencil-square"></i>
     </div>
     <span>Write</span>
   </a>
-  <a href="<?= $r ?>/admin/media" class="portal-mob-item <?= str_contains($current,'/media') ? 'active' : '' ?>">
-    <i class="bi bi-images"></i>
-    <span>Media</span>
+  <a href="<?= $r ?>/admin/business-ads" class="portal-mob-item <?= str_contains($current,'/business-ads') ? 'active' : '' ?>">
+    <i class="bi bi-megaphone"></i>
+    <span>Ads</span>
   </a>
   <a href="<?= $r ?>/portal/profile" class="portal-mob-item <?= str_contains($current,'/profile') ? 'active' : '' ?>">
     <i class="bi bi-person-circle"></i>

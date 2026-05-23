@@ -51,4 +51,5 @@ function artImg(array $a): string {
 $queryExtra = '&q='.urlencode($q??'');
 include VIEW_PATH . '/partials/pagination.php';
 ?>
+  <?php endif; ?>
 </div>

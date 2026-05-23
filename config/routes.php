@@ -228,4 +228,17 @@ return [
     ['GET', '/sitemap.xml',       'frontend\SeoController@sitemap'],
     ['GET', '/sitemap-news.xml',  'frontend\SeoController@sitemapNews'],
     ['GET', '/robots.txt',        'frontend\SeoController@robots'],
+
+    /* ── BUSINESS ADS ── */
+    ['GET',  '/admin/business-ads',                     'admin\\BusinessAdController@index'],
+    ['GET',  '/admin/business-ads/create',              'admin\\BusinessAdController@create'],
+    ['POST', '/admin/business-ads/store',               'admin\\BusinessAdController@store'],
+    ['GET',  '/admin/business-ads/show/{id}',           'admin\\BusinessAdController@show'],
+    ['GET',  '/admin/business-ads/edit/{id}',           'admin\\BusinessAdController@edit'],
+    ['POST', '/admin/business-ads/update/{id}',         'admin\\BusinessAdController@update'],
+    ['POST', '/admin/business-ads/approve/{id}',        'admin\\BusinessAdController@approve'],
+    ['POST', '/admin/business-ads/reject/{id}',         'admin\\BusinessAdController@reject'],
+    ['POST', '/admin/business-ads/confirm-payment/{id}','admin\\BusinessAdController@confirmPayment'],
+    ['POST', '/admin/business-ads/delete-image/{id}',   'admin\\BusinessAdController@deleteImage'],
+    ['GET',  '/admin/business-ads/cities/{id}',         'admin\\BusinessAdController@citiesByDistrict'],
 ];

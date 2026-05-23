@@ -676,3 +676,32 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
   .tn-pag-btn  { min-width: 30px; height: 30px; font-size: 12px; padding: 0 7px; }
   .tn-pag-info { font-size: 11px; }
 }
+
+/* ── STATUS TABS (business ads / articles filter) ── */
+.tn-status-tabs {
+  display: flex;
+  gap: 4px;
+  flex-wrap: wrap;
+  margin-bottom: 16px;
+}
+.tn-status-tab {
+  padding: 5px 14px;
+  border-radius: 20px;
+  font-size: 12px;
+  font-weight: 600;
+  text-decoration: none;
+  color: var(--text-muted, #9ca3af);
+  background: var(--card-bg, #161b22);
+  border: 1px solid var(--card-border, rgba(255,255,255,.1));
+  transition: all .15s;
+  white-space: nowrap;
+}
+.tn-status-tab:hover {
+  color: #fff;
+  border-color: rgba(255,255,255,.25);
+}
+.tn-status-tab.active {
+  background: #C0001A;
+  color: #fff;
+  border-color: #C0001A;
+}

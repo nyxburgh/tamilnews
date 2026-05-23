@@ -1,0 +1,312 @@
+/* ═══════════════════════════════════════════════════
+   வேள் சுடர் — NEWSPAPER MASTHEAD CSS
+═══════════════════════════════════════════════════ */
+
+/* ── NAV — sticky top ── */
+.nav {
+  position: sticky;
+  top: 0;
+  z-index: 200;
+  background: #1A1A1A;
+  border-bottom: 2px solid #C0001A;
+}
+.nav-inner {
+  max-width: 1200px;
+  margin: 0 auto;
+  padding: 0 16px;
+  display: flex;
+  align-items: center;
+  gap: 0;
+  height: 42px;
+  overflow-x: auto;
+  scrollbar-width: none;
+}
+.nav-inner::-webkit-scrollbar { display: none; }
+.nav-link {
+  color: rgba(255,255,255,.75);
+  text-decoration: none;
+  font-size: 13px;
+  font-weight: 500;
+  padding: 0 14px;
+  height: 42px;
+  display: inline-flex;
+  align-items: center;
+  white-space: nowrap;
+  transition: color .15s, background .15s;
+  border-bottom: 2px solid transparent;
+}
+.nav-link:hover { color: #fff; background: rgba(255,255,255,.08); }
+.nav-link.active { color: #fff; border-bottom-color: #C0001A; font-weight: 700; }
+
+/* Search + Login at right end of nav */
+.nav-actions {
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  margin-left: auto;
+  flex-shrink: 0;
+  padding-left: 16px;
+}
+.nav-search {
+  display: flex;
+  align-items: center;
+  background: rgba(255,255,255,.1);
+  border-radius: 4px;
+  overflow: hidden;
+  height: 28px;
+}
+.nav-search input {
+  background: transparent;
+  border: none;
+  outline: none;
+  padding: 0 10px;
+  color: white;
+  font-size: 12px;
+  width: 140px;
+}
+.nav-search input::placeholder { color: rgba(255,255,255,.4); }
+.nav-search button {
+  background: none;
+  border: none;
+  padding: 0 8px;
+  cursor: pointer;
+  color: rgba(255,255,255,.6);
+  font-size: 13px;
+  height: 28px;
+}
+.nav-search button:hover { color: white; }
+.nav-login-btn {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  padding: 0 12px;
+  height: 28px;
+  border-radius: 4px;
+  border: 1px solid rgba(255,255,255,.25);
+  background: transparent;
+  color: rgba(255,255,255,.8);
+  font-size: 11px;
+  font-weight: 600;
+  cursor: pointer;
+  white-space: nowrap;
+  transition: all .15s;
+  font-family: 'Noto Sans Tamil', sans-serif;
+}
+.nav-login-btn:hover { background: rgba(255,255,255,.12); color: white; }
+.nav-user-wrap { position: relative; }
+.nav-user-avatar {
+  width: 28px;
+  height: 28px;
+  border-radius: 50%;
+  object-fit: cover;
+  cursor: pointer;
+  border: 2px solid rgba(255,255,255,.3);
+}
+.nav-user-init {
+  background: #C0001A;
+  color: white;
+  font-weight: 700;
+  font-size: 13px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── HEADER (masthead container) ── */
+.header {
+  background: #FFFFFF;
+  position: relative;
+  z-index: 10;
+  border-bottom: none;
+  box-shadow: none;
+}
+
+/* ── MASTHEAD ROW ── */
+.masthead {
+  display: grid;
+  grid-template-columns: 200px 1fr 200px;
+  align-items: center;
+  gap: 12px;
+  padding: 10px 20px 8px;
+  max-width: 1200px;
+  margin: 0 auto;
+}
+.masthead-ad {
+  width: 200px;
+  height: 80px;
+  background: #F0EFE9;
+  border: 1px solid #D8D6CE;
+  border-radius: 4px;
+  overflow: hidden;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 10px;
+  color: #9A9890;
+  text-align: center;
+}
+.masthead-ad img { width: 100%; height: 100%; object-fit: cover; }
+.masthead-center { text-align: center; }
+
+/* Logo elements */
+.vel-logo-link { text-decoration: none; display: inline-block; }
+.vel-brand-wrap { display: inline-flex; align-items: center; gap: 12px; justify-content: center; }
+.vel-img        { height: 52px; width: auto; object-fit: contain; flex-shrink: 0; }
+.vel-monogram   {
+  width: 52px; height: 52px; border-radius: 8px;
+  background: #C0001A; display: flex; align-items: center;
+  justify-content: center; flex-shrink: 0; position: relative; overflow: hidden;
+}
+.vel-monogram::before {
+  content: ''; position: absolute; inset: 0;
+  background: linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 60%);
+}
+.vel-mono-v {
+  font-family: 'Inter',sans-serif; font-size: 20px; font-weight: 900;
+  color: white; position: relative; z-index: 1; letter-spacing: -1px;
+}
+.vel-mono-s {
+  font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 700;
+  color: rgba(255,255,255,.75); position: relative; z-index: 1;
+  align-self: flex-end; margin-bottom: 2px;
+}
+.vel-logo   { display: inline-flex; align-items: center; gap: 0; font-family: 'Noto Sans Tamil',sans-serif; font-size: 30px; font-weight: 900; line-height: 1; }
+.vel-word1  { color: #C0001A; padding-right: 4px; }
+.vel-word2  { color: #fff; background: #C0001A; padding: 2px 8px 4px; border-radius: 4px; }
+.vel-tagline{ font-family: 'Noto Sans Tamil',sans-serif; font-size: 10px; font-weight: 600; color: #9A9890; letter-spacing: .5px; margin-top: 3px; text-align: center; }
+
+/* ── REG + DATE BAR ── */
+.masthead-meta-bar { background: #fff; border-top: 1px solid #E8E6E0; }
+.masthead-meta-inner {
+  max-width: 1200px; margin: 0 auto; padding: 3px 20px;
+  display: flex; align-items: center; justify-content: space-between;
+  font-size: 11px; color: #9A9890;
+}
+.masthead-reg   { font-weight: 500; }
+.masthead-edition { font-style: italic; }
+.masthead-date  { font-weight: 600; color: #1A1A1A; }
+
+/* ── DOUBLE RULE ── */
+.masthead-rule      { height: 5px; background: #C0001A; }
+.masthead-rule-thin { height: 2px; background: #E8E6E0; }
+
+/* ── MOBILE ONLY ADS ── */
+.mobile-square-ad {
+  display: none;
+  background: #F5F5F0;
+  border-top: 1px solid #E8E6E0;
+  padding: 8px;
+  text-align: center;
+  min-height: 60px;
+  align-items: center;
+  justify-content: center;
+}
+.mobile-banner-ad {
+  display: none;
+  background: #F5F5F0;
+  border-top: 1px solid #E8E6E0;
+  padding: 4px 8px;
+  text-align: center;
+  min-height: 58px;
+  align-items: center;
+  justify-content: center;
+}
+
+/* ── MOBILE FLOATING AD ── */
+.mobile-ad-float {
+  display: none;
+  position: fixed;
+  bottom: 62px;
+  left: 0; right: 0;
+  z-index: 998;
+  background: #fff;
+  border-top: 1px solid #E8E6E0;
+  box-shadow: 0 -4px 16px rgba(0,0,0,.12);
+  padding: 6px 10px;
+  align-items: center;
+  gap: 8px;
+}
+.mobile-ad-float-content {
+  flex: 1;
+  min-height: 50px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  font-size: 11px;
+  color: #9A9890;
+}
+.mobile-ad-float-close {
+  width: 28px; height: 28px; border-radius: 50%;
+  background: #F0EFE9; border: none; cursor: pointer;
+  font-size: 14px; color: #6B6A64; flex-shrink: 0;
+  transition: background .15s;
+}
+.mobile-ad-float-close:hover { background: #C0001A; color: white; }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  /* Nav: hide search+login */
+  .nav-actions { display: none; }
+  .nav-link    { font-size: 12px; padding: 0 10px; }
+  .nav-inner   { height: 38px; }
+
+  /* Masthead: hide BOTH side ads, full-width logo only */
+  .masthead {
+    grid-template-columns: 1fr;
+    padding: 8px 12px 6px;
+    gap: 0;
+  }
+  .masthead > .masthead-ad { display: none !important; }
+  .vel-logo     { font-size: 24px; }
+  .vel-monogram { width: 40px; height: 40px; border-radius: 6px; }
+  .vel-mono-v   { font-size: 16px; }
+  .vel-mono-s   { font-size: 10px; }
+  .vel-brand-wrap { gap: 8px; }
+
+  /* Meta bar compact */
+  .masthead-meta-bar { padding: 3px 12px; }
+  .masthead-meta-inner { font-size: 10px; }
+  .masthead-edition { display: none; }
+
+  /* Show ONLY: square ad (below logo) + banner (below ticker) */
+  .mobile-square-ad { display: flex; }
+  .mobile-banner-ad { display: flex; }
+
+  /* Hide floating ad on mobile — not needed (already have 2 ads) */
+  .mobile-ad-float { display: none !important; }
+}
+
+@media (min-width: 769px) and (max-width: 1024px) {
+  .masthead { grid-template-columns: 160px 1fr 160px; }
+  .masthead-ad { width: 160px; height: 70px; }
+}
+
+/* ── TEMPORARY AD PLACEHOLDERS (replace with real ads later) ── */
+.masthead-ad {
+  background-image: url('https://placehold.co/200x80/C0001A/FFFFFF?text=Advertisement');
+  background-size: cover;
+  background-position: center;
+}
+.masthead-ad span { display: none; } /* hide text when bg image loads */
+
+.mobile-square-ad {
+  background-image: url('https://placehold.co/320x60/1A1A1A/FFFFFF?text=Advertisement');
+  background-size: cover;
+  background-position: center;
+  min-height: 60px;
+}
+.mobile-square-ad > div { display: none; }
+
+.mobile-banner-ad {
+  background-image: url('https://placehold.co/320x50/C0001A/FFFFFF?text=Advertisement+320x50');
+  background-size: cover;
+  background-position: center;
+  min-height: 50px;
+}
+.mobile-banner-ad > div { display: none; }
+
+.header-banner-ad-placeholder {
+  background: url('https://placehold.co/728x60/1A1A1A/FFFFFF?text=Advertisement+728x60') center/cover no-repeat;
+  min-height: 60px;
+  font-size: 0; /* hide text */
+}

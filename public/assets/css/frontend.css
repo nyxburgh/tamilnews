@@ -1047,3 +1047,11 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
   .cat-side-menu { display: none; }
   .subcat-pills  { display: flex; }
 }
+
+/* ── HIDE PAGE-LEVEL AD BANNERS ON MOBILE ── */
+@media (max-width: 768px) {
+  .ad-slot       { display: none !important; }
+  .ad-slot-wrap  { display: none !important; }
+  .ad-header     { display: none !important; }
+  .ad-sidebar    { display: none !important; }
+}

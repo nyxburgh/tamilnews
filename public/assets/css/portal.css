@@ -990,3 +990,42 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
   .tn-pag-btn  { min-width: 30px; height: 30px; font-size: 12px; padding: 0 7px; }
   .tn-pag-info { font-size: 11px; }
 }
+
+/* ── MOBILE RESPONSIVE ── */
+@media (max-width: 768px) {
+  /* Hide sidebar on mobile — use sticky footer nav instead */
+  .portal-sidebar { display: none !important; }
+  .portal-topnav  { display: none !important; }
+  .portal-main    {
+    margin-left: 0 !important;
+    padding: 12px !important;
+    padding-bottom: 72px !important;
+  }
+  /* Status tabs: scrollable horizontally */
+  .tn-status-tabs {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    padding-bottom: 4px;
+  }
+  .tn-status-tabs::-webkit-scrollbar { display: none; }
+  /* Table: horizontal scroll */
+  .tn-table, .portal-table {
+    display: block;
+    overflow-x: auto;
+    -webkit-overflow-scrolling: touch;
+  }
+  /* Cards: full width */
+  .tn-card { border-radius: 8px; }
+  /* Page header: stack */
+  .tn-page-header {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 10px;
+  }
+  /* Buttons: full width on mobile */
+  .tn-page-header .btn { width: 100%; }
+  /* Form cols: single column */
+  .row.g-4 > [class*="col-md"] { width: 100% !important; }
+}
