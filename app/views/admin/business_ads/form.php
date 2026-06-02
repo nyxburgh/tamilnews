@@ -93,21 +93,29 @@
       <div class="tn-card-body">
 
         <div class="mb-3">
-          <label class="form-label fw-600">Ad Slot <span class="text-danger">*</span></label>
-          <select name="slot_id" id="slotSel" class="form-select" required>
-            <option value="">-- Select Position on Website --</option>
+          <label class="form-label fw-600">Ad Type <span class="text-danger">*</span></label>
+          <div class="d-flex gap-3">
             <?php foreach ($slots as $slot): ?>
-            <option value="<?= $slot['id'] ?>"
-                    data-size="<?= Helper::e($slot['desktop_size'] ?? '') ?>"
-                    <?= ($ad['slot_id'] ?? '') == $slot['id'] ? 'selected' : '' ?>>
-              <?= Helper::e($slot['name']) ?>
-              <?php if ($slot['desktop_size']): ?>
-                (<?= Helper::e($slot['desktop_size']) ?>)
+            <label class="slot-pick <?= ($ad['slot_id'] ?? '') == $slot['id'] ? 'active' : '' ?>"
+                   style="flex:1;border:2px solid var(--card-border,#dee2e6);border-radius:8px;padding:12px;cursor:pointer;text-align:center;transition:all .15s"
+                   onclick="this.parentElement.querySelectorAll('.slot-pick').forEach(x=>x.classList.remove('active'));this.classList.add('active');document.getElementById('slotIdInput').value='<?= $slot['id'] ?>'">
+              <input type="radio" name="_slot_display" style="display:none"
+                     <?= ($ad['slot_id'] ?? '') == $slot['id'] ? 'checked' : '' ?>>
+              <?php if ($slot['position'] === 'square'): ?>
+              <div style="width:50px;height:50px;background:var(--portal-gray1,#f0f0f0);border:1px solid var(--portal-gray2,#ccc);border-radius:4px;margin:0 auto 6px"></div>
+              <?php else: ?>
+              <div style="width:80px;height:22px;background:var(--portal-gray1,#f0f0f0);border:1px solid var(--portal-gray2,#ccc);border-radius:4px;margin:0 auto 6px"></div>
               <?php endif; ?>
-            </option>
+              <div style="font-weight:700;font-size:13px"><?= Helper::e($slot['name']) ?></div>
+              <div style="font-size:11px;color:var(--portal-muted,#6b7280)"><?= Helper::e($slot['desktop_size']) ?></div>
+            </label>
             <?php endforeach; ?>
-          </select>
-          <div id="slotSizeHint" class="form-text mt-1"></div>
+          </div>
+          <input type="hidden" name="slot_id" id="slotIdInput"
+                 value="<?= (int)($ad['slot_id'] ?? 1) ?>" required>
+          <style>
+            .slot-pick.active { border-color:#C0001A !important; background:rgba(192,0,26,.05); }
+          </style>
         </div>
 
         <div class="mb-3">
@@ -338,11 +346,5 @@ function deleteImage(imageId, adId) {
   });
 }
 
-// Slot size hint
-document.getElementById('slotSel')?.addEventListener('change', function() {
-  const opt  = this.options[this.selectedIndex];
-  const hint = document.getElementById('slotSizeHint');
-  const size = opt?.dataset.size;
-  hint.textContent = size ? `Recommended image size: ${size}` : '';
-});
+
 </script>

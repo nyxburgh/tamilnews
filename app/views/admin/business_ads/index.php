@@ -18,12 +18,28 @@
 .bad-tabs { display:flex; gap:6px; flex-wrap:wrap; margin-bottom:16px; }
 .bad-tab  {
   padding:5px 16px; border-radius:20px; font-size:12px; font-weight:600;
-  text-decoration:none; color:rgba(255,255,255,.5);
-  background:rgba(255,255,255,.05); border:1px solid rgba(255,255,255,.1);
-  transition:all .15s;
+  text-decoration:none;
+  color: var(--portal-muted, #6B6A64);
+  background: var(--portal-white, rgba(255,255,255,.06));
+  border: 1px solid var(--portal-gray2, rgba(255,255,255,.12));
+  transition: all .15s;
 }
-.bad-tab:hover { color:#fff; border-color:rgba(255,255,255,.3); }
-.bad-tab.active { background:#C0001A; color:#fff; border-color:#C0001A; }
+.bad-tab:hover {
+  color: var(--portal-text, #fff);
+  border-color: var(--portal-red, #C0001A);
+}
+.bad-tab.active {
+  background: #C0001A;
+  color: #fff !important;
+  border-color: #C0001A;
+}
+/* dark theme override */
+[data-bs-theme="dark"] .bad-tab {
+  color: rgba(255,255,255,.65);
+  background: rgba(255,255,255,.06);
+  border-color: rgba(255,255,255,.12);
+}
+[data-bs-theme="dark"] .bad-tab:hover { color:#fff; }
 </style>
 <div class="bad-tabs">
   <?php

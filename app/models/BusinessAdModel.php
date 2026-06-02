@@ -181,6 +181,10 @@ class BusinessAdModel extends Model
     // ── Display: get active ad for a slot ────────────────────
     // Called by frontend to get the right ad based on context
 
+    /**
+     * Get best active ad for slot type ('square' or 'horizontal')
+     * Priority: location(3) > category(2) > global(1)
+     */
     public function getActiveForSlot(
         string $position,
         ?int   $districtId  = null,
