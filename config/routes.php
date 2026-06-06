@@ -241,4 +241,5 @@ return [
     ['POST', '/admin/business-ads/confirm-payment/{id}','admin\\BusinessAdController@confirmPayment'],
     ['POST', '/admin/business-ads/delete-image/{id}',   'admin\\BusinessAdController@deleteImage'],
     ['GET',  '/admin/business-ads/cities/{id}',         'admin\\BusinessAdController@citiesByDistrict'],
+    ['GET', '/lang/{lang}', 'frontend\\LangController@switch'],
 ];

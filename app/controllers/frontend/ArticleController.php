@@ -59,12 +59,20 @@ class ArticleController extends Controller
         foreach ($rows as $row) { $ads[$row['position']] = $row; }
 
         // SEO
+        $siteUrl   = rtrim($settings->getValue('site_url', BASE_URL . '/public'), '/');
         $metaTitle = $article['meta_title'] ?: $article['title'] . ' | ' . $siteName;
-        $metaDesc  = $article['meta_desc']  ?: $article['excerpt'];
-        $canonical = Helper::e(($settings->getValue('site_url', '/')) . '/article/' . $article['slug']);
-        $ogImage   = $article['image_url']
-            ? ($settings->getValue('site_url', '') . $article['image_url'])
-            : '';
+        $rawDesc   = $article['meta_desc']  ?: strip_tags($article['excerpt'] ?? '');
+        $metaDesc  = mb_substr($rawDesc, 0, 160);
+        $canonical = $siteUrl . '/article/' . $article['slug'];
+
+        // OG image — use article thumbnail or fallback to site default
+        if (!empty($article['image_url'])) {
+            $ogImage = strpos($article['image_url'], 'http') === 0
+                ? $article['image_url']
+                : $siteUrl . '/' . ltrim($article['image_url'], '/');
+        } else {
+            $ogImage = BASE_URL . '/public/uploads/vaqua.jpeg'; // fallback
+        }
 
         $isPremiumLocked = $isPremiumLocked ?? false;
         $csrf = \App\Core\CSRF::token();

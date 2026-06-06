@@ -1,312 +1,353 @@
 /* ═══════════════════════════════════════════════════
-   வேள் சுடர் — NEWSPAPER MASTHEAD CSS
+   தினத்துளிர் — MASTHEAD CSS (complete, no duplicates)
+   Desktop: nav sticky + [300×250] logo [300×250] + ticker + 728×100
+   Mobile:  mob-topbar sticky + 25vh ad + ticker + 100px ad
 ═══════════════════════════════════════════════════ */
 
-/* ── NAV — sticky top ── */
+/* ─── DESKTOP NAV (sticky) ─────────────────────────── */
 .nav {
-  position: sticky;
-  top: 0;
-  z-index: 200;
+  position: sticky; top: 0; z-index: 200;
   background: #1A1A1A;
   border-bottom: 2px solid #C0001A;
 }
 .nav-inner {
-  max-width: 1200px;
-  margin: 0 auto;
-  padding: 0 16px;
-  display: flex;
-  align-items: center;
-  gap: 0;
-  height: 42px;
-  overflow-x: auto;
-  scrollbar-width: none;
+  max-width: 1240px; margin: 0 auto; padding: 0 16px;
+  display: flex; align-items: center; height: 44px;
+  overflow-x: auto; scrollbar-width: none;
 }
 .nav-inner::-webkit-scrollbar { display: none; }
 .nav-link {
-  color: rgba(255,255,255,.75);
-  text-decoration: none;
-  font-size: 13px;
-  font-weight: 500;
-  padding: 0 14px;
-  height: 42px;
-  display: inline-flex;
-  align-items: center;
-  white-space: nowrap;
-  transition: color .15s, background .15s;
-  border-bottom: 2px solid transparent;
+  color: rgba(255,255,255,.7); text-decoration: none;
+  font-size: 13px; font-weight: 500; padding: 0 13px;
+  height: 44px; display: inline-flex; align-items: center;
+  white-space: nowrap; border-bottom: 3px solid transparent;
+  flex-shrink: 0; transition: color .15s, border-color .15s;
 }
-.nav-link:hover { color: #fff; background: rgba(255,255,255,.08); }
+.nav-link:hover { color: #fff; }
 .nav-link.active { color: #fff; border-bottom-color: #C0001A; font-weight: 700; }
-
-/* Search + Login at right end of nav */
 .nav-actions {
-  display: flex;
-  align-items: center;
-  gap: 8px;
-  margin-left: auto;
-  flex-shrink: 0;
-  padding-left: 16px;
+  display: flex; align-items: center; gap: 8px;
+  margin-left: auto; flex-shrink: 0; padding-left: 12px;
 }
 .nav-search {
-  display: flex;
-  align-items: center;
-  background: rgba(255,255,255,.1);
-  border-radius: 4px;
-  overflow: hidden;
-  height: 28px;
+  display: flex; align-items: center;
+  background: rgba(255,255,255,.1); border-radius: 4px; height: 30px; overflow: hidden;
 }
 .nav-search input {
-  background: transparent;
-  border: none;
-  outline: none;
-  padding: 0 10px;
-  color: white;
-  font-size: 12px;
-  width: 140px;
+  background: transparent; border: none; outline: none;
+  padding: 0 10px; color: #fff; font-size: 12px; width: 130px;
 }
 .nav-search input::placeholder { color: rgba(255,255,255,.4); }
-.nav-search button {
-  background: none;
-  border: none;
-  padding: 0 8px;
-  cursor: pointer;
-  color: rgba(255,255,255,.6);
-  font-size: 13px;
-  height: 28px;
-}
-.nav-search button:hover { color: white; }
+.nav-search button { background:none;border:none;padding:0 8px;cursor:pointer;color:rgba(255,255,255,.6);font-size:13px;height:30px; }
+.nav-search button:hover { color: #fff; }
 .nav-login-btn {
-  display: flex;
-  align-items: center;
-  gap: 5px;
-  padding: 0 12px;
-  height: 28px;
-  border-radius: 4px;
-  border: 1px solid rgba(255,255,255,.25);
-  background: transparent;
-  color: rgba(255,255,255,.8);
-  font-size: 11px;
-  font-weight: 600;
-  cursor: pointer;
-  white-space: nowrap;
-  transition: all .15s;
-  font-family: 'Noto Sans Tamil', sans-serif;
+  display: inline-flex; align-items: center; gap: 5px;
+  padding: 0 12px; height: 30px; border-radius: 4px;
+  border: 1px solid rgba(255,255,255,.25); background: transparent;
+  color: rgba(255,255,255,.8); font-size: 12px; font-weight: 600;
+  cursor: pointer; font-family: 'Noto Sans Tamil', sans-serif; transition: all .15s;
 }
-.nav-login-btn:hover { background: rgba(255,255,255,.12); color: white; }
+.nav-login-btn:hover { background: rgba(255,255,255,.1); color: #fff; }
 .nav-user-wrap { position: relative; }
 .nav-user-avatar {
-  width: 28px;
-  height: 28px;
-  border-radius: 50%;
-  object-fit: cover;
-  cursor: pointer;
-  border: 2px solid rgba(255,255,255,.3);
+  width: 30px; height: 30px; border-radius: 50%; cursor: pointer;
+  border: 2px solid rgba(255,255,255,.3); object-fit: cover;
 }
 .nav-user-init {
-  background: #C0001A;
-  color: white;
-  font-weight: 700;
-  font-size: 13px;
-  display: flex;
-  align-items: center;
-  justify-content: center;
+  background: #C0001A; color: #fff; font-weight: 700; font-size: 13px;
+  display: flex; align-items: center; justify-content: center;
 }
 
-/* ── HEADER (masthead container) ── */
+/* ─── MOBILE TOPBAR (hidden on desktop) ────────────── */
+.mob-topbar { display: none; }
+
+/* ─── HEADER CONTAINER ─────────────────────────────── */
 .header {
-  background: #FFFFFF;
+  background: #fff;
   position: relative;
-  z-index: 10;
-  border-bottom: none;
-  box-shadow: none;
+}
+#headerCanvas {
+  position: absolute; top: 0; left: 0;
+  width: 100%; height: 100%;
+  pointer-events: none; opacity: .06;
 }
 
-/* ── MASTHEAD ROW ── */
+/* ─── MASTHEAD GRID [AD] [LOGO] [AD] ────────────────── */
 .masthead {
   display: grid;
-  grid-template-columns: 200px 1fr 200px;
+  grid-template-columns: 300px 1fr 300px;
   align-items: center;
-  gap: 12px;
-  padding: 10px 20px 8px;
-  max-width: 1200px;
+  gap: 16px;
+  padding: 8px 20px 6px;
+  max-width: 1240px;
   margin: 0 auto;
+  background: #fff;
 }
 .masthead-ad {
-  width: 200px;
-  height: 80px;
+  width: 300px;
+  height: 150px;
   background: #F0EFE9;
-  border: 1px solid #D8D6CE;
-  border-radius: 4px;
-  overflow: hidden;
+  border: 1px solid #E0DEDA;
+  border-radius: 6px;
+  overflow: visible;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 10px;
-  color: #9A9890;
-  text-align: center;
+  flex-shrink: 0;
 }
-.masthead-ad img { width: 100%; height: 100%; object-fit: cover; }
+.masthead-ad img,
+.masthead-ad a img { max-width: 100%; height: auto; object-fit: contain; display: block; }
 .masthead-center { text-align: center; }
-
-/* Logo elements */
 .vel-logo-link { text-decoration: none; display: inline-block; }
 .vel-brand-wrap { display: inline-flex; align-items: center; gap: 12px; justify-content: center; }
-.vel-img        { height: 52px; width: auto; object-fit: contain; flex-shrink: 0; }
-.vel-monogram   {
-  width: 52px; height: 52px; border-radius: 8px;
-  background: #C0001A; display: flex; align-items: center;
-  justify-content: center; flex-shrink: 0; position: relative; overflow: hidden;
+.vel-logo {
+  display: inline-flex; align-items: center;
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: 32px; font-weight: 900; line-height: 1;
 }
-.vel-monogram::before {
-  content: ''; position: absolute; inset: 0;
-  background: linear-gradient(135deg,rgba(255,255,255,.15) 0%,transparent 60%);
+.vel-word1 { color: #C0001A; padding-right: 4px; }
+.vel-word2 { color: #fff; background: #C0001A; padding: 2px 10px 4px; border-radius: 4px; }
+.vel-tagline {
+  font-family: 'Noto Sans Tamil', sans-serif;
+  font-size: 11px; font-weight: 600; color: #9A9890;
+  letter-spacing: .5px; margin-top: 4px;
 }
-.vel-mono-v {
-  font-family: 'Inter',sans-serif; font-size: 20px; font-weight: 900;
-  color: white; position: relative; z-index: 1; letter-spacing: -1px;
+.masthead-sub-line {
+  font-size: 10px; color: #9A9890;
+  font-family: 'Source Sans 3', sans-serif;
+  margin-top: 5px; letter-spacing: .2px;
 }
-.vel-mono-s {
-  font-family: 'Inter',sans-serif; font-size: 13px; font-weight: 700;
-  color: rgba(255,255,255,.75); position: relative; z-index: 1;
-  align-self: flex-end; margin-bottom: 2px;
-}
-.vel-logo   { display: inline-flex; align-items: center; gap: 0; font-family: 'Noto Sans Tamil',sans-serif; font-size: 30px; font-weight: 900; line-height: 1; }
-.vel-word1  { color: #C0001A; padding-right: 4px; }
-.vel-word2  { color: #fff; background: #C0001A; padding: 2px 8px 4px; border-radius: 4px; }
-.vel-tagline{ font-family: 'Noto Sans Tamil',sans-serif; font-size: 10px; font-weight: 600; color: #9A9890; letter-spacing: .5px; margin-top: 3px; text-align: center; }
 
-/* ── REG + DATE BAR ── */
-.masthead-meta-bar { background: #fff; border-top: 1px solid #E8E6E0; }
-.masthead-meta-inner {
-  max-width: 1200px; margin: 0 auto; padding: 3px 20px;
-  display: flex; align-items: center; justify-content: space-between;
+/* ─── MOBILE SQUARE AD (hidden on desktop) ──────────── */
+.mobile-square-ad {
+  display: none;
+  background: #F0EFE9;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 4px 0;
+}
+.mob-ad-ph {
+  width: 100%; height: 100%;
+  display: flex; align-items: center; justify-content: center;
   font-size: 11px; color: #9A9890;
 }
-.masthead-reg   { font-weight: 500; }
-.masthead-edition { font-style: italic; }
-.masthead-date  { font-weight: 600; color: #1A1A1A; }
 
-/* ── DOUBLE RULE ── */
+/* ─── DOUBLE RULE ───────────────────────────────────── */
 .masthead-rule      { height: 5px; background: #C0001A; }
 .masthead-rule-thin { height: 2px; background: #E8E6E0; }
 
-/* ── MOBILE ONLY ADS ── */
-.mobile-square-ad {
-  display: none;
-  background: #F5F5F0;
+/* ─── DESKTOP HORIZONTAL BANNER 728×100 ─────────────── */
+.header-banner-ad {
+  background: #fff;
   border-top: 1px solid #E8E6E0;
-  padding: 8px;
-  text-align: center;
-  min-height: 60px;
-  align-items: center;
-  justify-content: center;
+  border-bottom: 1px solid #E8E6E0;
 }
-.mobile-banner-ad {
-  display: none;
-  background: #F5F5F0;
-  border-top: 1px solid #E8E6E0;
-  padding: 4px 8px;
-  text-align: center;
-  min-height: 58px;
-  align-items: center;
-  justify-content: center;
+.header-banner-ad-inner {
+  max-width: 1240px; margin: 0 auto;
+  padding: 6px 20px;
+  height: 112px;
+  display: flex; align-items: center; justify-content: center;
+}
+.header-banner-ad-placeholder {
+  width: 728px; max-width: 100%; height: 100px;
+  background: #F0EFE9; border: 1px dashed #C8C6BE; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: #9A9890;
 }
 
-/* ── MOBILE FLOATING AD ── */
-.mobile-ad-float {
-  display: none;
+/* ─── MOBILE HORIZONTAL BANNER (hidden on desktop) ──── */
+.mobile-square-ad img {
+  max-width: 200px;
+  max-height: 100px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
+.mobile-banner-ad { display: none !important; }
+.mob-banner-ph {
+  width: 100%; height: 80px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: rgba(255,255,255,.4);
+}
+
+/* ─── FOOTER ─────────────────────────────────────────── */
+.site-footer {
+  background: #1A1A1A;
+  margin-top: 40px;
+}
+.site-footer-inner {
+  max-width: 1240px; margin: 0 auto;
+  padding: 14px 20px;
+  text-align: center;
+  font-size: 12px;
+  color: rgba(255,255,255,.45);
+  display: flex; align-items: center; justify-content: center;
+  gap: 8px; flex-wrap: wrap;
+}
+.site-footer-inner a { color: rgba(255,255,255,.45); text-decoration: none; }
+.site-footer-inner a:hover { color: #fff; }
+.ftr-sep { color: rgba(255,255,255,.2); }
+
+/* ─── DRAWER ────────────────────────────────────────── */
+.mob-drawer-overlay {
+  display: none; position: fixed; inset: 0;
+  background: rgba(0,0,0,.5); z-index: 998;
+}
+.mob-drawer-overlay.open { display: block; }
+.mob-drawer {
+  position: fixed; top: 0; right: 0; bottom: 0;
+  width: 75%; max-width: 320px;
+  background: #fff; z-index: 999;
+  transform: translateX(100%);
+  transition: transform .3s ease;
+  display: flex; flex-direction: column; overflow: hidden;
+}
+.mob-drawer.open { transform: translateX(0); }
+.mob-drawer-header {
+  display: flex; align-items: center; justify-content: space-between;
+  padding: 14px 16px; border-bottom: 2px solid #C0001A; flex-shrink: 0;
+}
+.mob-logo-w1 { font-family:'Noto Sans Tamil',sans-serif; font-weight:900; color:#C0001A; }
+.mob-logo-w2 { font-family:'Noto Sans Tamil',sans-serif; font-weight:900; color:#fff; background:#C0001A; padding:1px 6px; border-radius:3px; margin-left:2px; }
+.mob-drawer-close {
+  width: 32px; height: 32px; border-radius: 50%;
+  background: #F0EFE9; border: none; font-size: 16px;
+  cursor: pointer; color: #6B6A64;
+}
+.mob-drawer-body { flex: 1; overflow-y: auto; padding: 6px 0; }
+.mob-drawer-link {
+  display: block; padding: 13px 20px;
+  font-size: 14px; font-family: 'Noto Sans Tamil', sans-serif;
+  font-weight: 500; color: #1A1A1A; text-decoration: none;
+  border-bottom: 1px solid #F0EFE9; transition: background .12s;
+}
+.mob-drawer-link:hover { background: #FEF0F0; color: #C0001A; }
+.mob-drawer-divider { height: 6px; background: #F5F5F0; border-top: 1px solid #E8E6E0; border-bottom: 1px solid #E8E6E0; margin: 4px 0; }
+.mob-drawer-user { padding: 10px 20px; font-size: 13px; color: #6B6A64; background: #F5F5F0; }
+
+/* ═══════════════════════════════════════════════════
+   MOBILE ≤ 768px
+═══════════════════════════════════════════════════ */
+
+/* ── < 600px: mobile layout ── */
+
+
+/* ── MOBILE FLOATING AD ─────────────────────────────── */
+.mob-float-ad {
   position: fixed;
   bottom: 62px;
   left: 0; right: 0;
-  z-index: 998;
-  background: #fff;
-  border-top: 1px solid #E8E6E0;
-  box-shadow: 0 -4px 16px rgba(0,0,0,.12);
-  padding: 6px 10px;
+  z-index: 990;
+  background: #000;
+  height: 66px;
+  display: none;           /* shown via media query below */
   align-items: center;
-  gap: 8px;
+  box-shadow: 0 -3px 12px rgba(0,0,0,.4);
 }
-.mobile-ad-float-content {
+.mob-float-ad-inner {
   flex: 1;
-  min-height: 50px;
+  height: 100%;
   display: flex;
   align-items: center;
   justify-content: center;
-  font-size: 11px;
-  color: #9A9890;
+  overflow: hidden;
 }
-.mobile-ad-float-close {
-  width: 28px; height: 28px; border-radius: 50%;
-  background: #F0EFE9; border: none; cursor: pointer;
-  font-size: 14px; color: #6B6A64; flex-shrink: 0;
-  transition: background .15s;
+.mob-float-ad-inner img {
+  width: 100%;
+  height: 66px;
+  object-fit: contain;
+  display: block;
 }
-.mobile-ad-float-close:hover { background: #C0001A; color: white; }
+.mob-float-ad-close {
+  width: 28px;
+  height: 66px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,.1);
+  border: none;
+  color: rgba(255,255,255,.7);
+  font-size: 14px;
+  cursor: pointer;
+}
 
-/* ── MOBILE RESPONSIVE ── */
-@media (max-width: 768px) {
-  /* Nav: hide search+login */
-  .nav-actions { display: none; }
-  .nav-link    { font-size: 12px; padding: 0 10px; }
-  .nav-inner   { height: 38px; }
+/* ═══════════════════════════════════════════════════
+   RESPONSIVE — 2 breakpoints only
+   < 1024px  = mobile layout (phone + tablet)
+   ≥ 1024px  = desktop layout
+═══════════════════════════════════════════════════ */
 
-  /* Masthead: hide BOTH side ads, full-width logo only */
-  .masthead {
-    grid-template-columns: 1fr;
-    padding: 8px 12px 6px;
-    gap: 0;
+/* ── MOBILE + TABLET (< 1024px) ── */
+@media (max-width: 1023px) {
+  /* Desktop nav hidden — use mobile bottom nav + drawer */
+  .nav              { display: none !important; }
+
+  /* Sticky mobile top bar */
+  .mob-topbar {
+    display: flex !important;
+    position: sticky;
+    top: 0;
+    z-index: 300;
+    background: #fff;
+    border-bottom: 3px solid #C0001A;
+    padding: 7px 14px;
+    align-items: center;
+    justify-content: space-between;
+    box-shadow: 0 2px 6px rgba(0,0,0,.1);
   }
-  .masthead > .masthead-ad { display: none !important; }
-  .vel-logo     { font-size: 24px; }
-  .vel-monogram { width: 40px; height: 40px; border-radius: 6px; }
-  .vel-mono-v   { font-size: 16px; }
-  .vel-mono-s   { font-size: 10px; }
-  .vel-brand-wrap { gap: 8px; }
+  .mob-topbar-logo  { text-decoration: none; }
+  .mob-topbar-date  { font-size: 10px; color: #9A9890; }
+  .mob-logo-w1      { font-family:'Noto Sans Tamil',sans-serif; font-weight:900; color:#C0001A; font-size:18px; }
+  .mob-logo-w2      { font-family:'Noto Sans Tamil',sans-serif; font-weight:900; color:#fff; background:#C0001A; padding:1px 6px; border-radius:3px; margin-left:2px; font-size:18px; }
 
-  /* Meta bar compact */
-  .masthead-meta-bar { padding: 3px 12px; }
-  .masthead-meta-inner { font-size: 10px; }
-  .masthead-edition { display: none; }
+  /* Hide desktop masthead and canvas */
+  .masthead         { display: none !important; }
+  #headerCanvas     { display: none; }
+  .header           { background: #fff; }
 
-  /* Show ONLY: square ad (below logo) + banner (below ticker) */
-  .mobile-square-ad { display: flex; }
-  .mobile-banner-ad { display: flex; }
+  /* Mobile top ad: 200×100 centered */
+  .mobile-square-ad {
+    display: flex !important;
+    background: #F5F5F0;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 6px 0;
+    border-bottom: 1px solid #E8E6E0;
+  }
+  .mobile-square-ad img {
+    max-width: 200px;
+    max-height: 100px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
 
-  /* Hide floating ad on mobile — not needed (already have 2 ads) */
-  .mobile-ad-float { display: none !important; }
+  /* Rules */
+  .masthead-rule      { display: block; height: 4px; }
+  .masthead-rule-thin { display: block; height: 2px; }
+
+  /* Hide desktop horizontal banner */
+  .header-banner-ad { display: none !important; }
+
+  /* Mobile bottom nav */
+  .mobile-bottom-nav { display: flex; }
+
+  /* Floating horizontal ad above bottom nav */
+  .mob-float-ad     { display: flex !important; }
+  body              { padding-bottom: 130px; }
+  .site-footer-inner { font-size: 11px; padding: 12px; }
 }
 
-@media (min-width: 769px) and (max-width: 1024px) {
-  .masthead { grid-template-columns: 160px 1fr 160px; }
-  .masthead-ad { width: 160px; height: 70px; }
-}
-
-/* ── TEMPORARY AD PLACEHOLDERS (replace with real ads later) ── */
-.masthead-ad {
-  background-image: url('https://placehold.co/200x80/C0001A/FFFFFF?text=Advertisement');
-  background-size: cover;
-  background-position: center;
-}
-.masthead-ad span { display: none; } /* hide text when bg image loads */
-
-.mobile-square-ad {
-  background-image: url('https://placehold.co/320x60/1A1A1A/FFFFFF?text=Advertisement');
-  background-size: cover;
-  background-position: center;
-  min-height: 60px;
-}
-.mobile-square-ad > div { display: none; }
-
-.mobile-banner-ad {
-  background-image: url('https://placehold.co/320x50/C0001A/FFFFFF?text=Advertisement+320x50');
-  background-size: cover;
-  background-position: center;
-  min-height: 50px;
-}
-.mobile-banner-ad > div { display: none; }
-
-.header-banner-ad-placeholder {
-  background: url('https://placehold.co/728x60/1A1A1A/FFFFFF?text=Advertisement+728x60') center/cover no-repeat;
-  min-height: 60px;
-  font-size: 0; /* hide text */
+/* ── DESKTOP (≥ 1024px) ── */
+@media (min-width: 1024px) {
+  .mob-topbar        { display: none !important; }
+  .mobile-square-ad  { display: none !important; }
+  .mob-float-ad      { display: none !important; }
+  .masthead          { display: grid !important; grid-template-columns: 300px 1fr 300px !important; }
+  .masthead-ad       { width: 300px !important; height: 150px !important; }
+  .header            { position: relative !important; border-bottom: none !important; box-shadow: none !important; }
+  .header-banner-ad  { display: block !important; }
+  .nav-inner         { padding-right: 110px !important; }
 }

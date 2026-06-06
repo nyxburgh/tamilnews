@@ -22,14 +22,7 @@ function e(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8')
 
 <div class="main">
 
-  <!-- AD SLOT: Header Banner -->
-  <?php if (!empty($ads['header']['ad_code'])): ?>
-  <div class="ad-slot ad-header"><?= $ads['header']['ad_code'] ?></div>
-  <?php else: ?>
-  <div class="ad-slot" style="height:80px;margin-bottom:16px">
-    <div class="ad-placeholder">Advertisement · 728×90</div>
-  </div>
-  <?php endif; ?>
+  <!-- Header ad now shown in masthead (728×100) -->
 
   <!-- LIVE BLOG BANNER — shown only when active -->
   <?php if (!empty($liveBlogs)): ?>

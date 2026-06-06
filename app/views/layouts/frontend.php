@@ -3,58 +3,65 @@
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= htmlspecialchars($metaTitle ?? ($siteName ?? 'Tamil News')) ?></title>
+<title><?= htmlspecialchars($metaTitle ?? ($siteName ?? 'தினத்துளிர்')) ?></title>
 <?php if (!empty($metaDesc)): ?><meta name="description" content="<?= htmlspecialchars($metaDesc) ?>"><?php endif; ?>
-<?php if (!empty($canonical)): ?>
-<link rel="canonical" href="<?= htmlspecialchars($canonical) ?>">
-<meta property="og:url" content="<?= htmlspecialchars($canonical) ?>">
-<?php endif; ?>
+<?php if (!empty($canonical)): ?><link rel="canonical" href="<?= htmlspecialchars($canonical) ?>"><?php endif; ?>
+<meta property="og:url" content="<?= htmlspecialchars($_canonical) ?>">
 <?php if (!empty($ogImage)): ?><meta property="og:image" content="<?= htmlspecialchars($ogImage) ?>"><?php endif; ?>
-<meta property="og:type" content="website">
-<meta property="og:title" content="<?= htmlspecialchars($metaTitle ?? '') ?>">
-<meta name="csrf-token" content="<?= \App\Core\CSRF::token() ?>">
+<meta property="og:type"        content="website">
+<meta property="og:title"       content="<?= htmlspecialchars($_metaTitle) ?>">
+<meta property="og:description" content="<?= htmlspecialchars($_ogDesc) ?>">
+<meta property="og:image"       content="<?= htmlspecialchars($_ogImage) ?>">
+<meta property="og:image:width" content="300">
+<meta property="og:image:height"content="150">
+<meta property="og:image:type"  content="image/jpeg">
+<meta name="csrf-token"         content="<?= \App\Core\CSRF::token() ?>">
 <?php
 $_siteUrl   = defined('BASE_URL') ? BASE_URL . '/public' : '';
-$_siteName  = $siteName ?? 'Tamil News Portal';
+$_siteName  = $siteName ?? 'தினத்துளிர்';
 $_metaTitle = $metaTitle ?? $_siteName;
-$_metaDesc  = $metaDesc ?? '';
+$_metaDesc  = $metaDesc  ?? '';
 $_canonical = $canonical ?? $_siteUrl . parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
-$_ogImage   = $ogImage ?? '';
+$_ogImage   = $ogImage   ?? '';
+// Fallback OG image — site logo or default share card
+if (empty($_ogImage)) {
+    $_ogImage = (defined('BASE_URL') ? BASE_URL : '') . '/public/uploads/vaqua.jpeg';
+}
+$_ogDesc = !empty($_metaDesc) ? $_metaDesc : 'தமிழ்நாட்டின் நம்பகமான டிஜிட்டல் செய்தி தளம். அரசியல் பழகு · அறம் செய்.';
 $_isArticle = isset($article) && !empty($article);
 $_pubDate   = $_isArticle ? $article['published_at'] ?? '' : '';
-$_modDate   = $_isArticle ? $article['updated_at'] ?? $article['published_at'] ?? '' : '';
+$_modDate   = $_isArticle ? $article['updated_at']   ?? $article['published_at'] ?? '' : '';
 $_author    = $_isArticle ? ($article['contributor_name'] ?: $article['author_name'] ?? $_siteName) : $_siteName;
 $_keywords  = $_isArticle ? ($article['tag_names'] ?? '') : '';
 $_keywords  = str_replace('||', ', ', $_keywords);
 ?>
-<meta name="twitter:card" content="summary_large_image">
-<meta name="twitter:title" content="<?= htmlspecialchars($_metaTitle) ?>">
-<meta name="twitter:description" content="<?= htmlspecialchars($_metaDesc) ?>">
-<?php if ($_ogImage): ?><meta name="twitter:image" content="<?= htmlspecialchars($_ogImage) ?>"><?php endif; ?>
+<meta name="twitter:card"        content="summary_large_image">
+<meta name="twitter:site"        content="@thinathulir">
+<meta name="twitter:title"       content="<?= htmlspecialchars($_metaTitle) ?>">
+<meta name="twitter:description" content="<?= htmlspecialchars($_ogDesc) ?>">
+<meta name="twitter:image"       content="<?= htmlspecialchars($_ogImage) ?>">
 <meta property="og:site_name" content="<?= htmlspecialchars($_siteName) ?>">
 <meta property="og:locale" content="ta_IN">
 <?php if ($_isArticle): ?>
-<meta property="og:type" content="article">
 <meta property="article:published_time" content="<?= htmlspecialchars($_pubDate) ?>">
-<meta property="article:modified_time"  content="<?= htmlspecialchars($_modDate) ?>">
-<meta property="article:author"         content="<?= htmlspecialchars($_author) ?>">
-<meta property="article:section"        content="<?= htmlspecialchars($article['category_name'] ?? '') ?>">
+<meta property="article:modified_time" content="<?= htmlspecialchars($_modDate) ?>">
+<meta property="article:author" content="<?= htmlspecialchars($_author) ?>">
+<meta property="article:section" content="<?= htmlspecialchars($article['category_name'] ?? '') ?>">
 <?php if ($_keywords): ?><meta property="article:tag" content="<?= htmlspecialchars($_keywords) ?>"><?php endif; ?>
 <?php endif; ?>
 <meta name="keywords" content="<?= $_keywords ? htmlspecialchars($_keywords).', ' : '' ?>தமிழ் செய்தி, Tamil News">
 <?php if ($_isArticle): ?>
 <meta name="news_keywords" content="<?= htmlspecialchars($_keywords ?: ($article['category_name'] ?? '')) ?>">
-<meta name="author"        content="<?= htmlspecialchars($_author) ?>">
-<meta name="publish_date"  content="<?= htmlspecialchars($_pubDate) ?>">
+<meta name="author" content="<?= htmlspecialchars($_author) ?>">
 <?php endif; ?>
 <meta name="language" content="Tamil">
 <meta http-equiv="content-language" content="ta">
 <meta name="robots" content="index, follow, max-image-preview:large, max-snippet:-1, max-video-preview:-1">
 <script type="application/ld+json">
 <?php if ($_isArticle): ?>
-{"@context":"https://schema.org","@type":"<?= !empty($article['youtube_video_id']) ? 'VideoObject' : 'NewsArticle' ?>","headline":<?= json_encode($article['title'] ?? '', JSON_UNESCAPED_UNICODE) ?>,"description":<?= json_encode(mb_substr(strip_tags($article['excerpt'] ?? ''), 0, 200), JSON_UNESCAPED_UNICODE) ?>,"url":<?= json_encode($_canonical) ?>,<?php if ($_ogImage): ?>"image":<?= json_encode($_ogImage) ?>,<?php endif; ?>"datePublished":<?= json_encode($_pubDate) ?>,"dateModified":<?= json_encode($_modDate) ?>,"author":{"@type":"Person","name":<?= json_encode($_author, JSON_UNESCAPED_UNICODE) ?>},"publisher":{"@type":"Organization","name":<?= json_encode($_siteName, JSON_UNESCAPED_UNICODE) ?>,"logo":{"@type":"ImageObject","url":<?= json_encode($_siteUrl.'/assets/images/logo.png') ?>}},"inLanguage":"ta","keywords":<?= json_encode($_keywords, JSON_UNESCAPED_UNICODE) ?>,"articleSection":<?= json_encode($article['category_name'] ?? '', JSON_UNESCAPED_UNICODE) ?>}
+{"@context":"https://schema.org","@type":"NewsArticle","headline":<?= json_encode($article['title'] ?? '', JSON_UNESCAPED_UNICODE) ?>,"url":<?= json_encode($_canonical) ?>,"datePublished":<?= json_encode($_pubDate) ?>,"dateModified":<?= json_encode($_modDate) ?>,"author":{"@type":"Person","name":<?= json_encode($_author, JSON_UNESCAPED_UNICODE) ?>},"publisher":{"@type":"Organization","name":<?= json_encode($_siteName, JSON_UNESCAPED_UNICODE) ?>},"inLanguage":"ta"}
 <?php else: ?>
-{"@context":"https://schema.org","@type":"WebSite","name":<?= json_encode($_siteName, JSON_UNESCAPED_UNICODE) ?>,"url":<?= json_encode($_siteUrl.'/') ?>,"inLanguage":"ta","potentialAction":{"@type":"SearchAction","target":{"@type":"EntryPoint","urlTemplate":<?= json_encode($_siteUrl.'/search?q={search_term_string}') ?>},"query-input":"required name=search_term_string"}}
+{"@context":"https://schema.org","@type":"WebSite","name":<?= json_encode($_siteName, JSON_UNESCAPED_UNICODE) ?>,"url":<?= json_encode($_siteUrl.'/') ?>,"inLanguage":"ta"}
 <?php endif; ?>
 </script>
 <link rel="preconnect" href="https://fonts.googleapis.com">
@@ -66,8 +73,9 @@ $_keywords  = str_replace('||', ', ', $_keywords);
 </head>
 <body>
 <?php
+/* ── ALL REQUIRED VARIABLES ── */
 $reader         = \App\Core\Session::get('reader');
-$siteName       = $siteName ?? 'தமிழ் செய்தி';
+$siteName       = $siteName ?? 'தினத்துளிர்';
 $currentPath    = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 $breakingTicker = $breaking ?? [];
 $navCats        = $navCategories ?? [];
@@ -75,51 +83,44 @@ $assetUrl       = ASSET_URL;
 $baseUrl        = BASE_URL;
 $r              = ASSET_URL;
 
-// Ad slots — safe load
-$adMastheadLeft = $adMastheadRight = $adHeaderBanner = null;
+/* Tamil date */
+$_days   = ['ஞாயிறு','திங்கள்','செவ்வாய்','புதன்','வியாழன்','வெள்ளி','சனி'];
+$_months = ['ஜனவரி','பிப்ரவரி','மார்ச்','ஏப்ரல்','மே','ஜூன்','ஜூலை','ஆகஸ்ட்','செப்டம்பர்','அக்டோபர்','நவம்பர்','டிசம்பர்'];
+$tamilDate = $_days[date('w')] . ', ' . date('d') . ' ' . $_months[(int)date('n')-1] . ' ' . date('Y');
+
+/* Ad slots — safe */
+$adSquare = $adHorizontal = null;
 try {
     $adModel = new \App\Models\AdModel();
     if (method_exists($adModel, 'getSlot')) {
-        $adMastheadLeft  = $adModel->getSlot('masthead_left');
-        $adMastheadRight = $adModel->getSlot('masthead_right');
-        $adHeaderBanner  = $adModel->getSlot('header_banner');
+        $adSquare     = $adModel->getSlot('square');
+        $adHorizontal = $adModel->getSlot('horizontal');
     }
 } catch (\Exception $e) {}
 
-// Tamil date
-$days_ta   = ['ஞாயிறு','திங்கள்','செவ்வாய்','புதன்','வியாழன்','வெள்ளி','சனி'];
-$months_ta = ['ஜனவரி','பிப்ரவரி','மார்ச்','ஏப்ரல்','மே','ஜூன்','ஜூலை','ஆகஸ்ட்','செப்டம்பர்','அக்டோபர்','நவம்பர்','டிசம்பர்'];
-$tamilDate = $days_ta[date('w')].', '.date('d').' '.$months_ta[date('n')-1].' '.date('Y');
 ?>
 
-<!-- ══ NAV BAR — STICKY TOP (desktop) ══ -->
+<!-- ═══════════ DESKTOP NAV (sticky, hidden on mobile) ═══════════ -->
 <nav class="nav">
   <div class="nav-inner">
-    <a href="<?= $baseUrl ?>/public/" class="nav-link <?= ($currentPath === parse_url($baseUrl,PHP_URL_PATH).'/public/' || $currentPath === parse_url($baseUrl,PHP_URL_PATH).'/public') ? 'active' : '' ?>">முகப்பு</a>
+    <a href="<?= $baseUrl ?>/public/" class="nav-link <?= $currentPath === parse_url($baseUrl, PHP_URL_PATH).'/public/' ? 'active' : '' ?>">முகப்பு</a>
     <?php foreach ($navCats as $cat): ?>
     <?php if ($cat['parent_id']) continue; ?>
-    <a href="<?= $baseUrl ?>/public/tamil-news/<?= htmlspecialchars($cat['slug']) ?>"
-       class="nav-link <?= str_contains($_SERVER['REQUEST_URI'], $cat['slug']) ? 'active' : '' ?>">
+    <a href="<?= $baseUrl ?>/public/tamil-news/<?= htmlspecialchars($cat['slug']) ?>" class="nav-link <?= str_contains($_SERVER['REQUEST_URI'], $cat['slug']) ? 'active' : '' ?>">
       <?= htmlspecialchars($cat['name_tamil'] ?: $cat['name']) ?>
     </a>
     <?php endforeach; ?>
-    <!-- Search + Login — desktop only, hidden on mobile -->
     <div class="nav-actions">
       <form class="nav-search" action="<?= $baseUrl ?>/public/search" method="GET">
         <input type="text" name="q" placeholder="தேடு..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
         <button type="submit">🔍</button>
       </form>
       <?php if ($reader): ?>
-      <div class="nav-user-wrap" style="position:relative">
-        <?php if (!empty($reader['avatar'])): ?>
-        <img src="<?= htmlspecialchars($reader['avatar']) ?>" class="nav-user-avatar" onclick="toggleDropdown()" alt="">
-        <?php else: ?>
+      <div class="nav-user-wrap">
         <div class="nav-user-avatar nav-user-init" onclick="toggleDropdown()"><?= strtoupper(substr($reader['name'],0,1)) ?></div>
-        <?php endif; ?>
         <div class="user-dropdown" id="userDropdown">
           <div class="user-dropdown-header">
             <div class="user-dropdown-name"><?= htmlspecialchars($reader['name']) ?></div>
-            <div class="user-dropdown-email"><?= htmlspecialchars($reader['email']) ?></div>
           </div>
           <a href="<?= $baseUrl ?>/public/auth/reader/logout" class="user-dropdown-item logout">🚪 வெளியேறு</a>
         </div>
@@ -134,182 +135,149 @@ $tamilDate = $days_ta[date('w')].', '.date('d').' '.$months_ta[date('n')-1].' '.
   </div>
 </nav>
 
-<!-- ══ NEWSPAPER MASTHEAD ══ -->
+<!-- ═══════════ MOBILE STICKY TOP BAR (hidden on desktop) ═══════════ -->
+<div class="mob-topbar">
+  <a href="<?= $baseUrl ?>/public/" class="mob-topbar-logo">
+    <span class="mob-logo-w1">தினத்</span><span class="mob-logo-w2">துளிர்</span>
+  </a>
+  <div class="mob-topbar-right">
+    <div class="mob-topbar-date"><?= $tamilDate ?></div>
+  </div>
+</div>
+
+<!-- ═══════════ MASTHEAD HEADER ═══════════ -->
 <header class="header">
   <canvas id="headerCanvas"></canvas>
 
-  <!-- MASTHEAD: [AD LEFT] [LOGO] [AD RIGHT] — desktop -->
+  <!-- DESKTOP ONLY: [300×250] [LOGO] [300×250] -->
   <div class="masthead">
     <div class="masthead-ad">
-      <?php if (!empty($adMastheadLeft['ad_code'])): ?>
-        <?= $adMastheadLeft['ad_code'] ?>
-      <?php else: ?>
-        <span>Advertisement<br>200 × 80</span>
-      <?php endif; ?>
+      <img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement" style="width:100%;height:auto;display:block;object-fit:contain">
     </div>
     <div class="masthead-center">
       <a href="<?= $baseUrl ?>/public/" class="vel-logo-link">
         <div class="vel-brand-wrap">
-          <?php if (file_exists(dirname(dirname(dirname(__FILE__))).'/public/assets/images/vel-logo.png')): ?>
-          <img src="<?= $assetUrl ?>/assets/images/vel-logo.png" class="vel-img" alt="வேள் சுடர்">
-          <?php else: ?>
-          <div class="vel-monogram">
-            <span class="vel-mono-v">V</span><span class="vel-mono-s">S</span>
-          </div>
-          <?php endif; ?>
           <div>
-            <div class="vel-logo">
-              <span class="vel-word1">வேள்</span><span class="vel-word2">சுடர்</span>
-            </div>
+            <div class="vel-logo"><span class="vel-word1">தினத்</span><span class="vel-word2">துளிர்</span></div>
             <div class="vel-tagline">அரசியல் பழகு &nbsp;·&nbsp; அறம் செய்</div>
+            <div class="masthead-sub-line">பதிவு எண்: TN/2024/12345 &nbsp;|&nbsp; <?= $tamilDate ?> &nbsp;|&nbsp; <?= date('d F Y') ?></div>
           </div>
         </div>
       </a>
     </div>
     <div class="masthead-ad">
-      <?php if (!empty($adMastheadRight['ad_code'])): ?>
-        <?= $adMastheadRight['ad_code'] ?>
-      <?php else: ?>
-        <span>Advertisement<br>200 × 80</span>
-      <?php endif; ?>
+      <img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement" style="width:100%;height:auto;display:block;object-fit:contain">
     </div>
   </div>
 
-  <!-- MOBILE ONLY: single square ad below logo -->
+  <!-- MOBILE ONLY: single ad (25vh) -->
   <div class="mobile-square-ad">
-    <?php if (!empty($adMastheadLeft['ad_code'])): ?>
-      <?= $adMastheadLeft['ad_code'] ?>
-    <?php else: ?>
-      <div style="font-size:10px;color:#9A9890">Advertisement</div>
-    <?php endif; ?>
+    <img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement" style="max-width:200px;height:auto;display:block;object-fit:contain">
   </div>
 
-  <!-- REG + DATE -->
-  <div class="masthead-meta-bar">
-    <div class="masthead-meta-inner">
-      <span class="masthead-reg">பதிவு எண்: TN/2024/12345 &nbsp;|&nbsp; Reg. No: TN/2024/12345</span>
-      <span class="masthead-edition">Online Edition</span>
-      <span class="masthead-date"><?= $tamilDate ?> &nbsp;|&nbsp; <?= date('d F Y') ?></span>
-    </div>
-  </div>
-
-  <!-- DOUBLE RULE -->
+  <!-- DESKTOP double rule -->
   <div class="masthead-rule"></div>
   <div class="masthead-rule-thin"></div>
 
   <!-- BREAKING TICKER -->
   <?php if (!empty($breakingTicker)): ?>
   <div class="ticker-bar">
-    <div class="ticker-label"><span class="ticker-dot"></span> BREAKING</div>
+    <div class="ticker-label"><span class="ticker-dot"></span>BREAKING</div>
     <div class="ticker-track">
       <div class="ticker-inner" id="tickerInner">
         <?php foreach (array_merge($breakingTicker, $breakingTicker) as $b): ?>
-        <a href="<?= $baseUrl ?>/public/article/<?= htmlspecialchars($b['slug']) ?>" class="ticker-item">
-          <?= htmlspecialchars($b['title']) ?>
-        </a>
+        <a href="<?= $baseUrl ?>/public/article/<?= htmlspecialchars($b['slug']) ?>" class="ticker-item"><?= htmlspecialchars($b['title']) ?></a>
         <?php endforeach; ?>
       </div>
     </div>
   </div>
   <?php endif; ?>
 
-  <!-- MOBILE ONLY: horizontal banner ad below ticker -->
-  <div class="mobile-banner-ad">
-    <?php if (!empty($adHeaderBanner['ad_code'])): ?>
-      <?= $adHeaderBanner['ad_code'] ?>
-    <?php else: ?>
-      <div style="font-size:10px;color:#9A9890;padding:8px;text-align:center">Advertisement · 320×50</div>
-    <?php endif; ?>
+  <!-- DESKTOP ONLY: 728×100 banner -->
+  <div class="header-banner-ad">
+    <div class="header-banner-ad-inner"><img src="<?= ASSET_URL ?>/uploads/vah.png" alt="Advertisement" style="max-width:728px;width:100%;height:auto;max-height:100px;object-fit:contain;display:block"></div>
   </div>
 
 </header>
 
-<!-- MOBILE FLOATING AD (above bottom nav) -->
-<div class="mobile-ad-float" id="mobileAdFloat">
-  <div class="mobile-ad-float-content">
-    <?php if (!empty($adHeaderBanner['ad_code'])): ?>
-      <?= $adHeaderBanner['ad_code'] ?>
-    <?php elseif (!empty($adMastheadLeft['ad_code'])): ?>
-      <?= $adMastheadLeft['ad_code'] ?>
-    <?php else: ?>
-      Advertisement
-    <?php endif; ?>
-  </div>
-  <button class="mobile-ad-float-close" onclick="closeMobileAd()" aria-label="Close">✕</button>
-</div>
-
 <main><?= $content ?></main>
 
-<footer class="footer">
-  <div class="footer-inner">
-    <div class="footer-top">
-      <div>
-        <div class="footer-brand-name"><?= htmlspecialchars($siteName) ?></div>
-        <div class="footer-brand-sub">அரசியல் பழகு · அறம் செய்</div>
-        <div class="footer-desc">தமிழ்நாட்டின் நம்பகமான டிஜிட்டல் செய்தி தளம்.</div>
-      </div>
-      <div>
-        <div class="footer-col-title">Categories</div>
-        <?php foreach (array_slice($navCats, 0, 5) as $cat): ?>
-        <?php if ($cat['parent_id']) continue; ?>
-        <a href="<?= $baseUrl ?>/public/tamil-news/<?= htmlspecialchars($cat['slug']) ?>" class="footer-link">
-          <?= htmlspecialchars($cat['name_tamil'] ?: $cat['name']) ?>
-        </a>
-        <?php endforeach; ?>
-      </div>
-      <div>
-        <div class="footer-col-title">Services</div>
-        <a href="<?= $baseUrl ?>/public/sitemap.xml" class="footer-link">Sitemap</a>
-        <a href="<?= $baseUrl ?>/public/sitemap-news.xml" class="footer-link">Google News</a>
-        <a href="<?= $baseUrl ?>/public/newspaper" class="footer-link">இ-பேப்பர்</a>
-      </div>
-      <div>
-        <div class="footer-col-title">Portal</div>
-        <a href="<?= $baseUrl ?>/public/contribute/login" class="footer-link">Contributor Login</a>
-        <a href="<?= $baseUrl ?>/public/admin/login" class="footer-link">Admin</a>
-        <a href="#" class="footer-link">Privacy Policy</a>
-      </div>
-    </div>
-    <div class="footer-bottom">
-      <span>© <?= date('Y') ?> <?= htmlspecialchars($siteName) ?>. All rights reserved.</span>
-      <div class="footer-social">
-        <a href="#" class="social-btn">📘</a>
-        <a href="#" class="social-btn">🐦</a>
-        <a href="#" class="social-btn">📸</a>
-        <a href="#" class="social-btn">📺</a>
-      </div>
-    </div>
+<!-- FOOTER: copyright only -->
+<footer class="site-footer">
+  <div class="site-footer-inner">
+    © <?= date('Y') ?> தினத்துளிர். All rights reserved.
+    <span class="ftr-sep">|</span>
+    <a href="<?= $baseUrl ?>/public/admin/login">Admin</a>
+    <span class="ftr-sep">|</span>
+    <a href="<?= $baseUrl ?>/public/contribute/login">Contribute</a>
+    <span class="ftr-sep">|</span>
+    <a href="#">Privacy Policy</a>
   </div>
 </footer>
 
+<!-- MOBILE BOTTOM NAV -->
 <nav class="mobile-bottom-nav">
   <div class="mobile-bottom-nav-inner">
     <a href="<?= $baseUrl ?>/public/" class="mob-nav-item">
       <div class="mob-nav-icon">🏠</div><div class="mob-nav-label">முகப்பு</div>
     </a>
-    <a href="<?= $baseUrl ?>/public/tamil-news/breaking" class="mob-nav-item breaking-btn">
+    <a href="<?= $baseUrl ?>/public/tamil-news/breaking" class="mob-nav-item">
       <?php if (!empty($breakingTicker)): ?><div class="mob-nav-badge"><?= count($breakingTicker) ?></div><?php endif; ?>
-      <div class="mob-nav-icon">🔴</div><div class="mob-nav-label">உடனடி</div>
+      <div class="mob-nav-icon">🔴</div><div class="mob-nav-label">BREAKING</div>
     </a>
     <a href="<?= $baseUrl ?>/public/search" class="mob-nav-item">
       <div class="mob-nav-icon">🔍</div><div class="mob-nav-label">தேடல்</div>
     </a>
-    <div class="mob-nav-item" onclick="<?= $reader ? 'toggleDropdown()' : 'openModal()' ?>">
-      <div class="mob-nav-icon"><?= $reader ? '🟢' : '👤' ?></div>
-      <div class="mob-nav-label"><?= $reader ? htmlspecialchars(explode(' ',$reader['name'])[0]) : 'உள்நுழை' ?></div>
+    <div class="mob-nav-item" onclick="openDrawer()">
+      <div class="mob-nav-icon">☰</div><div class="mob-nav-label">மெனு</div>
     </div>
   </div>
 </nav>
+
+<!-- MOBILE FLOATING AD — above bottom nav, shows on every page load -->
+<div class="mob-float-ad" id="mobFloatAd">
+  <div class="mob-float-ad-inner"><img src="<?= ASSET_URL ?>/uploads/vah.png" alt="Advertisement" style="width:100%;height:66px;object-fit:contain;display:block"></div>
+  <button class="mob-float-ad-close" onclick="closeMobAd(this)" aria-label="Close">✕</button>
+</div>
+
+<!-- DRAWER OVERLAY -->
+<div class="mob-drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
+
+<!-- RIGHT DRAWER -->
+<div class="mob-drawer" id="mobDrawer">
+  <div class="mob-drawer-header">
+    <span><span class="mob-logo-w1" style="font-size:18px">தினத்</span><span class="mob-logo-w2" style="font-size:18px">துளிர்</span></span>
+    <button class="mob-drawer-close" onclick="closeDrawer()">✕</button>
+  </div>
+  <div class="mob-drawer-body">
+    <a href="<?= $baseUrl ?>/public/" class="mob-drawer-link">🏠 முகப்பு</a>
+    <?php foreach ($navCats as $cat): ?>
+    <?php if ($cat['parent_id']) continue; ?>
+    <a href="<?= $baseUrl ?>/public/tamil-news/<?= htmlspecialchars($cat['slug']) ?>" class="mob-drawer-link">
+      <?= htmlspecialchars($cat['name_tamil'] ?: $cat['name']) ?>
+    </a>
+    <?php endforeach; ?>
+    <div class="mob-drawer-divider"></div>
+    <a href="<?= $baseUrl ?>/public/newspaper" class="mob-drawer-link">📰 இ-பேப்பர்</a>
+    <a href="<?= $baseUrl ?>/public/search" class="mob-drawer-link">🔍 தேடல்</a>
+    <a href="<?= $baseUrl ?>/public/contribute/login" class="mob-drawer-link">✍️ கட்டுரை எழுது</a>
+    <div class="mob-drawer-divider"></div>
+    <?php if ($reader): ?>
+    <div class="mob-drawer-user">👤 <?= htmlspecialchars($reader['name']) ?></div>
+    <a href="<?= $baseUrl ?>/public/auth/reader/logout" class="mob-drawer-link">🚪 வெளியேறு</a>
+    <?php else: ?>
+    <div class="mob-drawer-link" onclick="closeDrawer();openModal()" style="cursor:pointer">🔑 Google மூலம் உள்நுழைக</div>
+    <?php endif; ?>
+  </div>
+</div>
 
 <!-- LOGIN MODAL -->
 <div class="modal-overlay" id="loginModal" onclick="handleOverlayClick(event)">
   <div class="modal-box">
     <div class="modal-header">
       <button class="modal-close" onclick="closeModal()">✕</button>
-      <div class="vel-logo" style="font-size:22px;justify-content:center">
-        <span class="vel-word1">வேள்</span><span class="vel-word2">சுடர்</span>
-      </div>
-      <div class="vel-tagline" style="color:#6B6A64;font-size:11px;text-align:center">அரசியல் பழகு · அறம் செய்</div>
+      <div class="vel-logo" style="font-size:20px;justify-content:center"><span class="vel-word1">தினத்</span><span class="vel-word2">துளிர்</span></div>
+      <div class="vel-tagline" style="color:#6B6A64;font-size:11px;text-align:center">அரசியல் பழகு &nbsp;·&nbsp; அறம் செய்</div>
     </div>
     <div class="modal-body">
       <div class="modal-title">Welcome Back!</div>
@@ -329,34 +297,38 @@ $tamilDate = $days_ta[date('w')].', '.date('d').' '.$months_ta[date('n')-1].' '.
 
 <script src="<?= ASSET_URL ?>/assets/js/frontend.js"></script>
 <script>
-function closeMobileAd() {
-  const el = document.getElementById('mobileAdFloat');
-  if (!el) return;
-  el.style.transition = 'opacity .3s, transform .3s';
-  el.style.opacity = '0'; el.style.transform = 'translateY(100%)';
-  setTimeout(() => el.style.display = 'none', 300);
-  sessionStorage.setItem('mobileAdClosed','1');
-}
-if (sessionStorage.getItem('mobileAdClosed')) {
-  const el = document.getElementById('mobileAdFloat');
-  if (el) el.style.display = 'none';
-}
-(function() {
-  const canvas = document.getElementById('headerCanvas');
-  if (!canvas) return;
-  const ctx = canvas.getContext('2d');
-  let W, H, particles = [];
-  function resize() { W = canvas.width = canvas.parentElement.offsetWidth; H = canvas.height = canvas.parentElement.offsetHeight; }
-  class Particle {
-    constructor() { this.reset(); }
-    reset() { this.x=Math.random()*W; this.y=H+10; this.size=Math.random()*2+0.5; this.speedY=-(Math.random()*0.6+0.2); this.speedX=(Math.random()-0.5)*0.4; this.life=1; this.decay=Math.random()*0.008+0.004; this.hue=Math.random()<0.7?0:30; }
-    update() { this.x+=this.speedX; this.y+=this.speedY; this.life-=this.decay; if(this.life<=0||this.y<-10)this.reset(); }
-    draw() { ctx.save(); ctx.globalAlpha=this.life; ctx.fillStyle=this.hue===0?`rgba(220,30,30,${this.life})`:`rgba(255,140,0,${this.life})`; ctx.shadowColor=this.hue===0?'#C0001A':'#FF8C00'; ctx.shadowBlur=6; ctx.beginPath(); ctx.arc(this.x,this.y,this.size,0,Math.PI*2); ctx.fill(); ctx.restore(); }
-  }
-  function init() { resize(); particles=Array.from({length:60},()=>{ const p=new Particle(); p.y=Math.random()*H; return p; }); }
-  function animate() { ctx.clearRect(0,0,W,H); particles.forEach(p=>{ p.update(); p.draw(); }); requestAnimationFrame(animate); }
-  window.addEventListener('resize',resize,{passive:true}); init(); animate();
+/* Canvas particles */
+(function(){
+  const c=document.getElementById('headerCanvas');if(!c)return;
+  const ctx=c.getContext('2d');let W,H,P=[];
+  function resize(){W=c.width=c.parentElement.offsetWidth;H=c.height=c.parentElement.offsetHeight;}
+  class Pt{constructor(){this.r();}r(){this.x=Math.random()*W;this.y=H+10;this.s=Math.random()*2+.5;this.vy=-(Math.random()*.6+.2);this.vx=(Math.random()-.5)*.4;this.l=1;this.d=Math.random()*.008+.004;this.h=Math.random()<.7?0:30;}u(){this.x+=this.vx;this.y+=this.vy;this.l-=this.d;if(this.l<=0||this.y<-10)this.r();}w(){ctx.save();ctx.globalAlpha=this.l;ctx.fillStyle=this.h===0?`rgba(220,30,30,${this.l})`:`rgba(255,140,0,${this.l})`;ctx.shadowColor=this.h===0?'#C0001A':'#FF8C00';ctx.shadowBlur=6;ctx.beginPath();ctx.arc(this.x,this.y,this.s,0,Math.PI*2);ctx.fill();ctx.restore();}}
+  function init(){resize();P=Array.from({length:60},()=>{const p=new Pt();p.y=Math.random()*H;return p;});}
+  function loop(){ctx.clearRect(0,0,W,H);P.forEach(p=>{p.u();p.w();});requestAnimationFrame(loop);}
+  window.addEventListener('resize',resize,{passive:true});init();loop();
 })();
+
+/* Drawer */
+function openDrawer(){document.getElementById('mobDrawer').classList.add('open');document.getElementById('drawerOverlay').classList.add('open');document.body.style.overflow='hidden';}
+function closeDrawer(){document.getElementById('mobDrawer').classList.remove('open');document.getElementById('drawerOverlay').classList.remove('open');document.body.style.overflow='';}
+
+/* Ticker touch swipe */
+(function(){
+  const t=document.getElementById('tickerInner');if(!t)return;
+  let sx=0,off=0;
+  t.addEventListener('touchstart',e=>{sx=e.touches[0].clientX;t.style.animationPlayState='paused';const m=new DOMMatrix(getComputedStyle(t).transform);off=m.m41||0;},{passive:true});
+  t.addEventListener('touchmove',e=>{t.style.transform=`translateX(${off+e.touches[0].clientX-sx}px)`;},{passive:true});
+  t.addEventListener('touchend',e=>{const d=e.changedTouches[0].clientX-sx;off+=d;const half=t.scrollWidth/2;while(off>0)off-=half;while(off<-half)off+=half;t.style.transform='';t.style.animationPlayState='running';},{passive:true});
+})();
+
+
+
+// ── MOBILE FLOATING AD (shows every page load, close hides for session tab only) ──
+function closeMobAd(btn) {
+  const el = btn.closest('.mob-float-ad');
+  if (el) { el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }
+}
+
 </script>
 </body>
 </html>
