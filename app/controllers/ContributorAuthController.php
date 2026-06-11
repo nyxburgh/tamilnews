@@ -1,91 +1,99 @@
 <?php
 namespace App\Controllers;
 
-use App\Core\{Controller, GoogleOAuth, Session, Helper};
+use App\Core\{Controller, Session, Helper, CSRF};
 use App\Models\ContributorModel;
 
 class ContributorAuthController extends Controller
 {
-    private string $redirectUri;
-
-    public function __construct()
-    {
-        $cfg = require CONFIG_PATH . '/app.php';
-        $base = rtrim($cfg['url'], '/');
-        $this->redirectUri = $base . '/public/contribute/auth/callback';
-    }
-
     public function loginPage(): void
     {
         if (Session::get('contributor_id')) {
-            Helper::redirect('/contribute/dashboard');
+            $this->redirect('/contribute/dashboard');
         }
-        $this->view('contribute.login', [
-            'pageTitle' => 'Contributor Login',
-            'googleUrl' => GoogleOAuth::authUrl($this->redirectUri, 'contributor'),
-        ], 'contributor');
+        $this->view('contribute.login', ['pageTitle' => 'Contributor Login'], 'contributor');
     }
 
-    public function googleRedirect(): void
+    public function login(): void
     {
-        $state = bin2hex(random_bytes(16));
-        Session::set('oauth_state', $state);
-        Helper::redirect(GoogleOAuth::authUrl($this->redirectUri, $state));
-    }
+        CSRF::validate();
+        $email    = trim($this->post('email', ''));
+        $password = $this->post('password', '');
 
-    public function callback(): void
-    {
-        $code = $_GET['code'] ?? '';
-        if (!$code) {
-            Session::flash('alert_type', 'danger');
-            Session::flash('alert_msg', 'Google login failed.');
-            Helper::redirect('/contribute/login');
+        if (!$email || !$password) {
+            $this->flash('danger', 'Email and password are required.');
+            $this->redirect('/contribute/login');
         }
 
-        $tokens  = GoogleOAuth::exchangeCode($code, $this->redirectUri);
-        if (!$tokens) {
-            Session::flash('alert_type', 'danger');
-            Session::flash('alert_msg', 'Could not verify Google account.');
-            Helper::redirect('/contribute/login');
+        $model       = new ContributorModel();
+        $contributor = $model->findByEmail($email);
+
+        if (!$contributor || !password_verify($password, $contributor['password'] ?? '')) {
+            $this->flash('danger', 'Invalid email or password.');
+            $this->redirect('/contribute/login');
         }
-
-        $profile = GoogleOAuth::getProfile($tokens['access_token']);
-        if (!$profile) {
-            Session::flash('alert_type', 'danger');
-            Session::flash('alert_msg', 'Could not fetch Google profile.');
-            Helper::redirect('/contribute/login');
-        }
-
-        $model         = new ContributorModel();
-        $contributorId = $model->upsertFromGoogle($profile);
-        $contributor   = $model->findFull($contributorId);
-
-        if ($contributor['is_blocked'] ?? false) {
-            Session::flash('alert_type', 'danger');
-            Session::flash('alert_msg', 'Your account has been blocked. Contact admin.');
-            Helper::redirect('/contribute/login');
-        }
-
         if (!$contributor['is_active']) {
-            Session::flash('alert_type', 'warning');
-            Session::flash('alert_msg', 'Your contributor account is pending admin approval.');
-            Helper::redirect('/contribute/login');
+            $this->flash('warning', 'Your account is pending admin approval.');
+            $this->redirect('/contribute/login');
         }
 
-        $model->updateLastLogin($contributorId);
         session_regenerate_id(true);
-        Session::set('contributor_id',   $contributorId);
-        Session::set('contributor',      $contributor);
-        Session::set('contributor_cats', explode(',', $contributor['category_ids'] ?? ''));
+        Session::set('contributor_id', $contributor['id']);
+        Session::set('contributor',    $contributor);
+        $this->redirect('/contribute/dashboard');
+    }
 
-        Helper::redirect('/contribute/dashboard');
+    public function registerPage(): void
+    {
+        if (Session::get('contributor_id')) {
+            $this->redirect('/contribute/dashboard');
+        }
+        $this->view('contribute.register', ['pageTitle' => 'Register as Contributor'], 'contributor');
+    }
+
+    public function register(): void
+    {
+        CSRF::validate();
+        $name     = Helper::sanitize($this->post('name', ''));
+        $email    = trim($this->post('email', ''));
+        $password = $this->post('password', '');
+        $confirm  = $this->post('confirm_password', '');
+
+        if (!$name || !$email || !$password) {
+            $this->flash('danger', 'All fields are required.');
+            $this->redirect('/contribute/register');
+        }
+        if (strlen($password) < 8) {
+            $this->flash('danger', 'Password must be at least 8 characters.');
+            $this->redirect('/contribute/register');
+        }
+        if ($password !== $confirm) {
+            $this->flash('danger', 'Passwords do not match.');
+            $this->redirect('/contribute/register');
+        }
+
+        $model = new ContributorModel();
+        if ($model->findByEmail($email)) {
+            $this->flash('danger', 'Email already registered.');
+            $this->redirect('/contribute/register');
+        }
+
+        $model->insert([
+            'name'        => $name,
+            'email'       => $email,
+            'password'    => password_hash($password, PASSWORD_BCRYPT, ['cost' => 12]),
+            'is_approved' => 0,
+            'is_active'   => 0, // pending admin approval
+        ]);
+
+        $this->flash('success', 'Registration successful! Your account is pending admin approval. You will be notified by email.');
+        $this->redirect('/contribute/login');
     }
 
     public function logout(): void
     {
         Session::delete('contributor_id');
         Session::delete('contributor');
-        Session::delete('contributor_cats');
-        Helper::redirect('/contribute/login');
+        $this->redirect('/contribute/login');
     }
 }

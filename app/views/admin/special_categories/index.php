@@ -31,7 +31,7 @@
         <div class="special-cat-type"><?= ucfirst($s['type']) ?></div>
         <div class="special-cat-meta d-flex flex-wrap gap-2 mt-2">
           <span class="badge <?= $s['is_active'] ? 'bg-success' : 'bg-secondary' ?>"><?= $s['is_active'] ? 'Active' : 'Inactive' ?></span>
-          <?php if ($s['is_pinned']): ?><span class="badge bg-warning text-dark">📌 Pinned</span><?php endif; ?>
+          <?php if (!empty($s['is_pinned'])): ?><span class="badge bg-warning text-dark">📌 Pinned</span><?php endif; ?>
           <?php if ($s['ends_at']): ?>
           <span class="badge bg-info text-dark" style="font-size:10px">Ends <?= Helper::formatDate($s['ends_at'],'d M') ?></span>
           <?php endif; ?>

@@ -151,9 +151,7 @@ try {
 
   <!-- DESKTOP ONLY: [300×250] [LOGO] [300×250] -->
   <div class="masthead">
-    <div class="masthead-ad">
-      <div class="ad-rotator" data-slot="square" data-category="<?= $categoryId ?? 0 ?>" data-default="<?= ASSET_URL ?>/uploads/vaqua.jpeg"><img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement" style="width:100%;height:auto;display:block;object-fit:contain"></div>
-    </div>
+    <div class="masthead-ad"><div class="ad-rotator" data-slot="square" data-cat="<?= $categoryId ?? 0 ?>"></div></div>
     <div class="masthead-center">
       <a href="<?= $baseUrl ?>/public/" class="vel-logo-link">
         <div class="vel-brand-wrap">
@@ -165,15 +163,11 @@ try {
         </div>
       </a>
     </div>
-    <div class="masthead-ad">
-      <div class="ad-rotator" data-slot="square" data-category="<?= $categoryId ?? 0 ?>" data-default="<?= ASSET_URL ?>/uploads/vaqua.jpeg"><img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement" style="width:100%;height:auto;display:block;object-fit:contain"></div>
-    </div>
+    <div class="masthead-ad"><div class="ad-rotator" data-slot="square" data-cat="<?= $categoryId ?? 0 ?>"></div></div>
   </div>
 
   <!-- MOBILE ONLY: single ad (25vh) -->
-  <div class="mobile-square-ad">
-    <img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement" style="max-width:200px;height:auto;display:block;object-fit:contain">
-  </div>
+  <div class="mobile-square-ad"><div class="ad-rotator" data-slot="square" data-cat="<?= $categoryId ?? 0 ?>"></div></div>
 
   <!-- DESKTOP double rule -->
   <div class="masthead-rule"></div>
@@ -195,7 +189,7 @@ try {
 
   <!-- DESKTOP ONLY: 728×100 banner -->
   <div class="header-banner-ad">
-    <div class="header-banner-ad-inner"><div class="ad-rotator" data-slot="horizontal" data-category="<?= $categoryId ?? 0 ?>" data-default="<?= ASSET_URL ?>/uploads/vah.png"><img src="<?= ASSET_URL ?>/uploads/vah.png" alt="Advertisement" style="max-width:728px;width:100%;height:auto;max-height:100px;object-fit:contain;display:block"></div></div>
+    <div class="header-banner-ad-inner"><div class="ad-rotator" data-slot="horizontal" data-cat="<?= $categoryId ?? 0 ?>"></div></div></div>
   </div>
 
 </header>
@@ -209,12 +203,8 @@ try {
   <div class="page-layout">
     <main class="page-main"><?= $content ?></main>
     <aside class="page-sidebar">
-      <!-- Square Ad -->
-      <div class="sb-widget">
-        <img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement"
-             style="width:100%;height:auto;object-fit:contain;display:block;border-radius:4px">
-        <div class="sb-ad-label">Advertisement</div>
-      </div>
+      <!-- Vertical Ad (300x600 desktop sidebar) -->
+      <div class="sb-widget sb-vertical-ad" id="sidebarVerticalAd"><div class="ad-rotator" data-slot="vertical" data-cat="<?= $categoryId ?? 0 ?>"></div><div class="sb-ad-label">Advertisement</div></div>
       <!-- Trending -->
       <?php if (!empty($trending)): ?>
       <div class="sb-widget">
@@ -281,6 +271,16 @@ try {
 
 <!-- MOBILE BOTTOM NAV -->
 
+
+<!-- MOBILE VERTICAL AD OVERLAY -->
+<div id="mobVerticalAd" class="mob-vertical-ad" style="display:none">
+  <div class="mob-vertical-ad-inner">
+    <button class="mob-vertical-ad-close" onclick="closeMobVertical()">✕</button>
+    <div class="ad-rotator" data-slot="vertical" data-cat="<?= $categoryId ?? 0 ?>"></div>
+    <div class="sb-ad-label" style="text-align:center;padding:4px;font-size:9px">Advertisement</div>
+  </div>
+</div>
+
 <!-- MOBILE FLOATING RATE ICONS -->
 <div class="mob-rate-icons" id="mobRateIcons">
   <div class="mob-rate-btn" onclick="toggleRate('gold')" title="Gold Rate">🥇</div>
@@ -321,7 +321,7 @@ try {
 
 <!-- MOBILE FLOATING AD — above bottom nav, shows on every page load -->
 <div class="mob-float-ad" id="mobFloatAd">
-  <div class="mob-float-ad-inner ad-rotator" data-slot="horizontal" data-category="<?= $categoryId ?? 0 ?>" data-default="<?= ASSET_URL ?>/uploads/vah.png"><img src="<?= ASSET_URL ?>/uploads/vah.png" alt="Advertisement" style="width:100%;height:66px;object-fit:contain;display:block"></div>
+  <div class="mob-float-ad-inner"><div class="ad-rotator" data-slot="horizontal" data-cat="<?= $categoryId ?? 0 ?>"></div></div>
   <button class="mob-float-ad-close" onclick="closeMobAd(this)" aria-label="Close">✕</button>
 </div>
 
@@ -461,73 +461,126 @@ function toggleRate(type) {
 function closeRate() { document.getElementById('mobRatePopup').style.display='none'; }
 
 
-// ── AD ROTATION — one image at a time, 25s, zoom-out effect ──
-const adPool  = {};
-const adIndex = {};
+// ── AD ROTATION — API/DB only, no hardcoded images ──
+var adCache = {};
 
-function initAdRotators() {
-  document.querySelectorAll('.ad-rotator').forEach(el => {
-    const slot   = el.dataset.slot;
-    const defImg = el.dataset.default;
-    const img    = el.querySelector('img');
-    if (!slot || !img) return;
+function loadAd(el) {
+  var slot  = el.dataset.slot;
+  var cat   = el.dataset.cat || '0';
+  var key   = slot + '_' + cat;
 
-    function startRotation(images) {
-      adPool[slot]  = images;
-      adIndex[slot] = 0;
+  function render(images) {
+    if (!images || !images.length) return; // nothing to show
+    adCache[key] = images;
+    var idx = 0;
 
-      function showNext() {
-        const cur = adPool[slot][adIndex[slot] % adPool[slot].length];
-        // Zoom-out transition
-        img.style.transition = 'none';
-        img.style.transform  = 'scale(1.08)';
-        img.style.opacity    = '1';
-        // Start zoom-out
-        requestAnimationFrame(() => {
-          img.style.transition = 'transform 24s linear, opacity 0.5s ease';
-          img.style.transform  = 'scale(1)';
-        });
-        // Swap image halfway through fade
-        img.style.opacity = '0.85';
-        setTimeout(() => {
-          const src = cur.src.startsWith('http') ? cur.src : '<?= ASSET_URL ?>' + cur.src;
-          if (img.src !== src) img.src = src;
-          img.alt = cur.alt || 'Advertisement';
-          const wrap = img.closest('a');
-          if (wrap && cur.link && cur.link !== '#') wrap.href = cur.link;
-          img.style.opacity = '1';
-        }, 400);
-        adIndex[slot]++;
+    // Create img element — NO inline styles, CSS controls sizing per slot
+    var img = document.createElement('img');
+    img.style.display = 'block';
+    img.style.width   = '100%';
+    // vertical slot: fill 750px; others: auto height
+    if (slot === 'vertical') {
+      img.style.height      = '750px';
+      img.style.objectFit   = 'cover';
+    } else {
+      img.style.height      = '100%';
+      img.style.objectFit   = 'contain';
+    }
+    img.style.transition = 'opacity 0.4s ease';
+    el.appendChild(img);
+
+    function show() {
+      var cur = images[idx % images.length];
+      idx++;
+      var src = cur.src;
+      if (src && !src.startsWith('http') && !src.startsWith('//')) {
+        src = '<?= rtrim(ASSET_URL, "/") ?>' + (src.charAt(0) === '/' ? src : '/' + src);
       }
-
-      showNext();
-      setInterval(showNext, 25000);
+      img.style.opacity = '0';
+      img.style.transform = 'scale(1.06)';
+      setTimeout(function() {
+        img.src = src;
+        img.alt = cur.alt || 'Advertisement';
+        img.style.opacity = '1';
+        img.style.transform = 'scale(1)';
+        // Set link
+        var wrap = el.parentElement && el.parentElement.tagName === 'A' ? el.parentElement : null;
+        if (wrap && cur.link && cur.link !== '#') wrap.href = cur.link;
+      }, 200);
     }
 
-    // Load from API — flatten ALL images from ALL active ads into one pool
-    const cacheKey = `${slot}_${el.dataset.category||0}`;
-    if (adPool[cacheKey]) { startRotation(adPool[cacheKey]); return; }
+    show();
+    setInterval(show, 15000);
+  }
 
-    fetch(`<?= $baseUrl ?>/public/api/ads/${slot}?category_id=${el.dataset.category||0}`)
-      .then(r => r.ok ? r.json() : null)
-      .then(d => {
-        const images = [];
-        if (d && d.success && d.ads.length) {
-          d.ads.forEach(ad => {
-            ad.images.forEach(img => {
-              images.push({ src: img.src, alt: img.alt, link: img.link });
+  if (adCache[key]) { render(adCache[key]); return; }
+
+  fetch('<?= $baseUrl ?>/public/api/ads/' + slot + '?category_id=' + cat)
+    .then(function(r) { return r.ok ? r.json() : null; })
+    .then(function(data) {
+      var images = [];
+      if (data && data.success && Array.isArray(data.ads)) {
+        data.ads.forEach(function(ad) {
+          if (Array.isArray(ad.images)) {
+            ad.images.forEach(function(im) {
+              if (im.src) images.push(im);
             });
-          });
-        }
-        // Fallback to default if no images
-        if (!images.length) images.push({ src: defImg, alt: 'Advertisement', link: '#' });
-        startRotation(images);
-      })
-      .catch(() => startRotation([{ src: defImg, alt: 'Advertisement', link: '#' }]));
-  });
+          }
+        });
+      }
+      render(images);
+    })
+    .catch(function() {}); // silent fail — blank ad space
+}
+
+function initAdRotators() {
+  document.querySelectorAll('.ad-rotator').forEach(loadAd);
 }
 
 document.addEventListener('DOMContentLoaded', initAdRotators);
+
+
+// ── MOBILE VERTICAL AD: shows on load → slides down → re-shows on scroll stop ──
+(function() {
+  const el = document.getElementById('mobVerticalAd');
+  if (!el || window.innerWidth >= 1024) return;
+
+  let visible = false, hideTimer = null, scrollTimer = null;
+
+  function show() {
+    if (visible) return;
+    visible = true;
+    el.style.display = 'flex';
+    el.style.animation = 'slideInRight 0.4s ease';
+    // Auto-hide after 25s
+    clearTimeout(hideTimer);
+    hideTimer = setTimeout(hide, 15000);
+  }
+
+  function hide() {
+    if (!visible) return;
+    visible = false;
+    el.style.animation = 'slideOutRight 0.4s ease forwards';
+    setTimeout(() => { if (!visible) el.style.display = 'none'; }, 400);
+  }
+
+  window.closeMobVertical = function() {
+    clearTimeout(hideTimer);
+    hide();
+  };
+
+  // Show on page load after 1s
+  setTimeout(show, 1000);
+
+  // On scroll: hide → wait for scroll to stop → show again
+  window.addEventListener('scroll', function() {
+    if (visible) hide();
+    clearTimeout(scrollTimer);
+    scrollTimer = setTimeout(function() {
+      if (!visible) show();
+    }, 800); // show 0.8s after scroll stops
+  }, { passive: true });
+})();
 
 </script>
 </body>

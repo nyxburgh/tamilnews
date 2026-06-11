@@ -6,6 +6,7 @@
   <?php foreach ([
     ['type'=>'square',    'label'=>'Square Ad (300×150)',    'current'=>$squareDefault],
     ['type'=>'horizontal','label'=>'Horizontal Ad (728×100)','current'=>$horizontalDefault],
+  ['type'=>'vertical',  'label'=>'Vertical Ad (300×600)', 'current'=>$verticalDefault],
   ] as $slot): ?>
   <div class="col-md-6">
     <div class="tn-card">

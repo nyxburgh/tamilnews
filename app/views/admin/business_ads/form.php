@@ -249,7 +249,7 @@
             <span class="text-muted">(<?= $maxMore ?> more allowed)</span>
             <?php endif; ?>
           </label>
-          <input type="file" name="images[]" id="imgUpload" class="form-control"
+          <input type="file" name="images[]" accept="image/*" id="imgUpload" class="form-control"
                  accept="image/*" multiple
                  onchange="previewImages(this, <?= $maxMore ?>)">
           <div class="form-text">JPG, PNG, WebP — Max 2MB each</div>

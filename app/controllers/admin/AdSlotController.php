@@ -6,16 +6,23 @@ use App\Models\BusinessAdModel;
 
 class AdSlotController extends Controller
 {
-    public function middleware(): void { $this->requireCan('manage_ads'); }
+    public function middleware(): void
+    {
+        // /api/ads/* is public — no auth required
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        if (str_contains($uri, '/api/ads/')) return;
+        $this->requireCan('manage_ads');
+    }
 
     /** GET /admin/ad-defaults — manage default images per slot type */
     public function defaults(): void
     {
         $ads = new BusinessAdModel();
         $this->view('admin.ad_slots.defaults', [
-            'pageTitle'   => 'Ad Default Images',
+            'pageTitle'        => 'Ad Default Images',
             'squareDefault'     => $ads->getDefaultImage('square'),
             'horizontalDefault' => $ads->getDefaultImage('horizontal'),
+            'verticalDefault'   => $ads->getDefaultImage('vertical'),
         ], Auth::role() === 'admin' ? 'admin' : 'editor_portal');
     }
 
@@ -24,7 +31,7 @@ class AdSlotController extends Controller
     {
         CSRF::validate();
         $type = $this->post('slot_type', 'square');
-        if (!in_array($type, ['square','horizontal'])) {
+        if (!in_array($type, ['square','horizontal','vertical'])) {
             $this->flash('danger','Invalid slot type.'); $this->redirect('/admin/ad-defaults');
         }
         if (empty($_FILES['default_image']['tmp_name'])) {
@@ -53,11 +60,17 @@ class AdSlotController extends Controller
     public function serve(string $type = 'square'): void
     {
         header('Content-Type: application/json');
-        header('Cache-Control: no-store');
+        header('Cache-Control: no-store, no-cache');
+        header('Access-Control-Allow-Origin: *');
         $ads        = new BusinessAdModel();
         $categoryId = isset($_GET['category_id']) ? (int)$_GET['category_id'] : null;
-        $data       = $ads->activeForRotation($type, $categoryId);
-        echo json_encode(['success'=>true,'ads'=>$data,'rotation_ms'=>25000]);
+        try {
+            $data = $ads->activeForRotation($type, $categoryId);
+        } catch (\Exception $e) {
+            $data = [];
+            error_log('Ad serve error: ' . $e->getMessage());
+        }
+        echo json_encode(['success' => true, 'ads' => $data]);
         exit;
     }
 }

@@ -118,7 +118,7 @@ img { display: block; max-width: 100%; }
 .nav-link.active { color:white;border-bottom-color:var(--red-light);background:rgba(192,0,26,.2); }
 
 /* ─── MAIN ─── */
-.main { padding: 12px 0 0; }
+.main { padding: 0; }
 
 /* ─── SECTION HEAD ─── */
 .section-head { display:flex;align-items:center;gap:12px;margin-bottom:14px; }
@@ -414,7 +414,7 @@ img { display: block; max-width: 100%; }
   .footer-bottom { flex-direction:column; gap:8px; }
 
   /* Main padding */
-  .main { padding:12px; }
+  .main { padding: 0; }
 
   /* WhatsApp block */
   .whatsapp-share-btn { flex-direction:column; text-align:center; }
@@ -1473,8 +1473,8 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
 /* Main+Sidebar grid */
 .page-layout {
   display: grid;
-  grid-template-columns: 1fr 220px;
-  gap: 14px;
+  grid-template-columns: 1fr 260px;
+  gap: 16px;
   align-items: start;
   width: 100%;
 }
@@ -1508,7 +1508,7 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
     max-width: 96%; margin-left: auto; margin-right: auto;
   }
   /* Slightly narrower sidebar on small desktops */
-  .page-layout { grid-template-columns: 1fr 190px; gap: 10px; }
+  .page-layout { grid-template-columns: 1fr 220px; gap: 12px; }
 }
 
 /* ── Below 1024px: full width, no sidebar ── */

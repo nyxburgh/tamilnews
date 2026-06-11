@@ -168,7 +168,7 @@ class UserController extends Controller
         $canPublish  = (bool)$this->post('can_publish', 0);
 
         // Clear existing and re-add
-        $this->db->prepare("DELETE FROM tn_editor_permissions WHERE user_id = ?")
+        \App\Core\Database::getInstance()->prepare("DELETE FROM tn_editor_permissions WHERE user_id = ?")
             ->execute([$userId]);
 
         foreach ($districtIds as $did) {

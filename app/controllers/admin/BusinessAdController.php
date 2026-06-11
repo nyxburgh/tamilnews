@@ -19,7 +19,7 @@ class BusinessAdController extends Controller
 
     public function __construct()
     {
-        $this->requireRole('admin','chief_editor','editor','district_editor','category_editor','reporter');
+        $this->requireAuth(); // All logged-in staff can manage their own ads
         $this->ads       = new BusinessAdModel();
         $this->locations = new LocationModel();
     }

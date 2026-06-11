@@ -233,7 +233,6 @@
 
 /* ── < 600px: mobile layout ── */
 
-
 /* ── MOBILE FLOATING AD ─────────────────────────────── */
 .mob-float-ad {
   position: fixed;
@@ -519,10 +518,89 @@
   display: block;
   width: 100%;
 }
+
+@keyframes slideInRight {
+  from { transform: translateX(120%); opacity: 0; }
+  to   { transform: translateX(0);    opacity: 1; }
+}
+.mob-vertical-ad-inner {
+  width: 160px;
+  background: #fff;
+  border-radius: 8px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.25);
+  overflow: hidden;
+  position: relative;
+}
+.mob-vertical-ad-close {
+  position: absolute;
+  top: 4px; right: 4px;
+  z-index: 1;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: rgba(0,0,0,.5);
+  color: #fff;
+  border: none;
+  font-size: 11px;
+  cursor: pointer;
+  display: flex; align-items: center; justify-content: center;
+  line-height: 1;
+}
+.mob-vertical-ad-inner 
+
+/* Only show on mobile */
+@media (min-width: 1024px) {
+  .mob-vertical-ad { display: none !important; }
+}
+@media (max-width: 1023px) {
+   /* sidebar hidden on mobile anyway */
+}
+
+/* ═══════════════════════════════════════════════════════
+   AD ROTATOR — global + vertical specific
+═══════════════════════════════════════════════════════ */
+
+/* Global: all rotators */
+.ad-rotator {
+  overflow: hidden;
+  display: block;
+  width: 100%;
+}
 .ad-rotator img {
+  width: 100%;
+  height: auto;
+  display: block;
+  object-fit: contain;
+  transition: opacity 0.4s ease;
+}
+
+/* ── Desktop sidebar VERTICAL AD: fixed 750px tall ── */
+.sb-vertical-ad {
+  width: 100%;
+  background: #F5F5F0;
+  border-radius: 6px;
+  overflow: hidden;
+}
+.sb-vertical-ad .ad-rotator {
+  width: 100%;
+  height: 750px;
+  overflow: hidden;
+}
+.sb-vertical-ad .ad-rotator img {
   width: 100% !important;
-  height: 100% !important;
+  height: 750px !important;
+  object-fit: cover !important;
+  display: block;
+  transition: opacity 0.4s ease;
+}
+
+/* ── Mobile vertical overlay ── */
+.mob-vertical-ad-inner .ad-rotator {
+  width: 100%;
+}
+.mob-vertical-ad-inner .ad-rotator img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 240px !important;
   object-fit: contain !important;
   display: block;
-  transition: transform 24s linear, opacity 0.4s ease;
 }

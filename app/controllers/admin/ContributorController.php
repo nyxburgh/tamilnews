@@ -70,7 +70,7 @@ class ContributorController extends Controller
     public function approve(string $id): void
     {
         CSRF::validate();
-        $this->contributors->update((int)$id, ['is_active' => 1]);
+        $this->contributors->update((int)$id, ['is_active' => 1, 'is_approved' => 1]);
         $this->flash('success', 'Contributor approved.');
         $this->redirect('/admin/contributors');
     }
@@ -114,10 +114,11 @@ class ContributorController extends Controller
         }
 
         $id = $this->contributors->insert([
-            'google_id'  => null,
             'name'       => Helper::sanitize($this->post('name', '')),
             'email'      => $email,
+            'password'   => password_hash($this->post('temp_password','Welcome@123'), PASSWORD_BCRYPT),
             'bio'        => $this->post('bio', '') ?: null,
+            'is_approved'=> 1,
             'is_active'  => 1,
         ]);
 

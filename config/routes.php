@@ -203,8 +203,9 @@ return [
 
     /* ── CONTRIBUTOR PORTAL ── */
     ['GET',  '/contribute/login',           'ContributorAuthController@loginPage'],
-    ['GET',  '/contribute/auth/google',     'ContributorAuthController@googleRedirect'],
-    ['GET',  '/contribute/auth/callback',   'ContributorAuthController@callback'],
+    ['POST', '/contribute/login',           'ContributorAuthController@login'],
+    ['GET',  '/contribute/register',        'ContributorAuthController@registerPage'],
+    ['POST', '/contribute/register',        'ContributorAuthController@register'],
     ['GET',  '/contribute/logout',          'ContributorAuthController@logout'],
     ['GET',  '/contribute/dashboard',       'contribute\DashboardController@index'],
     ['GET',  '/contribute/articles',        'contribute\ArticleController@index'],

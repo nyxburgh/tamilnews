@@ -214,7 +214,7 @@ class BusinessAdModel extends Model
              FROM tn_business_ads b
              JOIN tn_ad_slots s ON s.id = b.slot_id
              WHERE s.position = ?
-             AND b.status = 'active'
+             AND b.status IN ('active','approved')
              AND b.valid_from <= ? AND b.valid_until >= ?
              AND (
                b.display_type = 'global'
@@ -281,76 +281,87 @@ class BusinessAdModel extends Model
     /** Get default fallback image path for a slot type */
     public function getDefaultImage(string $type): string
     {
-        $row = $this->fetchOne(
-            "SELECT ad_code FROM tn_ad_slots WHERE type = ? LIMIT 1", [$type]
-        );
-        return $row['ad_code'] ?? '/uploads/vaqua.jpeg';
+        $defaults = [
+            'square'     => '/uploads/vaqua.jpeg',
+            'horizontal' => '/uploads/vah.png',
+            'vertical'   => '/uploads/vaqua.jpeg',
+        ];
+        try {
+            $row = $this->fetchOne(
+                "SELECT ad_code FROM tn_ad_slots WHERE type = ? LIMIT 1", [$type]
+            );
+            // Only use ad_code if it is an image path (not HTML)
+            if (!empty($row['ad_code'])) {
+                $code = trim($row['ad_code']);
+                if (str_starts_with($code, '/') || str_starts_with($code, 'http')) {
+                    return $code;
+                }
+            }
+        } catch (\Exception $e) {}
+        return $defaults[$type] ?? '/uploads/vaqua.jpeg';
     }
 
-    /** Get active approved ads for rotation — up to 5 images per ad */
+    /** Get active ads for rotation from DB */
     public function activeForRotation(string $slotType, ?int $categoryId = null): array
     {
-        $ads = $this->fetchAll(
-            "SELECT b.id, b.business_name, b.website_url,
-                    ai.filepath, ai.alt_text, ai.link_url,
-                    s.type AS slot_type
-             FROM tn_business_ads b
-             JOIN tn_ad_slots s ON s.id = b.slot_id
-             LEFT JOIN tn_ad_images ai ON ai.ad_id = b.id AND ai.is_active = 1
-             WHERE s.type = ?
-               AND b.status = 'active'
-               AND b.valid_from <= CURDATE()
-               AND b.valid_until >= CURDATE()
-               AND (
-                 b.display_type = 'global'
-                 OR (b.display_type = 'category' AND b.category_id = ?)
-               )
-             ORDER BY b.display_type DESC, b.id ASC, ai.sort_order ASC",
-            [$slotType, $categoryId ?? 0]
-        );
+        try {
+            $rows = $this->fetchAll(
+                "SELECT b.id, b.business_name, b.website_url,
+                        ai.filepath, ai.alt_text, ai.link_url, ai.sort_order
+                 FROM tn_business_ads b
+                 JOIN tn_ad_slots s ON s.id = b.slot_id AND s.type = ?
+                 LEFT JOIN tn_ad_images ai ON ai.ad_id = b.id AND ai.is_active = 1
+                 WHERE b.status IN ('active','approved')
+                   AND (b.valid_from IS NULL OR b.valid_from <= CURDATE())
+                   AND (b.valid_until IS NULL OR b.valid_until >= CURDATE())
+                   AND (
+                     b.display_type = 'global'
+                     OR (b.display_type = 'category' AND b.category_id = ?)
+                   )
+                 ORDER BY b.id ASC, ai.sort_order ASC",
+                [$slotType, $categoryId ?? 0]
+            );
+        } catch (\Exception $e) {
+            error_log('activeForRotation error: ' . $e->getMessage());
+            $rows = [];
+        }
 
-        // Group images under each ad, max 5 per ad
-        $result = [];
-        $default = $this->getDefaultImage($slotType);
-        foreach ($ads as $row) {
+        // Group images by ad
+        $ads = [];
+        foreach ($rows as $row) {
             $id = $row['id'];
-            if (!isset($result[$id])) {
-                $result[$id] = [
+            if (!isset($ads[$id])) {
+                $ads[$id] = [
                     'ad_id'         => $id,
                     'business_name' => $row['business_name'],
                     'website_url'   => $row['website_url'] ?? '#',
-                    'slot_type'     => $row['slot_type'],
                     'images'        => [],
                 ];
             }
-            if ($row['filepath'] && count($result[$id]['images']) < 5) {
-                $result[$id]['images'][] = [
+            if ($row['filepath'] && count($ads[$id]['images']) < 5) {
+                $ads[$id]['images'][] = [
                     'src'  => $row['filepath'],
-                    'alt'  => $row['alt_text'] ?? $row['business_name'],
-                    'link' => $row['link_url'] ?? $row['website_url'] ?? '#',
+                    'alt'  => $row['alt_text'] ?? '',
+                    'link' => $row['link_url'] ?: ($row['website_url'] ?? '#'),
                 ];
             }
         }
 
-        // Fallback: if no images, use default
-        foreach ($result as &$ad) {
-            if (empty($ad['images'])) {
-                $ad['images'][] = ['src'=>$default,'alt'=>$ad['business_name'],'link'=>$ad['website_url']];
-            }
+        $result = array_values($ads);
+
+        // If no DB ads, return default slot image
+        if (empty($result)) {
+            $default = $this->getDefaultImage($slotType);
+            $result  = [[
+                'ad_id'         => 0,
+                'business_name' => 'Advertisement',
+                'website_url'   => '#',
+                'images'        => [['src' => $default, 'alt' => 'Advertisement', 'link' => '#']],
+            ]];
         }
 
-        // Flatten: if no active ads at all, return default
-        $flat = array_values($result);
-        if (empty($flat)) {
-            $flat[] = [
-                'ad_id'=>0,'business_name'=>'Advertisement','website_url'=>'#',
-                'slot_type'=>$slotType,
-                'images'=>[['src'=>$default,'alt'=>'Advertisement','link'=>'#']],
-            ];
-        }
-        return $flat;
+        return $result;
     }
-
 
     /**
      * Delete ad and all its image files from disk
