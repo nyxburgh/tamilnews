@@ -8,8 +8,10 @@ class ContributorController extends Controller
 {
     protected function layout(): string
     {
-        return \App\Core\Auth::role() === 'admin' ? 'admin' :
-               (\App\Core\Auth::role() === 'chief_editor' ? 'editor_portal' : 'portal');
+        $role = \App\Core\Auth::role();
+        if ($role === 'admin')        return 'admin';
+        if ($role === 'chief_editor') return 'editor_portal';
+        return 'portal';
     }
 
     private ContributorModel $contributors;

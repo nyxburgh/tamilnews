@@ -11,6 +11,18 @@
 <link href="<?= ASSET_URL ?>/assets/css/portal.css" rel="stylesheet">
 <meta name="csrf-token" content="<?= \App\Core\CSRF::token() ?>">
 <meta name="base-url"   content="<?= ASSET_URL ?>">
+  <style id="portal-white-theme">
+    body { background:#F5F5F2 !important; color:#1A1A1A !important; }
+    .tn-card { background:#fff; box-shadow:0 1px 4px rgba(0,0,0,.06); }
+    .tn-page-title, .tn-page-sub { color:#1A1A1A !important; }
+    .portal-wrap { background:#F5F5F2; min-height:100vh; }
+    @media(max-width:768px){
+      .portal-main{padding:10px !important}
+      .tn-table{font-size:12px}
+      .tn-table th,.tn-table td{padding:7px !important}
+      .btn{font-size:13px}
+    }
+  </style>
 </head>
 <body class="portal-body">
 
@@ -36,11 +48,11 @@ $r        = ASSET_URL;
 $baseUrl  = BASE_URL;
 $current  = parse_url($_SERVER['REQUEST_URI'], PHP_URL_PATH);
 
-$roleColors = ['admin'=>'#C0001A','editor'=>'#1877F2','reporter'=>'#1B6B2E','contributor'=>'#10b981'];
+$roleColors = ['admin'=>'#C0001A','chief_editor'=>'#7C3AED','editor'=>'#1877F2','district_editor'=>'#0891B2','category_editor'=>'#0891B2','senior_reporter'=>'#047857','reporter'=>'#1B6B2E','ads_manager'=>'#B45309','contributor'=>'#10b981'];
 $roleColor  = $roleColors[$role] ?? '#6B6A64';
-$roleLabels = ['admin'=>'Admin','editor'=>'Editor','reporter'=>'Reporter','contributor'=>'Contributor'];
+$roleLabels = ['admin'=>'Admin','chief_editor'=>'Chief Editor','editor'=>'Editor','district_editor'=>'District Editor','category_editor'=>'Category Editor','senior_reporter'=>'Sr. Reporter','reporter'=>'Reporter','ads_manager'=>'Ads Manager','contributor'=>'Contributor'];
 $roleLabel  = $roleLabels[$role] ?? ucfirst($role);
-$roleIcons  = ['admin'=>'⚙️','editor'=>'✏️','reporter'=>'📝','contributor'=>'✍️'];
+$roleIcons  = ['admin'=>'⚙️','chief_editor'=>'👑','editor'=>'✏️','district_editor'=>'🗺️','category_editor'=>'📂','senior_reporter'=>'⭐','reporter'=>'📝','ads_manager'=>'📣','contributor'=>'✍️'];
 $roleIcon   = $roleIcons[$role] ?? '👤';
 
 $dashUrl    = $isContributor ? $r.'/contribute/dashboard' : $r.'/portal/dashboard';
@@ -58,7 +70,7 @@ function pActive(string $path, string $current): string {
       <div class="portal-logo-icon" style="background:<?= $roleColor ?>"><?= $roleIcon ?></div>
       <div>
         <div class="portal-logo-title">
-          <span style="color:#C0001A;font-family:'Noto Sans Tamil',sans-serif;font-weight:900">வேள்</span><span style="color:#fff;background:#C0001A;padding:0 5px;border-radius:3px;font-family:'Noto Sans Tamil',sans-serif;font-weight:900;margin-left:2px">சுடர்</span>
+          <span style="color:#C0001A;font-family:'Noto Sans Tamil',sans-serif;font-weight:900">தினத்</span><span style="color:#fff;background:#C0001A;padding:0 5px;border-radius:3px;font-family:'Noto Sans Tamil',sans-serif;font-weight:900;margin-left:2px">துளிர்</span>
         </div>
         <div class="portal-logo-sub" style="color:<?= $roleColor ?>"><?= $roleLabel ?> Portal</div>
       </div>
@@ -69,7 +81,7 @@ function pActive(string $path, string $current): string {
       <a href="<?= $dashUrl ?>" class="portal-nav-link <?= pActive('/dashboard',$current) ?>">
         <i class="bi bi-speedometer2"></i> Dashboard
       </a>
-      <?php if (!$isContributor && in_array($role, ['editor','district_editor','category_editor','chief_editor'])): ?>
+      <?php if (!$isContributor && in_array($role, ['admin','chief_editor','editor','district_editor','category_editor'])): ?>
       <a href="<?= $r ?>/admin/articles" class="portal-nav-link <?= (str_contains($current,'/admin/articles') && !str_contains($current,'review')) ? 'active' : '' ?>">
         <i class="bi bi-file-earmark-text"></i> All Articles
       </a>
@@ -78,11 +90,16 @@ function pActive(string $path, string $current): string {
         <i class="bi bi-file-earmark-text"></i> My Articles
       </a>
       <?php endif; ?>
+      <?php if (!$isContributor && in_array($role, ['admin','chief_editor','editor','district_editor','category_editor'])): ?>
+      <a href="<?= $r ?>/admin/articles?status=review" class="portal-nav-link <?= ($_GET['status']??'')=='review'?'active':'' ?>">
+        <i class="bi bi-hourglass-split"></i> Review Queue
+      </a>
+      <?php endif; ?>
       <a href="<?= $writeUrl ?>" class="portal-nav-link">
         <i class="bi bi-plus-circle"></i>
         <?= $isContributor ? 'Submit Article' : 'Write' ?>
       </a>
-      <?php if (!$isContributor && in_array($role, ['editor','district_editor','category_editor','chief_editor'])): ?>
+      <?php if (!$isContributor && in_array($role, ['admin','chief_editor','editor','district_editor','category_editor'])): ?>
       <a href="<?= $r ?>/admin/articles?status=review" class="portal-nav-link <?= ($_GET['status']??'')==='review'?'active':'' ?>">
         <i class="bi bi-hourglass-split"></i> Review Queue
       </a>
@@ -104,7 +121,7 @@ function pActive(string $path, string $current): string {
         $notifCount = $notifModel->unreadCount(!$isContributor ? (\App\Core\Auth::id() ?? 0) : 0);
       } catch(\Exception $e) {}
       ?>
-      <a href="<?= $r ?>/admin/business-ads" class="portal-nav-link <?= str_contains($currentPath,'/business-ads')?'active':'' ?>">
+      <a href="<?= $r ?>/admin/business-ads" class="portal-nav-link <?= str_contains($current,'/business-ads')?'active':'' ?>">
       <i class="bi bi-megaphone"></i> Ads
     </a>
     <a href="<?= $r ?>/portal/notifications" class="portal-notif-btn" title="Notifications">

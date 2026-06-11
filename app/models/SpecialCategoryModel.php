@@ -14,7 +14,7 @@ class SpecialCategoryModel extends Model
              FROM tn_special_categories sc
              LEFT JOIN tn_categories c ON c.id = sc.category_id
              WHERE sc.is_active = 1
-             ORDER BY sc.sort_order ASC, sc.id DESC"
+             ORDER BY sc.id ASC, sc.id DESC"
         );
     }
 
@@ -24,7 +24,7 @@ class SpecialCategoryModel extends Model
             "SELECT sc.*, c.name AS base_category_name
              FROM tn_special_categories sc
              LEFT JOIN tn_categories c ON c.id = sc.category_id
-             ORDER BY sc.sort_order ASC, sc.id DESC"
+             ORDER BY sc.id ASC, sc.id DESC"
         );
     }
 
@@ -44,7 +44,7 @@ class SpecialCategoryModel extends Model
         $offset = ($page - 1) * $perPage;
         $data   = \App\Core\Database::getInstance()->prepare(
             "SELECT a.id, a.title, a.slug, a.excerpt, a.published_at, a.view_count,
-                    a.rating_avg, a.is_breaking, a.content_type, a.youtube_video_id,
+                    0 AS rating_avg, a.is_breaking, a.content_type, a.youtube_video_id,
                     c.name AS category_name, c.slug AS category_slug,
                     m.filepath AS image_url, m.thumb_path AS thumb_url
              FROM tn_articles a

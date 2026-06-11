@@ -154,7 +154,7 @@
 
 <style>
 /* ── LIVE BLOG FRONTEND STYLES ─────────────────── */
-.live-header { max-width:860px;margin:16px auto 20px;padding:0 20px; }
+.live-header { max-width:100%;margin:16px auto 20px;padding:0 20px; }
 .live-badge-wrap { display:inline-flex;align-items:center;gap:8px;margin-bottom:12px; }
 .live-badge-dot  { width:10px;height:10px;border-radius:50%;background:#C0001A;animation:blink 1s infinite; }
 .live-badge-text { font-family:'Oswald',sans-serif;font-size:14px;font-weight:700;color:#C0001A;letter-spacing:2px; }
@@ -163,24 +163,24 @@
 .live-desc  { font-size:15px;color:#5A5A5A;margin-bottom:10px; }
 .live-meta  { font-size:12px;color:#9A9890; }
 
-.live-scoreboard { max-width:460px;margin:0 auto 20px;padding:20px;background:white;border:1px solid #D8D6CE;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:30px;text-align:center; }
+.live-scoreboard { max-width:100%;margin:0 auto 20px;padding:20px;background:white;border:1px solid #D8D6CE;border-radius:10px;display:flex;align-items:center;justify-content:center;gap:30px;text-align:center; }
 .live-score-name { font-size:14px;font-weight:700;margin-bottom:6px; }
 .live-score-num  { font-size:42px;font-weight:900;line-height:1;font-family:'Anton',sans-serif; }
 .live-score-vs   { font-size:16px;color:#9A9890;font-weight:600; }
 
-.live-notify-bar { background:#1B6B2E;color:white;display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 20px;font-size:13px;font-weight:600;max-width:860px;margin:0 auto 12px;border-radius:6px; }
+.live-notify-bar { background:#1B6B2E;color:white;display:flex;align-items:center;justify-content:center;gap:12px;padding:10px 20px;font-size:13px;font-weight:600;max-width:100%;margin:0 auto 12px;border-radius:6px; }
 .live-notify-dot { width:8px;height:8px;border-radius:50%;background:white;animation:blink 1s infinite;flex-shrink:0; }
 .live-notify-btn { background:rgba(255,255,255,.2);border:none;color:white;padding:4px 14px;border-radius:4px;cursor:pointer;font-weight:600;font-size:12px; }
 .live-notify-btn:hover { background:rgba(255,255,255,.3); }
 
-.live-share-bar { max-width:860px;margin:0 auto 16px;padding:0 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
+.live-share-bar { max-width:100%;margin:0 auto 16px;padding:0 20px;display:flex;align-items:center;gap:8px;flex-wrap:wrap; }
 
-.live-pinned-section { max-width:860px;margin:0 auto 20px;padding:0 20px; }
+.live-pinned-section { max-width:100%;margin:0 auto 20px;padding:0 20px; }
 .live-pinned-label { font-size:12px;font-weight:700;color:#6B6A64;text-transform:uppercase;letter-spacing:.5px;margin-bottom:8px; }
 .live-pinned-item { display:flex;align-items:center;gap:8px;padding:8px 12px;background:#FEF4E0;border-radius:6px;margin-bottom:6px;flex-wrap:wrap; }
 .live-pinned-text { font-size:13px;font-family:'Noto Sans Tamil',sans-serif;flex:1; }
 
-.live-feed-wrap { max-width:860px;margin:0 auto;padding:0 20px 40px; }
+.live-feed-wrap { max-width:100%;margin:0 auto;padding:0 20px 40px; }
 .live-feed { }
 
 .live-entry { display:flex;gap:16px;padding:16px 0;border-bottom:1px solid #F0EFE9;position:relative; }

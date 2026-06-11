@@ -12,6 +12,16 @@
 <meta name="csrf-token" content="<?= \App\Core\CSRF::token() ?>">
 <meta name="base-url"   content="<?= ASSET_URL ?>">
 </head>
+<script>
+// Admin panel: redirect mobile users to portal
+if (window.innerWidth < 1024 && document.cookie.indexOf("admin_mobile_ok") < 0) {
+  const warn = document.createElement("div");
+  warn.id = "adminMobWarn";
+  warn.style.cssText = "position:fixed;inset:0;background:#1A1A1A;color:#fff;z-index:9999;display:flex;flex-direction:column;align-items:center;justify-content:center;padding:24px;text-align:center";
+  warn.innerHTML = "<div style='font-size:48px;margin-bottom:16px'>🖥️</div><h2 style='font-family:sans-serif;margin-bottom:12px'>Admin Panel</h2><p style='font-size:14px;color:#9A9890;margin-bottom:20px'>Admin panel is optimised for desktop view.<br>Please use a desktop browser.</p><a href='/tamilnews/public/portal/dashboard' style='background:#C0001A;color:#fff;padding:10px 24px;border-radius:6px;text-decoration:none;font-size:14px'>Go to Staff Portal</a><br><br><button onclick='document.cookie="admin_mobile_ok=1";document.getElementById("adminMobWarn").remove()' style='background:none;border:none;color:#9A9890;font-size:12px;cursor:pointer;margin-top:8px'>Continue anyway</button>";
+  document.body.appendChild(warn);
+}
+</script>
 <body>
 
 <div class="tn-sidebar-overlay" id="sidebarOverlay"></div>
@@ -111,6 +121,26 @@
     <div class="tn-nav-label mt-2">Advertising</div>
     <a href="<?= $routeBase ?>/admin/business-ads" class="tn-nav-item <?= isActive('/admin/business-ads', $current) ?>">
       <i class="bi bi-megaphone"></i> Business Ads
+    </a>
+    <a href="<?= $routeBase ?>/admin/ad-defaults" class="tn-nav-item <?= isActive('/admin/ad-defaults', $current) ?>">
+      <i class="bi bi-image"></i> Ad Defaults
+    </a>
+    <a href="<?= $routeBase ?>/admin/packages" class="tn-nav-item <?= isActive('/admin/packages', $current) ?>">
+      <i class="bi bi-box-seam"></i> Ad Packages
+    </a>
+
+    <div class="tn-nav-label mt-2">Tools</div>
+    <a href="<?= $routeBase ?>/admin/widgets" class="tn-nav-item <?= isActive('/admin/widgets', $current) ?>">
+      <i class="bi bi-layout-sidebar-reverse"></i> Widgets
+    </a>
+    <a href="<?= $routeBase ?>/admin/polls" class="tn-nav-item <?= isActive('/admin/polls', $current) ?>">
+      <i class="bi bi-bar-chart-steps"></i> Polls
+    </a>
+    <a href="<?= $routeBase ?>/admin/rates" class="tn-nav-item <?= isActive('/admin/rates', $current) ?>">
+      <i class="bi bi-currency-rupee"></i> Live Rates
+    </a>
+    <a href="<?= $routeBase ?>/admin/performance" class="tn-nav-item <?= isActive('/admin/performance', $current) ?>">
+      <i class="bi bi-graph-up-arrow"></i> Performance
       <?php try { $bac=(new \App\Models\BusinessAdModel())->pendingCount(); if($bac>0): ?><span class="tn-badge"><?= $bac ?></span><?php endif; } catch(\Exception $e) {} ?>
     </a>
 

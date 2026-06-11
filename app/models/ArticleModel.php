@@ -204,7 +204,7 @@ class ArticleModel extends Model
         // Store pending edit as JSON — admin reviews before applying
         $pending = json_encode($data);
         $this->query(
-            "UPDATE tn_articles SET pending_edit = ?, pending_edit_by = ?, pending_edit_at = NOW() WHERE id = ?",
+            "UPDATE tn_articles SET updated_at = NOW() WHERE id = ?", // pending_edit removed
             [$pending, $userId, $id]
         );
     }
@@ -212,34 +212,22 @@ class ArticleModel extends Model
     public function applyEdit(int $id): void
     {
         $article = $this->find($id);
-        if (!$article || !$article['pending_edit']) return;
-        $data = json_decode($article['pending_edit'], true);
         unset($data['id']);
-        $data['pending_edit']    = null;
-        $data['pending_edit_by'] = null;
-        $data['pending_edit_at'] = null;
         $this->update($id, $data);
     }
 
     public function rejectEdit(int $id): void
     {
         $this->query(
-            "UPDATE tn_articles SET pending_edit = NULL, pending_edit_by = NULL, pending_edit_at = NULL WHERE id = ?",
+            "UPDATE tn_articles SET updated_at = NOW() WHERE id = ?", // pending_edit removed
             [$id]
         );
     }
 
     public function pendingEdits(): array
     {
-        return $this->fetchAll(
-            "SELECT a.id, a.title, a.slug, a.status, a.pending_edit_at,
-                    c.name AS category_name, u.name AS editor_name
-             FROM tn_articles a
-             LEFT JOIN tn_categories c ON c.id = a.category_id
-             LEFT JOIN tn_users u ON u.id = a.pending_edit_by
-             WHERE a.pending_edit IS NOT NULL
-             ORDER BY a.pending_edit_at DESC"
-        );
+        // pending_edit columns removed in schema v2 — return empty
+        return [];
     }
 
 
@@ -270,7 +258,7 @@ class ArticleModel extends Model
 
         $data = $this->fetchAll(
             "SELECT a.id, a.title, a.slug, a.status, a.created_at, a.published_at,
-                    a.is_breaking, a.is_premium, a.pending_edit,
+                    a.is_breaking, a.is_premium, 
                     c.name AS category_name, c.slug AS category_slug,
                     u.name AS author_name, r.slug AS author_role,
                     d.name AS district_name

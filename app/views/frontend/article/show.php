@@ -28,74 +28,39 @@ $isVideo  = !empty($article['youtube_video_id']);
   <!-- ARTICLE MAIN -->
   <div class="article-main">
 
-    <!-- CATEGORY & TITLE -->
-    <div class="art-category">
-      <a href="<?= $r ?>/tamil-news/<?= e($article['category_slug'] ?? '') ?>"><?= e($article['category_name']) ?></a>
-    </div>
+    <!-- TITLE (category removed — in breadcrumb already) -->
     <h1 class="art-title"><?= e($article['title']) ?></h1>
 
-    <!-- META ROW -->
-    <div class="art-meta-row">
-      <div class="art-author">
-        <div class="art-author-avatar">
-          <?php if (!empty($article['contributor_avatar'])): ?>
-          <img src="<?= e($article['contributor_avatar']) ?>" style="width:30px;height:30px;border-radius:50%;object-fit:cover" alt="">
-          <?php else: ?>
-          <?= strtoupper(substr($article['contributor_name'] ?: $article['author_name'] ?: 'A', 0, 1)) ?>
-          <?php endif; ?>
-        </div>
-        <span class="art-author-name"><?= e($article['contributor_name'] ?: $article['author_name'] ?: 'Admin') ?></span>
-        <?php if (!empty($article['contributor_name'])): ?>
-        <span class="contributor-badge-sm">Contributor</span>
-        <?php endif; ?>
-      </div>
-      <span class="art-meta-sep">|</span>
-      <span><?= Helper::formatDate($article['published_at'], 'd M Y, h:i A') ?></span>
-      <span class="art-meta-sep">|</span>
-      <span>⏱ <?= $article['read_time'] ?> நிமிடம்</span>
-      <?php if ($article['view_count'] > 0): ?>
-      <span class="art-meta-sep">|</span>
-      <span>👁 <?= number_format($article['view_count']) ?></span>
-      <?php endif; ?>
-      <?php if ($ratingStats['total'] > 0): ?>
-      <span class="art-meta-sep">|</span>
-      <span>⭐ <?= number_format((float)$ratingStats['average'], 1) ?> (<?= $ratingStats['total'] ?>)</span>
-      <?php endif; ?>
+    <!-- SHARE ICONS — right under title -->
+    <div class="art-share-inline">
+      <a href="https://wa.me/?text=<?= $whatsappMsg ?>" target="_blank" rel="noopener" class="sbc sbc-wa" onclick="trackWA()">💬</a>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode('https://'.$_SERVER['HTTP_HOST'].'/article/'.$article['slug']) ?>" target="_blank" rel="noopener" class="sbc sbc-fb">📘</a>
+      <a href="https://twitter.com/intent/tweet?text=<?= $whatsappMsg ?>" target="_blank" rel="noopener" class="sbc sbc-tw">🐦</a>
+      <button class="sbc sbc-cp" onclick="copyLink()">🔗</button>
     </div>
 
-    <!-- META + FONT SIZE ROW -->
-    <div style="display:flex;align-items:center;flex-wrap:wrap;gap:12px;margin-bottom:16px">
-      <!-- Author byline -->
-      <?php
-      $authorSlug = strtolower(str_replace(' ', '-', $article['author_name'] ?? 'admin'));
-      ?>
-      <a href="<?= $r ?>/author/<?= htmlspecialchars($authorSlug) ?>"
-         style="font-size:13px;color:var(--red);font-weight:600;text-decoration:none">
-        By <?= htmlspecialchars($article['contributor_name'] ?: $article['author_name'] ?: 'Admin') ?>
-      </a>
-
-      <!-- Font size toggle -->
-      <div class="font-size-toggle" title="Adjust font size">
-        <span style="font-size:11px;color:var(--gray-4)">A</span>
+    <!-- REPORTER + POST DETAILS — single compact row -->
+    <div class="art-byline">
+      <span class="art-byline-author"><?= e($article['contributor_name'] ?: $article['author_name'] ?: 'Admin') ?></span>
+      <span class="art-byline-sep">·</span>
+      <span class="art-byline-date"><?= Helper::formatDate($article['published_at'], 'd M Y, h:i A') ?></span>
+      <span class="art-byline-sep">·</span>
+      <span class="art-byline-detail">⏱ <?= $article['read_time'] ?> நிமிடம்</span>
+      <?php if ($article['view_count'] > 0): ?>
+      <span class="art-byline-sep">·</span>
+      <span class="art-byline-detail">👁 <?= number_format($article['view_count']) ?></span>
+      <?php endif; ?>
+      <?php if ($ratingStats['total'] > 0): ?>
+      <span class="art-byline-sep">·</span>
+      <span class="art-byline-detail">⭐ <?= number_format((float)$ratingStats['average'],1) ?></span>
+      <?php endif; ?>
+      <!-- font size toggle inline right end -->
+      <div class="font-size-toggle" style="margin-left:auto">
         <button class="font-btn" onclick="setFont('sm')" id="fsm">A-</button>
         <button class="font-btn active" onclick="setFont('md')" id="fmd">A</button>
         <button class="font-btn" onclick="setFont('lg')" id="flg">A+</button>
         <button class="font-btn" onclick="setFont('xl')" id="fxl">A++</button>
       </div>
-    </div>
-
-    <!-- SHARE ROW -->
-    <div class="share-row">
-      <span class="share-label">Share:</span>
-      <a href="https://wa.me/?text=<?= $whatsappMsg ?>" target="_blank" rel="noopener"
-         class="share-btn share-wa" onclick="trackWA()">
-        💬 WhatsApp
-      </a>
-      <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode('https://'.$_SERVER['HTTP_HOST'].'/article/'.$article['slug']) ?>"
-         target="_blank" rel="noopener" class="share-btn share-fb">📘 Facebook</a>
-      <a href="https://twitter.com/intent/tweet?text=<?= $whatsappMsg ?>"
-         target="_blank" rel="noopener" class="share-btn share-tw">🐦 Twitter</a>
-      <button class="share-btn share-copy" onclick="copyLink()">🔗 Copy</button>
     </div>
 
     <!-- HERO IMAGE or VIDEO -->
@@ -147,15 +112,17 @@ $isVideo  = !empty($article['youtube_video_id']);
     <?php endif; ?>
 
 
-    <!-- TAGS -->
-    <?php if (!empty($tags)): ?>
+    <!-- TAGS — always shown, category as fallback -->
     <div class="art-tags">
-      <span class="art-tags-label">🏷️ Tags:</span>
-      <?php foreach ($tags as $i => $tag): ?>
+      <span class="art-tags-label">🏷️</span>
+      <!-- Category always as first tag -->
+      <a href="<?= $r ?>/tamil-news/<?= e($article['category_slug']??'') ?>" class="art-tag art-tag-cat">
+        <?= e($article['category_tamil'] ?: $article['category_name']) ?>
+      </a>
+      <?php foreach ($tags as $tag): ?>
       <a href="<?= $r ?>/search?q=<?= urlencode($tag) ?>" class="art-tag"><?= e($tag) ?></a>
       <?php endforeach; ?>
     </div>
-    <?php endif; ?>
 
     <!-- WHATSAPP SHARE (prominent) -->
     <div class="whatsapp-share-block">

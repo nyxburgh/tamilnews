@@ -51,7 +51,7 @@
                  placeholder="Search articles..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
           <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search"></i></button>
         </form>
-        <?php $pendingCount = (new \App\Models\ArticleModel())->pendingEdits(); ?>
+        <?php $pendingCount = []; // pending_edit removed from schema ?>
         <?php if (!empty($pendingCount)): ?>
         <a href="<?= $r ?>/admin/articles/pending-edits" class="btn btn-sm btn-warning fw-600">
           ✏️ <?= count($pendingCount) ?> Pending Edits

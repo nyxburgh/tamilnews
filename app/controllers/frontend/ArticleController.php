@@ -56,7 +56,7 @@ class ArticleController extends Controller
         $db   = \App\Core\Database::getInstance();
         $rows = $db->query("SELECT * FROM tn_ad_slots WHERE is_active = 1")->fetchAll(\PDO::FETCH_ASSOC);
         $ads  = [];
-        foreach ($rows as $row) { $ads[$row['position']] = $row; }
+        foreach ($rows as $row) { $ads[$row['type']] = $row; }
 
         // SEO
         $siteUrl   = rtrim($settings->getValue('site_url', BASE_URL . '/public'), '/');
@@ -75,12 +75,16 @@ class ArticleController extends Controller
         }
 
         $isPremiumLocked = $isPremiumLocked ?? false;
+        $noSidebar   = true;
+        $categoryId  = (int)($article['category_id'] ?? 0);
         $csrf = \App\Core\CSRF::token();
 
         $this->view('frontend.article.show', compact(
             'article', 'related', 'ratingStats', 'reviews',
             'readerId', 'userRating', 'categories', 'siteName',
-            'trending', 'ads', 'metaTitle', 'metaDesc', 'canonical', 'ogImage', 'csrf'
+            'trending', 'ads', 'metaTitle', 'metaDesc', 'canonical', 'ogImage', 'csrf',
+            'categoryId',
+            'noSidebar'
         ), 'frontend');
     }
 }

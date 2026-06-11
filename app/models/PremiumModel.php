@@ -44,7 +44,7 @@ class PremiumModel extends Model
         );
         $new = $current ? 0 : 1;
         $this->db->prepare(
-            "UPDATE tn_articles SET is_premium = ?, premium_set_by = ? WHERE id = ?"
+            "UPDATE tn_articles SET is_premium = ? WHERE id = ?"
         )->execute([$new, $userId, $articleId]);
         return (bool)$new;
     }
@@ -57,7 +57,7 @@ class PremiumModel extends Model
                     c.name AS category_name, u.name AS set_by_name
              FROM tn_articles a
              LEFT JOIN tn_categories c ON c.id = a.category_id
-             LEFT JOIN tn_users u ON u.id = a.premium_set_by
+             LEFT JOIN tn_users u ON u.id = a.approved_by
              WHERE a.is_premium = 1
              ORDER BY a.published_at DESC
              LIMIT ? OFFSET ?",
@@ -73,7 +73,7 @@ class PremiumModel extends Model
     {
         return [
             'total_premium_articles' => (int)$this->fetchColumn("SELECT COUNT(*) FROM tn_articles WHERE is_premium = 1"),
-            'total_subscribers'      => (int)$this->fetchColumn("SELECT COUNT(*) FROM tn_premium_access WHERE status = 'active' AND expires_at > NOW()"),
+            'total_subscribers'      => (int)$this->fetchColumn("SELECT COUNT(*) FROM tn_premium_access WHERE is_active = 1 AND expires_at > NOW()"),
             'total_plans'            => (int)$this->fetchColumn("SELECT COUNT(*) FROM tn_premium_plans WHERE is_active = 1"),
         ];
     }

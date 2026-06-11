@@ -11,10 +11,11 @@ class BusinessAdModel extends Model
 
     public function submit(array $data, int $userId): int|false
     {
-        return $this->insert(array_merge($data, [
-            'submitted_by' => $userId,
-            'status'       => 'pending',
-        ]));
+        $data['submitted_by'] = $userId;
+        $data['status']       = 'pending';
+        // package_id is optional — skip if column not yet in DB
+        if (!isset($data['package_id'])) $data['package_id'] = 2;
+        return $this->insert($data);
     }
 
     // ── Upload images (max 5) ────────────────────────────────
@@ -57,8 +58,7 @@ class BusinessAdModel extends Model
     {
         $img = $this->fetchOne("SELECT * FROM tn_ad_images WHERE id=? AND ad_id=?", [$imageId, $adId]);
         if ($img) {
-            $path = dirname(__DIR__, 2) . '/public' . $img['filepath'];
-            if (file_exists($path)) unlink($path);
+            self::deleteFile($img['filepath']);
             $this->db->prepare("DELETE FROM tn_ad_images WHERE id=?")->execute([$imageId]);
         }
     }
@@ -80,7 +80,7 @@ class BusinessAdModel extends Model
         $data = $this->fetchAll(
             "SELECT b.*,
                     u.name AS submitted_by_name,
-                    s.name AS slot_name, s.position,
+                    s.name AS slot_name, s.type AS slot_type,
                     d.name AS district_name,
                     ci.name AS city_name,
                     c.name AS category_name,
@@ -110,7 +110,7 @@ class BusinessAdModel extends Model
         $ad = $this->fetchOne(
             "SELECT b.*,
                     u.name AS submitted_by_name,
-                    s.name AS slot_name, s.position, s.desktop_size,
+                    s.name AS slot_name, s.type AS slot_type, s.desktop_size,
                     d.name AS district_name,
                     ci.name AS city_name,
                     c.name AS category_name
@@ -207,7 +207,7 @@ class BusinessAdModel extends Model
 
         // Score: location=3, category=2, global=1 — pick highest, then random within same score
         $ad = $this->fetchOne(
-            "SELECT b.*, s.position, s.desktop_size, s.mobile_size,
+            "SELECT b.*, s.type AS slot_type, s.desktop_size, s.mobile_size,
                     (SELECT filepath FROM tn_ad_images WHERE ad_id=b.id AND is_active=1 ORDER BY sort_order LIMIT 1) AS primary_image,
                     (SELECT link_url FROM tn_ad_images WHERE ad_id=b.id AND is_active=1 ORDER BY sort_order LIMIT 1) AS click_url,
                     CASE b.display_type WHEN 'location' THEN 3 WHEN 'category' THEN 2 ELSE 1 END AS priority
@@ -277,4 +277,118 @@ class BusinessAdModel extends Model
             return 0;
         }
     }
+
+    /** Get default fallback image path for a slot type */
+    public function getDefaultImage(string $type): string
+    {
+        $row = $this->fetchOne(
+            "SELECT ad_code FROM tn_ad_slots WHERE type = ? LIMIT 1", [$type]
+        );
+        return $row['ad_code'] ?? '/uploads/vaqua.jpeg';
+    }
+
+    /** Get active approved ads for rotation — up to 5 images per ad */
+    public function activeForRotation(string $slotType, ?int $categoryId = null): array
+    {
+        $ads = $this->fetchAll(
+            "SELECT b.id, b.business_name, b.website_url,
+                    ai.filepath, ai.alt_text, ai.link_url,
+                    s.type AS slot_type
+             FROM tn_business_ads b
+             JOIN tn_ad_slots s ON s.id = b.slot_id
+             LEFT JOIN tn_ad_images ai ON ai.ad_id = b.id AND ai.is_active = 1
+             WHERE s.type = ?
+               AND b.status = 'active'
+               AND b.valid_from <= CURDATE()
+               AND b.valid_until >= CURDATE()
+               AND (
+                 b.display_type = 'global'
+                 OR (b.display_type = 'category' AND b.category_id = ?)
+               )
+             ORDER BY b.display_type DESC, b.id ASC, ai.sort_order ASC",
+            [$slotType, $categoryId ?? 0]
+        );
+
+        // Group images under each ad, max 5 per ad
+        $result = [];
+        $default = $this->getDefaultImage($slotType);
+        foreach ($ads as $row) {
+            $id = $row['id'];
+            if (!isset($result[$id])) {
+                $result[$id] = [
+                    'ad_id'         => $id,
+                    'business_name' => $row['business_name'],
+                    'website_url'   => $row['website_url'] ?? '#',
+                    'slot_type'     => $row['slot_type'],
+                    'images'        => [],
+                ];
+            }
+            if ($row['filepath'] && count($result[$id]['images']) < 5) {
+                $result[$id]['images'][] = [
+                    'src'  => $row['filepath'],
+                    'alt'  => $row['alt_text'] ?? $row['business_name'],
+                    'link' => $row['link_url'] ?? $row['website_url'] ?? '#',
+                ];
+            }
+        }
+
+        // Fallback: if no images, use default
+        foreach ($result as &$ad) {
+            if (empty($ad['images'])) {
+                $ad['images'][] = ['src'=>$default,'alt'=>$ad['business_name'],'link'=>$ad['website_url']];
+            }
+        }
+
+        // Flatten: if no active ads at all, return default
+        $flat = array_values($result);
+        if (empty($flat)) {
+            $flat[] = [
+                'ad_id'=>0,'business_name'=>'Advertisement','website_url'=>'#',
+                'slot_type'=>$slotType,
+                'images'=>[['src'=>$default,'alt'=>'Advertisement','link'=>'#']],
+            ];
+        }
+        return $flat;
+    }
+
+
+    /**
+     * Delete ad and all its image files from disk
+     */
+    public function deleteWithFiles(int $adId): void
+    {
+        $images = $this->fetchAll("SELECT filepath FROM tn_ad_images WHERE ad_id = ?", [$adId]);
+        foreach ($images as $img) {
+            self::deleteFile($img['filepath']);
+        }
+        $this->db->prepare("DELETE FROM tn_ad_images WHERE ad_id = ?")->execute([$adId]);
+        $this->db->prepare("DELETE FROM tn_business_ads WHERE id = ?")->execute([$adId]);
+    }
+
+    /**
+     * Delete all images for an ad (when replacing/editing)
+     */
+    public function deleteAdImages(int $adId): void
+    {
+        $images = $this->fetchAll("SELECT filepath FROM tn_ad_images WHERE ad_id = ?", [$adId]);
+        foreach ($images as $img) {
+            self::deleteFile($img['filepath']);
+        }
+        $this->db->prepare("DELETE FROM tn_ad_images WHERE ad_id = ?")->execute([$adId]);
+    }
+
+    /**
+     * Static helper: delete a file given its relative path (e.g. /uploads/ads/image.jpg)
+     */
+    public static function deleteFile(string $filepath): void
+    {
+        if (empty($filepath)) return;
+        // Try ROOT_PATH/public + filepath
+        $abs = ROOT_PATH . '/public' . '/' . ltrim($filepath, '/');
+        if (file_exists($abs)) { unlink($abs); return; }
+        // Try ROOT_PATH + filepath
+        $abs2 = ROOT_PATH . '/' . ltrim($filepath, '/');
+        if (file_exists($abs2)) { unlink($abs2); }
+    }
+
 }

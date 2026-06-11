@@ -47,6 +47,22 @@ class UserModel extends Model
         return ['data' => $data, 'total' => $this->count(), 'page' => $page, 'per_page' => $perPage];
     }
 
+    public function allReporters(): array
+    {
+        return $this->fetchAll(
+            "SELECT u.*, r.slug AS role_slug FROM tn_users u
+             JOIN tn_roles r ON r.id = u.role_id
+             WHERE r.slug IN ('reporter','senior_reporter','district_editor','category_editor','editor')
+             AND u.is_active=1 ORDER BY u.name"
+        );
+    }
+
+    public function promote(int $userId, int $newRoleId): void
+    {
+        $this->query("UPDATE tn_users SET role_id=? WHERE id=?", [$newRoleId, $userId]);
+        \App\Core\Auth::refresh();
+    }
+
     public function getRoles(): array
     {
         return $this->fetchAll("SELECT * FROM tn_roles ORDER BY id");

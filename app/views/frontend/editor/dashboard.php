@@ -1,6 +1,6 @@
 <?php
 use App\Core\Helper;
-$roleColors = ['admin'=>'#C0001A','editor'=>'#1877F2','reporter'=>'#1B6B2E','contributor'=>'#10b981'];
+$roleColors = ['admin'=>'#C0001A','chief_editor'=>'#7C3AED','editor'=>'#1877F2','district_editor'=>'#0891B2','category_editor'=>'#0891B2','senior_reporter'=>'#047857','reporter'=>'#1B6B2E','ads_manager'=>'#B45309','contributor'=>'#10b981'];
 $roleColor  = $roleColors[$role] ?? '#C0001A';
 $isContrib  = $isContributor ?? false;
 $firstName  = explode(' ', $isContrib ? (\App\Core\Session::get('contributor')['name'] ?? 'User') : (\App\Core\Auth::user()['name'] ?? 'User'))[0];
@@ -12,9 +12,20 @@ $writeUrl   = $isContrib ? ($r . '/contribute/articles/create') : ($r . '/admin/
   <div>
     <h3>வணக்கம், <?= htmlspecialchars($firstName) ?>! 👋</h3>
     <p style="opacity:.85;font-size:13px">
-      <?php if ($role==='editor'): ?>Your articles + review queue are ready.
-      <?php elseif ($role==='reporter'): ?>Ready to write your next story?
-      <?php else: ?>Share your articles with Tamil Nadu.<?php endif; ?>
+      <?php
+      $welcomeMsgs = [
+        'admin'           => 'Full control panel ready.',
+        'chief_editor'    => 'Review queue and editorial tools are ready.',
+        'editor'          => 'Your articles and review queue are ready.',
+        'district_editor' => 'Manage district news and approve articles.',
+        'category_editor' => 'Manage your category articles.',
+        'senior_reporter' => 'Your articles are auto-approved. Write today!',
+        'reporter'        => 'Ready to write your next story?',
+        'ads_manager'     => 'Manage advertisements and campaigns.',
+        'contributor'     => 'Share your articles with Tamil Nadu.',
+      ];
+      echo $welcomeMsgs[$role] ?? 'Welcome back!';
+      ?>
     </p>
     <?php if (!empty($userBadges)): ?>
     <div style="margin-top:8px;display:flex;gap:6px;flex-wrap:wrap">
@@ -57,7 +68,7 @@ $writeUrl   = $isContrib ? ($r . '/contribute/articles/create') : ($r . '/admin/
   <div class="col-lg-8">
 
     <!-- REVIEW QUEUE — editors only -->
-    <?php if (!empty($reviewQueue) && in_array($role, ['admin','editor'])): ?>
+    <?php if (!empty($reviewQueue) && in_array($role, ['admin','chief_editor','editor','district_editor','category_editor'])): ?>
     <div class="portal-card mb-4" style="border-color:rgba(160,104,0,.3)">
       <div class="portal-card-header" style="background:rgba(254,244,224,.5)">
         <span style="color:#A06800">⏳ Pending Review <span style="background:#A06800;color:white;padding:2px 8px;border-radius:10px;font-size:11px;margin-left:6px"><?= count($reviewQueue) ?></span></span>
@@ -111,9 +122,7 @@ $writeUrl   = $isContrib ? ($r . '/contribute/articles/create') : ($r . '/admin/
             <tr>
               <td>
                 <span class="portal-article-link"><?= htmlspecialchars(mb_substr($a['title'],0,50)) ?></span>
-                <?php if (!empty($a['pending_edit'])): ?>
-                <span style="font-size:10px;background:#FEF4E0;color:#A06800;padding:1px 6px;border-radius:3px;margin-left:4px">✏️ Edit Pending</span>
-                <?php endif; ?>
+                
                 <?php if (!empty($a['is_premium'])): ?>
                 <span style="font-size:10px;background:#E8A000;color:#1A1A1A;padding:1px 6px;border-radius:3px;margin-left:4px">🔒</span>
                 <?php endif; ?>
@@ -147,7 +156,7 @@ $writeUrl   = $isContrib ? ($r . '/contribute/articles/create') : ($r . '/admin/
         <a href="<?= $r ?>/portal/articles?status=draft"     class="btn btn-outline-secondary">📄 My Drafts</a>
         <a href="<?= $r ?>/portal/articles?status=review"    class="btn btn-outline-secondary">⏳ Under Review</a>
         <a href="<?= $r ?>/portal/articles?status=published" class="btn btn-outline-secondary">✅ Published</a>
-        <?php if ($role === 'editor'): ?>
+        <?php if (in_array($role, ['admin','chief_editor','editor','district_editor','category_editor'])): ?>
         <a href="<?= $r ?>/admin/articles?status=review"     class="btn btn-outline-warning">📋 All Pending Reviews</a>
         <?php endif; ?>
         <a href="<?= $r ?>/portal/profile" class="btn btn-outline-secondary">👤 My Profile</a>

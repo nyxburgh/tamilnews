@@ -20,6 +20,8 @@ class SearchController extends Controller
         $settings      = new SettingModel();
         $navCategories = (new CategoryModel())->allWithParent();
 
+        // Sidebar data
+        try { $trending = $articleModel->trending(6); } catch(\Exception $e) { $trending = []; }
         $this->view('frontend.search.index', [
             'q'             => $q,
             'articles'      => $result['data'],

@@ -101,7 +101,7 @@
                    onclick="this.parentElement.querySelectorAll('.slot-pick').forEach(x=>x.classList.remove('active'));this.classList.add('active');document.getElementById('slotIdInput').value='<?= $slot['id'] ?>'">
               <input type="radio" name="_slot_display" style="display:none"
                      <?= ($ad['slot_id'] ?? '') == $slot['id'] ? 'checked' : '' ?>>
-              <?php if ($slot['position'] === 'square'): ?>
+              <?php if ($slot['type'] === 'square'): ?>
               <div style="width:50px;height:50px;background:var(--portal-gray1,#f0f0f0);border:1px solid var(--portal-gray2,#ccc);border-radius:4px;margin:0 auto 6px"></div>
               <?php else: ?>
               <div style="width:80px;height:22px;background:var(--portal-gray1,#f0f0f0);border:1px solid var(--portal-gray2,#ccc);border-radius:4px;margin:0 auto 6px"></div>

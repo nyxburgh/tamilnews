@@ -16,7 +16,7 @@ class LiveBlogModel extends Model
              FROM tn_live_blogs lb
              LEFT JOIN tn_articles a ON a.id = lb.article_id
              LEFT JOIN tn_users u ON u.id = lb.user_id
-             LEFT JOIN tn_live_entries le ON le.live_blog_id = lb.id
+             LEFT JOIN tn_live_entries le ON le.blog_id = lb.id
              GROUP BY lb.id
              ORDER BY lb.created_at DESC"
         );
@@ -115,7 +115,7 @@ class LiveBlogModel extends Model
                     COUNT(le.id) AS entry_count
              FROM tn_live_blogs lb
              LEFT JOIN tn_articles a ON a.id = lb.article_id
-             LEFT JOIN tn_live_entries le ON le.live_blog_id = lb.id
+             LEFT JOIN tn_live_entries le ON le.blog_id = lb.id
              WHERE lb.status = 'active'
              GROUP BY lb.id
              ORDER BY lb.created_at DESC"

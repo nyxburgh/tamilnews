@@ -1,294 +1,154 @@
-<?php use App\Core\Helper;
+<?php
+use App\Core\Helper;
 
-// Helper: image fallback
-function artImg(array $a, string $size = 'thumb'): string {
-    $path = $size === 'full' ? ($a['image_url'] ?? '') : ($a['thumb_url'] ?? $a['image_url'] ?? '');
-    return $path ?: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80';
+function artImg(array $a, string $s = 'thumb'): string {
+    $p = $s === 'full' ? ($a['image_url'] ?? '') : ($a['thumb_url'] ?? $a['image_url'] ?? '');
+    return $p ?: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80';
+}
+function catClass(string $s): string {
+    $m = ['tamil-nadu'=>'red','india'=>'blue','world'=>'teal','cinema'=>'purple',
+          'sports'=>'green','technology'=>'blue','spiritual'=>'gold','jobs-education'=>'teal','business'=>'purple'];
+    return 'cat-' . ($m[$s] ?? 'red');
+}
+function ta(string $d): string { return Helper::timeAgo($d); }
+function xe(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
+
+/* ── Hero pool ── */
+$h1 = $hero ?? ($heroSide[0] ?? null);
+$h2 = $heroSide[0] ?? ($topStories[0] ?? null);
+$h3 = $heroSide[1] ?? ($topStories[1] ?? null);
+$h4 = $heroSide[2] ?? ($topStories[2] ?? null);
+/* prevent h1 === h2 duplicate */
+if ($h1 && $h2 && $h1['id'] === $h2['id']) {
+    $h2 = $heroSide[1] ?? ($topStories[0] ?? null);
+    $h3 = $heroSide[2] ?? ($topStories[1] ?? null);
+    $h4 = $heroSide[3] ?? ($topStories[2] ?? null);
 }
 
-// Helper: category tag class
-function catClass(string $slug): string {
-    $map = ['tamil-nadu'=>'red','india'=>'blue','world'=>'teal','cinema'=>'purple',
-            'sports'=>'green','technology'=>'blue','spiritual'=>'gold','jobs'=>'teal'];
-    return 'cat-' . ($map[$slug] ?? 'red');
-}
-
-function timeAgo(string $date): string {
-    return \App\Core\Helper::timeAgo($date);
-}
-
-function e(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
+$catSections = [
+    ['data'=>$tamilNadu??[], 'name'=>'Tamil Nadu',   'ta'=>'தமிழ்நாடு',       'slug'=>'tamil-nadu',      'color'=>'#C0001A'],
+    ['data'=>$india??[],     'name'=>'India',         'ta'=>'இந்தியா',          'slug'=>'india',           'color'=>'#1877F2'],
+    ['data'=>$world??[],     'name'=>'World',         'ta'=>'உலகம்',            'slug'=>'world',            'color'=>'#0891B2'],
+    ['data'=>$cinema??[],    'name'=>'Cinema',        'ta'=>'சினிமா',           'slug'=>'cinema',          'color'=>'#7F77DD'],
+    ['data'=>$sports??[],    'name'=>'Sports',        'ta'=>'விளையாட்டு',       'slug'=>'sports',          'color'=>'#1B6B2E'],
+    ['data'=>$topStories??[],'name'=>'Top Stories',   'ta'=>'முக்கிய செய்திகள்','slug'=>'',               'color'=>'#C0001A'],
+    ['data'=>$videos??[],    'name'=>'Videos',        'ta'=>'வீடியோ',           'slug'=>'video',           'color'=>'#FF0000'],
+];
 ?>
 
-<div class="main">
+<!-- Live blogs -->
+<?php if (!empty($liveBlogs)): ?>
+<div class="live-blogs-bar">
+  <?php foreach ($liveBlogs as $lb): ?>
+  <a href="<?= $r ?>/live/<?= xe($lb['slug']) ?>" class="live-blog-banner">
+    <div class="live-blog-banner-dot"></div>
+    <div class="live-blog-banner-label">LIVE</div>
+    <div class="live-blog-banner-title"><?= xe($lb['title']) ?></div>
+    <div class="live-blog-banner-meta"><?= $lb['entry_count'] ?> updates</div>
+    <div class="live-blog-banner-follow">Follow Live →</div>
+  </a>
+  <?php endforeach; ?>
+</div>
+<?php endif; ?>
 
-  <!-- Header ad now shown in masthead (728×100) -->
+<!-- ══════════════════════════════════════════
+     HERO SECTION
+     Left (1fr): 1 big tall card
+     Right (1fr): 3 stacked small cards
+     Sidebar (240px): from layout
+════════════════════════════════════════════ -->
+<div class="hero4-grid">
 
-  <!-- LIVE BLOG BANNER — shown only when active -->
-  <?php if (!empty($liveBlogs)): ?>
-  <div class="live-blogs-bar">
-    <?php foreach ($liveBlogs as $lb): ?>
-    <a href="<?= $r ?>/live/<?= htmlspecialchars($lb['slug']) ?>" class="live-blog-banner">
-      <div class="live-blog-banner-dot"></div>
-      <div class="live-blog-banner-label">LIVE</div>
-      <div class="live-blog-banner-title"><?= htmlspecialchars($lb['title']) ?></div>
-      <div class="live-blog-banner-meta"><?= $lb['entry_count'] ?> updates</div>
-      <?php if ($lb['team_home'] && $lb['team_away']): ?>
-      <div class="live-blog-banner-score">
-        <?= htmlspecialchars($lb['team_home']) ?>
-        <?php if ($lb['score_home'] || $lb['score_away']): ?>
-        <span><?= htmlspecialchars($lb['score_home'] ?? '—') ?></span>
-        vs
-        <span><?= htmlspecialchars($lb['score_away'] ?? '—') ?></span>
-        <?php else: ?> vs <?php endif; ?>
-        <?= htmlspecialchars($lb['team_away']) ?>
+  <!-- LEFT: big feature card -->
+  <?php if ($h1): ?>
+  <a href="<?= $r ?>/article/<?= xe($h1['slug']) ?>" class="hero4-big">
+    <img src="<?= artImg($h1, 'full') ?>" alt="<?= xe($h1['title']) ?>" loading="eager">
+    <div class="hero4-big-body">
+      <?php if (!empty($h1['is_breaking'])): ?>
+      <div class="breaking-badge" style="font-size:10px;margin-bottom:4px">
+        <span class="ticker-dot"></span>BREAKING
       </div>
       <?php endif; ?>
-      <div class="live-blog-banner-follow">Follow Live →</div>
+      <span class="ctag <?= catClass($h1['category_slug'] ?? '') ?>">
+        <?= xe($h1['category_tamil'] ?: $h1['category_name']) ?>
+      </span>
+      <div class="hero4-big-title"><?= xe($h1['title']) ?></div>
+      <?php if (!empty($h1['excerpt'])): ?>
+      <div class="hero4-big-excerpt"><?= xe(mb_substr(strip_tags($h1['excerpt']), 0, 100)) ?></div>
+      <?php endif; ?>
+      <div class="hero4-meta"><?= ta($h1['published_at']) ?></div>
+    </div>
+  </a>
+  <?php else: ?>
+  <div class="hero4-big hero4-empty"></div>
+  <?php endif; ?>
+
+  <!-- RIGHT: 3 stacked small cards -->
+  <div class="hero4-right">
+    <?php foreach ([$h2, $h3, $h4] as $a):
+      if (!$a) continue; ?>
+    <a href="<?= $r ?>/article/<?= xe($a['slug']) ?>" class="hero4-sm">
+      <img src="<?= artImg($a) ?>" alt="<?= xe($a['title']) ?>" loading="lazy">
+      <div class="hero4-sm-body">
+        <span class="ctag <?= catClass($a['category_slug'] ?? '') ?>">
+          <?= xe($a['category_tamil'] ?: $a['category_name']) ?>
+        </span>
+        <div class="hero4-sm-title"><?= xe($a['title']) ?></div>
+        <div class="hero4-meta"><?= ta($a['published_at']) ?></div>
+      </div>
     </a>
     <?php endforeach; ?>
   </div>
-  <?php endif; ?>
 
-  <!-- HERO GRID -->
-  <div class="hero-grid">
-    <!-- HERO MAIN -->
-    <?php if ($hero): ?>
-    <a href="<?= $r ?>/article/<?= e($hero['slug']) ?>" class="hero-main">
-      <img src="<?= artImg($hero, 'full') ?>" alt="<?= e($hero['title']) ?>" loading="eager">
-      <div class="hero-main-overlay">
-        <?php if ($hero['is_breaking']): ?>
-        <div class="breaking-badge"><span class="ticker-dot"></span> BREAKING</div>
-        <?php elseif ($hero['is_editors_pick']): ?>
-        <div class="breaking-badge badge-gold">✦ Editor's Pick</div>
-        <?php endif; ?>
-        <div class="hero-main-title"><?= e($hero['title']) ?></div>
-        <div class="hero-main-meta">
-          <span><?= e($hero['category_tamil'] ?: $hero['category_name']) ?></span>
-          <span><?= timeAgo($hero['published_at']) ?></span>
-          <?php if ($hero['view_count'] > 0): ?>
-          <span>👁 <?= number_format($hero['view_count']) ?></span>
-          <?php endif; ?>
-        </div>
-      </div>
-    </a>
+</div><!-- /hero4-grid -->
+
+<!-- Mobile sidebar ad -->
+<div class="mob-sidebar-ad">
+  <img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement"
+       style="max-width:300px;height:auto;object-fit:contain;display:block;margin:0 auto">
+</div>
+
+<!-- ══════════════════════════════════════════
+     CATEGORY SECTIONS — 4-col grid each
+════════════════════════════════════════════ -->
+<?php foreach ($catSections as $sec):
+  if (empty($sec['data'])) continue; ?>
+
+<div class="sec-head">
+  <span class="sec-head-bar" style="background:<?= $sec['color'] ?>"></span>
+  <span class="sec-head-title"><?= $sec['name'] ?></span>
+  <span class="sec-head-ta"><?= $sec['ta'] ?></span>
+  <?php if ($sec['slug']): ?>
+  <a href="<?= $r ?>/tamil-news/<?= $sec['slug'] ?>" class="sec-head-more">மேலும் →</a>
+  <?php endif; ?>
+</div>
+
+<div class="g4">
+  <?php foreach (array_slice($sec['data'], 0, 8) as $a): ?>
+  <a href="<?= $r ?>/article/<?= xe($a['slug']) ?>" class="nc">
+    <?php if (!empty($a['youtube_video_id'])): ?>
+    <div class="nc-video-thumb">
+      <img src="https://img.youtube.com/vi/<?= xe($a['youtube_video_id']) ?>/hqdefault.jpg"
+           alt="<?= xe($a['title']) ?>" loading="lazy">
+      <div class="nc-play">▶</div>
+    </div>
+    <?php else: ?>
+    <img src="<?= artImg($a) ?>" alt="<?= xe($a['title']) ?>" loading="lazy">
     <?php endif; ?>
-
-    <!-- HERO SIDE CARDS -->
-    <?php foreach (array_slice($heroSide, 0, 2) as $s): ?>
-    <a href="<?= $r ?>/article/<?= e($s['slug']) ?>" class="hero-side-card">
-      <img src="<?= artImg($s) ?>" alt="<?= e($s['title']) ?>" loading="lazy">
-      <div class="hero-side-card-body">
-        <span class="cat-tag <?= catClass($s['category_slug'] ?? '') ?>"><?= e($s['category_tamil'] ?: $s['category_name']) ?></span>
-        <div class="hero-side-card-title"><?= e($s['title']) ?></div>
-        <div class="card-meta">
-          <span><?= timeAgo($s['published_at']) ?></span>
-          <?php if ($s['view_count'] > 0): ?><span>👁 <?= number_format($s['view_count']) ?></span><?php endif; ?>
-        </div>
-      </div>
-    </a>
-    <?php endforeach; ?>
-  </div>
-
-  <!-- TOP STORIES -->
-  <?php if (!empty($topStories)): ?>
-  <div class="section-head">
-    <div class="section-head-bar"></div>
-    <div class="section-head-title">Top Stories</div>
-    <div class="section-head-ta">முக்கிய செய்திகள்</div>
-    <div class="section-head-line"></div>
-  </div>
-  <div class="top-stories-grid">
-    <?php foreach ($topStories as $s): ?>
-    <a href="<?= $r ?>/article/<?= e($s['slug']) ?>" class="story-card">
-      <img src="<?= artImg($s) ?>" alt="<?= e($s['title']) ?>" loading="lazy">
-      <div class="story-card-body">
-        <span class="cat-tag <?= catClass($s['category_slug'] ?? '') ?>"><?= e($s['category_tamil'] ?: $s['category_name']) ?></span>
-        <div class="story-card-title" style="margin-top:6px"><?= e($s['title']) ?></div>
-        <?php if ($s['excerpt']): ?>
-        <div class="story-card-excerpt"><?= e($s['excerpt']) ?></div>
+    <div class="nc-body">
+      <span class="ctag <?= catClass($sec['slug'] ?: ($a['category_slug'] ?? '')) ?>">
+        <?= xe($a['category_tamil'] ?: $a['category_name']) ?>
+      </span>
+      <div class="nc-title"><?= xe($a['title']) ?></div>
+      <div class="hero4-meta">
+        <?= ta($a['published_at']) ?>
+        <?php if (($a['view_count'] ?? 0) > 0): ?>
+        · 👁 <?= number_format($a['view_count']) ?>
         <?php endif; ?>
-        <div class="card-meta">
-          <span><?= timeAgo($s['published_at']) ?></span>
-          <?php if ($s['view_count'] > 0): ?><span>👁 <?= number_format($s['view_count']) ?></span><?php endif; ?>
-        </div>
       </div>
-    </a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
-  <!-- MAIN TWO-COL: TAMIL NADU + SIDEBAR -->
-  <div class="two-col">
-    <!-- LEFT: TAMIL NADU BLOCK -->
-    <div>
-      <?php if (!empty($tamilNadu)): ?>
-      <div class="section-head">
-        <div class="section-head-bar"></div>
-        <div class="section-head-title">Tamil Nadu</div>
-        <div class="section-head-ta">தமிழ்நாடு</div>
-        <div class="section-head-line"></div>
-        <a href="<?= $r ?>/tamil-news/tamil-nadu" class="section-head-more">மேலும் →</a>
-      </div>
-      <div class="cat-block">
-        <?php $main = $tamilNadu[0]; ?>
-        <a href="<?= $r ?>/article/<?= e($main['slug']) ?>" class="story-card" style="margin-bottom:12px">
-          <img src="<?= artImg($main, 'full') ?>" alt="<?= e($main['title']) ?>" loading="lazy" style="height:220px">
-          <div class="story-card-body">
-            <?php if ($main['is_breaking']): ?><div class="breaking-badge" style="font-size:10px;padding:2px 8px;margin-bottom:6px"><span class="ticker-dot"></span> BREAKING</div><?php endif; ?>
-            <div class="story-card-title"><?= e($main['title']) ?></div>
-            <div class="card-meta"><span><?= timeAgo($main['published_at']) ?></span></div>
-          </div>
-        </a>
-        <div class="horiz-list">
-          <?php foreach (array_slice($tamilNadu, 1) as $a): ?>
-          <a href="<?= $r ?>/article/<?= e($a['slug']) ?>" class="horiz-item">
-            <img class="horiz-img" src="<?= artImg($a) ?>" alt="" loading="lazy">
-            <div class="horiz-body">
-              <?php if ($a['is_breaking']): ?><span class="breaking-badge" style="font-size:9px;padding:2px 6px;margin-bottom:4px"><span class="ticker-dot"></span> BREAKING</span><?php endif; ?>
-              <div class="horiz-title"><?= e($a['title']) ?></div>
-              <div class="horiz-meta"><?= timeAgo($a['published_at']) ?></div>
-            </div>
-          </a>
-          <?php endforeach; ?>
-        </div>
-      </div>
-      <?php endif; ?>
-
-      <!-- INDIA BLOCK -->
-      <?php if (!empty($india)): ?>
-      <div class="section-head">
-        <div class="section-head-bar" style="background:#1877F2"></div>
-        <div class="section-head-title">India</div>
-        <div class="section-head-ta">இந்தியா</div>
-        <div class="section-head-line"></div>
-        <a href="<?= $r ?>/tamil-news/india" class="section-head-more">மேலும் →</a>
-      </div>
-      <div class="top-stories-grid" style="margin-bottom:28px">
-        <?php foreach ($india as $a): ?>
-        <a href="<?= $r ?>/article/<?= e($a['slug']) ?>" class="story-card">
-          <img src="<?= artImg($a) ?>" alt="<?= e($a['title']) ?>" loading="lazy">
-          <div class="story-card-body">
-            <span class="cat-tag cat-blue"><?= e($a['category_tamil'] ?: $a['category_name']) ?></span>
-            <div class="story-card-title" style="margin-top:6px"><?= e($a['title']) ?></div>
-            <div class="card-meta"><span><?= timeAgo($a['published_at']) ?></span></div>
-          </div>
-        </a>
-        <?php endforeach; ?>
-      </div>
-      <?php endif; ?>
     </div>
+  </a>
+  <?php endforeach; ?>
+</div>
 
-    <!-- RIGHT SIDEBAR -->
-    <div class="sidebar">
-      <!-- TRENDING -->
-      <?php if (!empty($trending)): ?>
-      <div class="sidebar-widget">
-        <div class="sidebar-widget-head">🔥 Trending Now</div>
-        <?php foreach ($trending as $i => $t): ?>
-        <a href="<?= $r ?>/article/<?= e($t['slug']) ?>" class="sidebar-trending-item">
-          <div class="sidebar-trending-num"><?= $i + 1 ?></div>
-          <div>
-            <div class="sidebar-trending-title"><?= e($t['title']) ?></div>
-            <div class="sidebar-trending-time"><?= timeAgo($t['published_at']) ?></div>
-          </div>
-        </a>
-        <?php endforeach; ?>
-      </div>
-      <?php endif; ?>
-
-      <!-- AD SIDEBAR -->
-      <?php if (!empty($ads['sidebar']['ad_code'])): ?>
-      <div class="sidebar-widget" style="overflow:hidden"><?= $ads['sidebar']['ad_code'] ?></div>
-      <?php else: ?>
-      <div class="ad-sidebar"><div>Advertisement<br>300×250</div></div>
-      <?php endif; ?>
-
-      <!-- EDITOR'S PICKS -->
-      <?php if (!empty($editorsPick)): ?>
-      <div class="sidebar-widget">
-        <div class="sidebar-widget-head">✦ Editor's Picks</div>
-        <?php foreach ($editorsPick as $ep): ?>
-        <a href="<?= $r ?>/article/<?= e($ep['slug']) ?>" class="horiz-item" style="padding:10px 14px;border-bottom:1px solid var(--gray-1)">
-          <img class="horiz-img" src="<?= artImg($ep) ?>" alt="" loading="lazy" style="width:70px;height:55px">
-          <div class="horiz-body">
-            <span class="breaking-badge badge-gold" style="font-size:9px;padding:2px 6px;margin-bottom:4px">✦ Pick</span>
-            <div class="horiz-title" style="font-size:12.5px"><?= e($ep['title']) ?></div>
-          </div>
-        </a>
-        <?php endforeach; ?>
-      </div>
-      <?php endif; ?>
-    </div>
-  </div>
-
-  <!-- VIDEO SECTION -->
-  <?php if (!empty($videos)): ?>
-  <div class="section-head">
-    <div class="section-head-bar" style="background:#FF0000"></div>
-    <div class="section-head-title">Videos</div>
-    <div class="section-head-ta">வீடியோ செய்திகள்</div>
-    <div class="section-head-line"></div>
-    <a href="<?= $r ?>/tamil-news/video" class="section-head-more">மேலும் →</a>
-  </div>
-  <div class="video-grid">
-    <?php foreach ($videos as $v): ?>
-    <a href="<?= $r ?>/video/<?= e($v['slug']) ?>" class="video-card">
-      <div class="video-thumb">
-        <img src="https://img.youtube.com/vi/<?= e($v['youtube_video_id']) ?>/hqdefault.jpg" alt="<?= e($v['title']) ?>" loading="lazy">
-        <div class="video-play">▶</div>
-      </div>
-      <div class="video-title"><?= e(mb_substr($v['title'], 0, 65)) ?></div>
-      <div class="video-meta"><?= timeAgo($v['published_at']) ?></div>
-    </a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
-  <!-- SPORTS BLOCK -->
-  <?php if (!empty($sports)): ?>
-  <div class="section-head" style="margin-top:28px">
-    <div class="section-head-bar" style="background:#1B6B2E"></div>
-    <div class="section-head-title">Sports</div>
-    <div class="section-head-ta">விளையாட்டு</div>
-    <div class="section-head-line"></div>
-    <a href="<?= $r ?>/tamil-news/sports" class="section-head-more">மேலும் →</a>
-  </div>
-  <div class="top-stories-grid" style="margin-bottom:28px">
-    <?php foreach ($sports as $a): ?>
-    <a href="<?= $r ?>/article/<?= e($a['slug']) ?>" class="story-card">
-      <img src="<?= artImg($a) ?>" alt="<?= e($a['title']) ?>" loading="lazy">
-      <div class="story-card-body">
-        <span class="cat-tag cat-green">விளையாட்டு</span>
-        <div class="story-card-title" style="margin-top:6px"><?= e($a['title']) ?></div>
-        <div class="card-meta"><span><?= timeAgo($a['published_at']) ?></span></div>
-      </div>
-    </a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
-  <!-- CINEMA BLOCK -->
-  <?php if (!empty($cinema)): ?>
-  <div class="section-head">
-    <div class="section-head-bar" style="background:#7F77DD"></div>
-    <div class="section-head-title">Cinema</div>
-    <div class="section-head-ta">சினிமா</div>
-    <div class="section-head-line"></div>
-    <a href="<?= $r ?>/tamil-news/cinema" class="section-head-more">மேலும் →</a>
-  </div>
-  <div class="top-stories-grid" style="margin-bottom:28px">
-    <?php foreach ($cinema as $a): ?>
-    <a href="<?= $r ?>/article/<?= e($a['slug']) ?>" class="story-card">
-      <img src="<?= artImg($a) ?>" alt="<?= e($a['title']) ?>" loading="lazy">
-      <div class="story-card-body">
-        <span class="cat-tag cat-purple">சினிமா</span>
-        <div class="story-card-title" style="margin-top:6px"><?= e($a['title']) ?></div>
-        <div class="card-meta"><span><?= timeAgo($a['published_at']) ?></span></div>
-      </div>
-    </a>
-    <?php endforeach; ?>
-  </div>
-  <?php endif; ?>
-
-</div><!-- /.main -->
+<?php endforeach; ?>

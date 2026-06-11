@@ -15,11 +15,10 @@ class PrintEditionController extends Controller
 
     protected function layout(): string
     {
-        return match(Auth::role()) {
-            'admin'        => 'admin',
-            'chief_editor' => 'editor_portal',
-            default        => 'portal',
-        };
+        $role = \App\Core\Auth::role();
+        if ($role === 'admin')        return 'admin';
+        if ($role === 'chief_editor') return 'editor_portal';
+        return 'portal';
     }
 
     public function __construct()

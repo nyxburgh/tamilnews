@@ -9,7 +9,7 @@
       <div class="tn-card-header">
         <div>
           <span class="fw-600"><?= Helper::e($slot['name']) ?></span>
-          <div class="text-muted small"><code><?= Helper::e($slot['position']) ?></code> · <?= Helper::e($slot['desktop_size']) ?> / <?= Helper::e($slot['mobile_size']) ?></div>
+          <div class="text-muted small"><code><?= Helper::e($slot['type']) ?></code> · <?= Helper::e($slot['desktop_size']) ?> / <?= Helper::e($slot['mobile_size']) ?></div>
         </div>
         <span class="badge <?= $slot['is_active'] ? 'bg-success' : 'bg-secondary' ?>"><?= $slot['is_active'] ? 'Active' : 'Disabled' ?></span>
       </div>

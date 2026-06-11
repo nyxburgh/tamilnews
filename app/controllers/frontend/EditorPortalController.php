@@ -21,7 +21,7 @@ class EditorPortalController extends Controller
         } elseif (Auth::check()) {
             $this->userId = Auth::id();
             $this->role   = Auth::role();
-            if (!in_array($this->role, ['admin','editor','reporter'])) {
+            if (!in_array($this->role, ['admin','chief_editor','editor','district_editor','category_editor','senior_reporter','reporter','ads_manager'])) {
                 http_response_code(403); exit;
             }
         } else {
@@ -44,11 +44,11 @@ class EditorPortalController extends Controller
         $recent = $this->articles->listPaginated($filters, 1, 8);
 
         $reviewQueue = [];
-        if (in_array($this->role, ['admin','editor'])) {
+        if (in_array($this->role, ['admin','chief_editor','editor','district_editor','category_editor'])) {
             // Chief editor/admin sees all
             $q = $this->articles->listPaginated(['status' => 'review'], 1, 5);
             $reviewQueue = $q['data'];
-        } elseif (in_array($this->role, ['district_editor','category_editor','sub_editor'])) {
+        } elseif (in_array($this->role, ['district_editor','category_editor'])) {
             // Scoped editor sees only their district/category
             $scope = (new \App\Models\UserModel())->getEditorScope($this->userId);
             $q     = $this->articles->reviewQueueForEditor($scope, 1, 5);

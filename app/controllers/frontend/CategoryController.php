@@ -47,6 +47,7 @@ class CategoryController extends Controller
             'metaTitle'     => ($category['name_tamil'] ?: $category['name']) . ' செய்திகள் | ' . $siteName,
             'metaDesc'      => $category['description'] ?? '',
             'breaking'      => [],
+            'categoryId' => (int)($category['id'] ?? 0),
         ], 'frontend');
     }
 }

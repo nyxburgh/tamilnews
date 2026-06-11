@@ -25,7 +25,7 @@ class RssModel extends Model
         $total  = (int)$this->fetchColumn("SELECT COUNT(*) FROM tn_rss_imports {$where}", $params);
         return ['data' => $data, 'total' => $total, 'page' => $page, 'per_page' => $perPage];
     }
-    public function pendingCount(): int { return (int)$this->fetchColumn("SELECT COUNT(*) FROM tn_rss_imports WHERE status='pending'"); }
+    public function pendingCount(): int { try { return (int)$this->fetchColumn("SELECT COUNT(*) FROM tn_rss_imports WHERE status='pending'"); } catch (\Exception $e) { return 0; } }
     public function updateImportStatus(int $id, string $status, ?int $articleId = null): void
     {
         $this->db->prepare("UPDATE tn_rss_imports SET status=?, article_id=? WHERE id=?")->execute([$status, $articleId, $id]);

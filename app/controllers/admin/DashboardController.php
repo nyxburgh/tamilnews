@@ -17,8 +17,8 @@ class DashboardController extends Controller
     {
         $articles    = new ArticleModel();
         $users       = new UserModel();
-        $youtube     = new YoutubeModel();
-        $rss         = new RssModel();
+        try { $youtube     = new YoutubeModel(); } catch(\Exception $e) { }
+        try { $rss         = new RssModel(); } catch(\Exception $e) { }
         $contributors= new ContributorModel();
 
         $stats = [
@@ -48,6 +48,18 @@ class DashboardController extends Controller
             $liveBlogs = $liveModel->activeBlogs();
         } catch (\Exception $e) {}
 
+        // Ad pending count
+        try {
+            $badModel = new \App\Models\BusinessAdModel();
+            $pendingAds = $badModel->pendingCount();
+        } catch (\Exception $e) { $pendingAds = 0; }
+
+        // Poll count
+        try {
+            $pollModel = new \App\Models\PollModel();
+            $activePollCount = count($pollModel->active());
+        } catch (\Exception $e) { $activePollCount = 0; }
+
         $this->view('admin.dashboard.index', [
             'pageTitle'      => 'Dashboard',
             'stats'          => $stats,
@@ -57,6 +69,8 @@ class DashboardController extends Controller
             'scheduledPosts' => $scheduledPosts,
             'viewTrend'      => $viewTrend,
             'liveBlogs'      => $liveBlogs,
+            'pendingAds'     => $pendingAds ?? 0,
+            'activePollCount'=> $activePollCount ?? 0,
         ], $this->layout());
     }
 }

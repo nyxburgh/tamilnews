@@ -11,7 +11,7 @@ class FrontendArticleModel extends Model
     {
         return "SELECT a.id, a.title, a.slug, a.excerpt, a.content_type,
                        a.youtube_video_id, a.is_breaking, a.is_editors_pick, a.is_featured,
-                       a.view_count, a.whatsapp_shares, a.rating_avg, a.rating_count,
+                       a.view_count, a.share_count, 0 AS rating_avg, 0 AS rating_count,
                        a.published_at, a.read_time,
                        c.name AS category_name, c.name_tamil AS category_tamil, c.slug AS category_slug,
                        m.filepath AS image_url, m.thumb_path AS thumb_url,
@@ -29,7 +29,6 @@ class FrontendArticleModel extends Model
         return $this->fetchAll(
             $this->baseSelect() .
             " WHERE a.status='published' AND a.is_breaking=1
-              AND (a.breaking_expires_at IS NULL OR a.breaking_expires_at > NOW())
               ORDER BY a.published_at DESC LIMIT ?",
             [$limit]
         );
@@ -112,8 +111,7 @@ class FrontendArticleModel extends Model
         return $this->fetchOne(
             "SELECT a.id, a.title, a.slug, a.excerpt, a.content, a.content_type,
                     a.youtube_url, a.youtube_video_id, a.is_breaking, a.is_editors_pick,
-                    a.is_featured, a.view_count, a.whatsapp_shares, a.rating_avg,
-                    a.rating_count, a.published_at, a.read_time, a.meta_title, a.meta_desc,
+                    a.is_featured, a.view_count, a.share_count, 0 AS rating_avg, 0 AS rating_count, a.published_at, a.read_time, a.meta_title, a.meta_desc,
                     c.name AS category_name, c.name_tamil AS category_tamil, c.slug AS category_slug,
                     m.filepath AS image_url, m.thumb_path AS thumb_url,
                     u.name AS author_name,
@@ -244,7 +242,7 @@ class FrontendArticleModel extends Model
 
     public function trackWhatsApp(int $id): void
     {
-        $this->query("UPDATE tn_articles SET whatsapp_shares = whatsapp_shares + 1 WHERE id = ?", [$id]);
+        $this->query("UPDATE tn_articles SET share_count = share_count + 1 WHERE id = ?", [$id]);
     }
 
     public function byTag(string $tagSlug, int $page = 1, int $perPage = 6): array
@@ -298,5 +296,4 @@ class FrontendArticleModel extends Model
         );
         return ['data' => $data, 'total' => $total, 'page' => $page, 'per_page' => $perPage];
     }
-
 }

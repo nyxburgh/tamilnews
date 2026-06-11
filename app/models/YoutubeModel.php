@@ -35,12 +35,12 @@ class YoutubeModel extends Model
         $offset = ($page - 1) * $perPage;
         $params = $status ? [$status] : [];
         $data   = $this->fetchAll(
-            "SELECT yi.*, yc.channel_name FROM tn_youtube_imports yi
+            "SELECT yi.*, yc.channel_name FROM tn_youtube_imports /* table may not exist in some installs */ yi
              JOIN tn_youtube_channels yc ON yc.id = yi.channel_id
              {$where} ORDER BY yi.created_at DESC LIMIT {$perPage} OFFSET {$offset}", $params
         );
-        $total  = (int)$this->fetchColumn("SELECT COUNT(*) FROM tn_youtube_imports {$where}", $params);
+        $total  = (int)$this->fetchColumn("SELECT COUNT(*) FROM tn_youtube_imports /* table may not exist in some installs */ {$where}", $params);
         return ['data' => $data, 'total' => $total, 'page' => $page, 'per_page' => $perPage];
     }
-    public function pendingCount(): int { return (int)$this->fetchColumn("SELECT COUNT(*) FROM tn_youtube_imports WHERE status='pending'"); }
+    public function pendingCount(): int { try { return (int)$this->fetchColumn("SELECT COUNT(*) FROM tn_youtube_imports /* table may not exist in some installs */ WHERE status='pending'"); } catch (\Exception $e) { return 0; } }
 }

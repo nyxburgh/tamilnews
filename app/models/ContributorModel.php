@@ -13,7 +13,7 @@ class ContributorModel extends Model
             "SELECT c.*, GROUP_CONCAT(cc.category_id) AS category_ids
              FROM tn_contributors c
              LEFT JOIN tn_contributor_categories cc ON cc.contributor_id = c.id
-             WHERE c.google_id = ? AND c.is_active = 1
+             WHERE c.email = ? AND c.is_active = 1
              GROUP BY c.id",
             [$googleId]
         );
@@ -85,7 +85,7 @@ class ContributorModel extends Model
 
     public function upsertFromGoogle(array $googleProfile): int
     {
-        $existing = $this->findByGoogle($googleProfile['google_id']);
+        $existing = $this->findByEmail($googleProfile['email'] ?? '');
         if ($existing) {
             $this->update($existing['id'], [
                 'name'       => $googleProfile['name'],
@@ -95,7 +95,6 @@ class ContributorModel extends Model
             return $existing['id'];
         }
         return $this->insert([
-            'google_id'  => $googleProfile['google_id'],
             'name'       => $googleProfile['name'],
             'email'      => $googleProfile['email'],
             'avatar'     => $googleProfile['avatar'],
@@ -111,8 +110,10 @@ class ContributorModel extends Model
 
     public function pendingApprovalCount(): int
     {
-        return (int)$this->fetchColumn(
-            "SELECT COUNT(*) FROM tn_contributors WHERE is_active = 0 AND google_id IS NOT NULL"
-        );
+        try {
+            return (int)$this->fetchColumn(
+                "SELECT COUNT(*) FROM tn_contributors WHERE is_approved = 0 AND is_active = 1"
+            );
+        } catch (\Exception $e) { return 0; }
     }
 }

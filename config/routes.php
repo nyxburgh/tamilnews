@@ -222,6 +222,7 @@ return [
     ['GET', '/',                  'frontend\HomeController@index'],
     ['GET', '/article/{slug}',    'frontend\ArticleController@show'],
     ['GET', '/video/{slug}',      'frontend\ArticleController@show'],
+    ['GET', '/breaking',          'frontend\BreakingController@index'],
     ['GET', '/tamil-news/{slug}', 'frontend\CategoryController@show'],
     ['GET', '/search',            'frontend\SearchController@index'],
     ['GET', '/sitemap-index.xml',   'frontend\SeoController@sitemapIndex'],
@@ -242,4 +243,39 @@ return [
     ['POST', '/admin/business-ads/delete-image/{id}',   'admin\\BusinessAdController@deleteImage'],
     ['GET',  '/admin/business-ads/cities/{id}',         'admin\\BusinessAdController@citiesByDistrict'],
     ['GET', '/lang/{lang}', 'frontend\\LangController@switch'],
+
+    /* ── WIDGETS ── */
+    ['GET',  '/admin/widgets',              'admin\\WidgetController@index'],
+    ['POST', '/admin/widgets/create',       'admin\\WidgetController@create'],
+    ['POST', '/admin/widgets/toggle/{id}',  'admin\\WidgetController@toggle'],
+    ['POST', '/admin/widgets/reorder',      'admin\\WidgetController@reorder'],
+    ['POST', '/admin/widgets/update/{id}',  'admin\\WidgetController@update'],
+    ['POST', '/admin/widgets/delete/{id}',  'admin\\WidgetController@delete'],
+
+    /* ── RATES ── */
+    ['GET',  '/admin/ad-defaults',           'admin\\AdSlotController@defaults'],
+    ['POST', '/admin/ad-defaults/upload',     'admin\\AdSlotController@uploadDefault'],
+    ['GET',  '/api/ads/{type}',               'admin\\AdSlotController@serve'],
+    ['GET',  '/admin/rates',                'admin\\RateController@index'],
+    ['POST', '/admin/rates/update',         'admin\\RateController@store'],
+    ['GET',  '/api/rates',                  'admin\\RateController@api'],
+
+    /* ── POLLS ── */
+    ['GET',  '/admin/polls',                'admin\\PollController@index'],
+    ['GET',  '/admin/polls/create',         'admin\\PollController@create'],
+    ['POST', '/admin/polls/store',          'admin\\PollController@store'],
+    ['POST', '/admin/polls/toggle/{id}',    'admin\\PollController@toggle'],
+    ['POST', '/admin/polls/delete/{id}',    'admin\\PollController@delete'],
+    ['POST', '/poll/{id}/vote',             'frontend\\PollController@vote'],
+    ['GET',  '/poll/{id}/widget',           'frontend\\PollController@widget'],
+
+    /* ── AD PACKAGES ── */
+    ['GET',  '/admin/packages',             'admin\\PackageController@index'],
+    ['POST', '/admin/packages/store',       'admin\\PackageController@store'],
+    ['POST', '/admin/packages/update/{id}', 'admin\\PackageController@update'],
+
+    /* ── PERFORMANCE ── */
+    ['GET',  '/admin/performance',          'admin\\PerformanceController@index'],
+    ['POST', '/admin/performance/recalculate','admin\\PerformanceController@recalculate'],
+    ['GET',  '/admin/performance/user/{id}','admin\\PerformanceController@user'],
 ];

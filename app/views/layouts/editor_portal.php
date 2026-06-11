@@ -35,13 +35,14 @@ try {
 <div class="ep-topbar">
   <div class="ep-topbar-inner">
     <button class="ep-sidebar-toggle" id="epSidebarToggle">☰</button>
-    <a href="<?= $r ?>/portal/dashboard" class="ep-logo">
+    <a href="<?= $r ?>/portal/dashboard" class="ep-logo" style="text-decoration:none">
       <div class="ep-logo-icon">✏️</div>
       <div>
         <div class="ep-logo-title">
-          <span style="color:#C0001A;font-family:'Noto Sans Tamil',sans-serif;font-weight:900">வேள்</span><span style="color:#fff;background:#C0001A;padding:0 5px;border-radius:3px;font-family:'Noto Sans Tamil',sans-serif;font-weight:900;margin-left:2px">சுடர்</span>
+          <span style="color:#C0001A;font-family:'Noto Sans Tamil',sans-serif;font-weight:900">தினத்</span><span style="color:#fff;background:#C0001A;padding:0 5px;border-radius:3px;font-family:'Noto Sans Tamil',sans-serif;font-weight:900;margin-left:2px">துளிர்</span>
         </div>
-        <div class="ep-logo-sub">Chief Editor</div>
+        <?php $epRoleLabels=["admin"=>"Admin","chief_editor"=>"Chief Editor","editor"=>"Editor","district_editor"=>"District Editor","category_editor"=>"Category Editor","senior_reporter"=>"Sr. Reporter","reporter"=>"Reporter"]; ?>
+        <div class="ep-logo-sub"><?= $epRoleLabels[$role] ?? ucfirst(str_replace("_"," ",$role)) ?></div>
       </div>
     </a>
     <div class="ep-topbar-right">
@@ -61,7 +62,7 @@ try {
           <div class="ep-user-dropdown-header">
             <div class="fw-600"><?= htmlspecialchars($auth['name'] ?? '') ?></div>
             <div style="font-size:11px;color:#6B6A64"><?= htmlspecialchars($auth['email'] ?? '') ?></div>
-            <span class="ep-role-badge">Chief Editor</span>
+            <span class="ep-role-badge"><?= $epRoleLabels[$role] ?? ucfirst(str_replace('_',' ',$role)) ?></span>
           </div>
           <a href="<?= $r ?>/portal/profile"  class="ep-user-dropdown-item"><i class="bi bi-person me-2"></i>My Profile</a>
           <a href="<?= $r ?>/logout"           class="ep-user-dropdown-item" style="color:#C0001A"><i class="bi bi-box-arrow-right me-2"></i>Logout</a>
@@ -120,7 +121,7 @@ try {
         <i class="bi bi-broadcast"></i> Live Blog
         <?php
         try {
-            $lc = (int)\App\Core\Database::getInstance()->query("SELECT COUNT(*) FROM tn_live_blogs WHERE status='active'")->fetchColumn();
+            $lc = (int)\App\Core\Database::getInstance()->query("SELECT COUNT(*) FROM tn_live_blogs WHERE status='live'")->fetchColumn();
             if ($lc > 0): ?><span class="ep-badge ep-badge-live"><?= $lc ?></span><?php endif;
         } catch (\Exception $e) {}
         ?>

@@ -18,7 +18,7 @@ class NewspaperModel extends Model
         $data = $this->fetchAll(
             "SELECT n.*, u.name AS uploaded_by_name
              FROM tn_newspapers n
-             LEFT JOIN tn_users u ON u.id = n.uploaded_by
+             LEFT JOIN tn_users u ON u.id = n.user_id
              {$whereSQL}
              ORDER BY n.edition_date DESC
              LIMIT ? OFFSET ?",
@@ -38,7 +38,7 @@ class NewspaperModel extends Model
         $data = $this->fetchAll(
             "SELECT n.*, u.name AS uploaded_by_name
              FROM tn_newspapers n
-             LEFT JOIN tn_users u ON u.id = n.uploaded_by
+             LEFT JOIN tn_users u ON u.id = n.user_id
              ORDER BY n.edition_date DESC
              LIMIT ? OFFSET ?",
             [$perPage, $offset]
@@ -61,7 +61,7 @@ class NewspaperModel extends Model
         return $this->fetchOne(
             "SELECT n.*, u.name AS uploaded_by_name
              FROM tn_newspapers n
-             LEFT JOIN tn_users u ON u.id = n.uploaded_by
+             LEFT JOIN tn_users u ON u.id = n.user_id
              WHERE n.edition_date = ? AND n.is_active = 1",
             [$date]
         );

@@ -11,7 +11,7 @@
   border-bottom: 2px solid #C0001A;
 }
 .nav-inner {
-  max-width: 1240px; margin: 0 auto; padding: 0 16px;
+    padding: 0 16px;
   display: flex; align-items: center; height: 44px;
   overflow-x: auto; scrollbar-width: none;
 }
@@ -79,8 +79,8 @@
   align-items: center;
   gap: 16px;
   padding: 8px 20px 6px;
-  max-width: 1240px;
-  margin: 0 auto;
+  
+  
   background: #fff;
 }
 .masthead-ad {
@@ -89,7 +89,7 @@
   background: #F0EFE9;
   border: 1px solid #E0DEDA;
   border-radius: 6px;
-  overflow: visible;
+  overflow: hidden !important;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -144,7 +144,7 @@
   border-bottom: 1px solid #E8E6E0;
 }
 .header-banner-ad-inner {
-  max-width: 1240px; margin: 0 auto;
+   
   padding: 6px 20px;
   height: 112px;
   display: flex; align-items: center; justify-content: center;
@@ -178,7 +178,7 @@
   margin-top: 40px;
 }
 .site-footer-inner {
-  max-width: 1240px; margin: 0 auto;
+   
   padding: 14px 20px;
   text-align: center;
   font-size: 12px;
@@ -350,4 +350,179 @@
   .header            { position: relative !important; border-bottom: none !important; box-shadow: none !important; }
   .header-banner-ad  { display: block !important; }
   .nav-inner         { padding-right: 110px !important; }
+}
+
+/* ── MOBILE FLOATING RATE ICONS ── */
+.mob-rate-icons {
+  display: none;
+  position: fixed;
+  left: 10px;
+  bottom: 72px;
+  z-index: 985;
+  flex-direction: column;
+  gap: 6px;
+}
+.mob-rate-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: #C0001A;
+  color: #fff;
+  font-size: 20px;
+  display: flex; align-items: center; justify-content: center;
+  cursor: pointer;
+  box-shadow: 0 2px 8px rgba(0,0,0,.3);
+  transition: transform .15s;
+  -webkit-tap-highlight-color: transparent;
+}
+.mob-rate-btn:hover { transform: scale(1.1); }
+
+.mob-rate-popup {
+  position: fixed;
+  bottom: 130px; left: 10px;
+  z-index: 986;
+}
+.mob-rate-popup-inner {
+  background: #fff;
+  border-radius: 12px;
+  padding: 16px 20px;
+  min-width: 160px;
+  box-shadow: 0 4px 20px rgba(0,0,0,.2);
+  text-align: center;
+  position: relative;
+}
+.mob-rate-popup-close {
+  position: absolute; top: 6px; right: 8px;
+  background: none; border: none; font-size: 14px; cursor: pointer; color: #9A9890;
+}
+.mob-rate-popup-icon  { font-size: 32px; margin-bottom: 4px; }
+.mob-rate-popup-label { font-size: 12px; color: #6B6A64; font-weight: 600; }
+.mob-rate-popup-value { font-size: 22px; font-weight: 800; color: #1A1A1A; margin: 4px 0; }
+.mob-rate-popup-change{ font-size: 11px; font-weight: 600; }
+.mob-rate-popup-city  { font-size: 10px; color: #9A9890; margin-top: 2px; }
+
+@media (max-width: 1023px) {
+  .mob-rate-icons { display: flex; }
+}
+@media (min-width: 1024px) {
+  .mob-rate-icons { display: none !important; }
+  .mob-rate-popup { display: none !important; }
+}
+
+/* ── MOB FLOAT AD: force show on mobile (highest specificity) ── */
+@media (max-width: 1023px) {
+  div#mobFloatAd,
+  .mob-float-ad#mobFloatAd { display: flex !important; }
+}
+
+/* ════════════════════════════════════════════
+   AD CONTAINERS — strict image containment
+   Images NEVER overflow their slot boundary
+════════════════════════════════════════════ */
+
+/* ── Square ad (desktop masthead 300×150) ── */
+.masthead-ad {
+  width: 300px;
+  height: 150px;
+  overflow: hidden !important;
+  flex-shrink: 0;
+  background: #F0EFE9;
+  border: 1px solid #E0DEDA;
+  border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.masthead-ad .ad-rotator,
+.masthead-ad img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block;
+  max-width: 100% !important;
+  max-height: 100% !important;
+}
+
+/* ── Mobile top square ad (200×100) ── */
+.mobile-square-ad {
+  display: none;
+  background: #F0EFE9;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  height: 100px;
+  overflow: hidden !important;
+  padding: 0;
+}
+.mobile-square-ad .ad-rotator,
+.mobile-square-ad img {
+  width: 200px !important;
+  height: 100px !important;
+  object-fit: contain !important;
+  display: block;
+  max-width: 200px !important;
+  max-height: 100px !important;
+}
+
+/* ── Horizontal banner ad (728×100 desktop) ── */
+.header-banner-ad {
+  background: #fff;
+  border-top: 1px solid #E8E6E0;
+  border-bottom: 1px solid #E8E6E0;
+  overflow: hidden !important;
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.header-banner-ad .ad-rotator,
+.header-banner-ad-inner .ad-rotator,
+.header-banner-ad img,
+.header-banner-ad-inner img {
+  max-width: 728px !important;
+  width: 100% !important;
+  height: 100px !important;
+  object-fit: contain !important;
+  display: block;
+}
+
+/* ── Mobile floating horizontal ad (320×66) ── */
+.mob-float-ad-inner {
+  flex: 1;
+  height: 66px;
+  overflow: hidden !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mob-float-ad-inner .ad-rotator,
+.mob-float-ad-inner img {
+  width: 100% !important;
+  height: 66px !important;
+  object-fit: contain !important;
+  display: block;
+  max-height: 66px !important;
+}
+
+/* ── Sidebar square ad widget ── */
+.sb-widget .ad-rotator,
+.sb-widget > img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 150px !important;
+  object-fit: contain !important;
+  display: block;
+}
+
+/* ── Global: ALL ad-rotator containers clip overflow ── */
+.ad-rotator {
+  overflow: hidden !important;
+  display: block;
+  width: 100%;
+}
+.ad-rotator img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block;
+  transition: transform 24s linear, opacity 0.4s ease;
 }

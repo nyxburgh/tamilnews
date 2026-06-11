@@ -61,11 +61,12 @@ class RatingModel extends Model
     public function topRated(int $limit = 10): array
     {
         return $this->fetchAll(
-            "SELECT a.id, a.title, a.slug, a.rating_avg, a.rating_count, c.name AS category_name
+            "SELECT a.id, a.title, a.slug, COALESCE((SELECT AVG(ar.rating) FROM tn_article_ratings ar WHERE ar.article_id=a.id),0) AS rating_avg,
+                       COALESCE((SELECT COUNT(*) FROM tn_article_ratings ar WHERE ar.article_id=a.id),0) AS rating_count, c.name AS category_name
              FROM tn_articles a
              LEFT JOIN tn_categories c ON c.id = a.category_id
-             WHERE a.status = 'published' AND a.rating_count > 0
-             ORDER BY a.rating_avg DESC, a.rating_count DESC
+             WHERE a.status = 'published' AND 0 AS rating_count > 0
+             ORDER BY 0 AS rating_avg DESC, 0 AS rating_count DESC
              LIMIT ?",
             [$limit]
         );

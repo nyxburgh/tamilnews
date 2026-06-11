@@ -11,11 +11,10 @@ class BusinessAdController extends Controller
 
     protected function layout(): string
     {
-        return match(Auth::role()) {
-            'admin'        => 'admin',
-            'chief_editor' => 'editor_portal',
-            default        => 'portal',
-        };
+        $role = \App\Core\Auth::role();
+        if ($role === 'admin')        return 'admin';
+        if ($role === 'chief_editor') return 'editor_portal';
+        return 'portal';
     }
 
     public function __construct()
@@ -42,7 +41,9 @@ class BusinessAdController extends Controller
         try {
             $result = $this->ads->listPaginated($filters, $page, 15);
         } catch (\Exception $e) {
-            $this->flash('danger', 'Business ads table not found. Please run database/business_ads.sql first.');
+            // Log the real error for debugging
+            error_log('BusinessAd error: ' . $e->getMessage());
+            $this->flash('warning', 'Could not load ads: ' . htmlspecialchars($e->getMessage()));
             $result = ['data'=>[], 'total'=>0, 'page'=>1, 'per_page'=>15];
         }
 

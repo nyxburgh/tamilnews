@@ -18,7 +18,7 @@
           <?php foreach ($states as $s): ?>
           <tr>
             <td><?= Helper::e($s['name']) ?></td>
-            <td><code><?= Helper::e($s['slug']) ?></code></td>
+            <td><code><?= Helper::e($s['slug'] ?? '') ?></code></td>
             <td>
               <form action="<?= $r ?>/admin/locations/delete/state/<?= $s['id'] ?>" method="POST" class="d-inline"
                     onsubmit="return confirm('Delete state and all its districts/cities?')">

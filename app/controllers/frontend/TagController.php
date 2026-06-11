@@ -22,6 +22,8 @@ class TagController extends Controller
         $settings= new SettingModel();
         $siteName= $settings->getValue('site_name', 'வேள் சுடர்');
 
+        // Sidebar data
+        try { $trending = $articleModel->trending(6); } catch(\Exception $e) { $trending = []; }
         $this->view('frontend.tag.show', [
             'tag'           => $tag,
             'articles'      => $result['data'],

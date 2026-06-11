@@ -13,7 +13,7 @@ class PrintEditionModel extends Model
             "SELECT e.*, u.name AS created_by_name,
                     COUNT(ea.article_id) AS article_count
              FROM tn_print_editions e
-             LEFT JOIN tn_users u ON u.id = e.created_by
+             LEFT JOIN tn_users u ON u.id = e.user_id
              LEFT JOIN tn_print_edition_articles ea ON ea.edition_id = e.id
              GROUP BY e.id
              ORDER BY e.edition_date DESC, e.created_at DESC"

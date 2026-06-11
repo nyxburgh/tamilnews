@@ -187,9 +187,35 @@ class UserController extends Controller
             \App\Core\Database::getInstance()->prepare(
                 "DELETE FROM tn_user_badge_assignments WHERE user_id=? AND badge_id=?"
             )->execute([(int)$userId, $badgeId]);
-        } catch (\Exception \$e) {}
-        \$this->flash('success','Badge removed.');
-        \$this->redirect('/admin/users/edit/'.\$userId);
+        } catch (\Exception $e) {}
+        $this->flash('success','Badge removed.');
+        $this->redirect('/admin/users/edit/'.$userId);
+    }
+
+
+    public function promote(string $id): void
+    {
+        \App\Core\CSRF::validate();
+        $this->requireCan('manage_users');
+        $newRoleId = (int)$this->post('role_id', 0);
+        if (!$newRoleId) {
+            $this->flash('danger','Invalid role.');
+            $this->redirect('/admin/users');
+        }
+        $this->users->promote((int)$id, $newRoleId);
+        $this->flash('success','User role updated successfully.');
+        $this->redirect('/admin/users');
+    }
+
+    public function toggleStatus(string $id): void
+    {
+        \App\Core\CSRF::validate();
+        $this->requireCan('manage_users');
+        $this->users->query(
+            "UPDATE tn_users SET is_active = 1 - is_active WHERE id=?", [(int)$id]
+        );
+        $this->flash('success','User status toggled.');
+        $this->redirect('/admin/users');
     }
 
 }

@@ -62,7 +62,7 @@ class HomeController extends Controller
         $rows = $db->query("SELECT * FROM tn_ad_slots WHERE is_active = 1")->fetchAll(\PDO::FETCH_ASSOC);
         $slots = [];
         foreach ($rows as $row) {
-            $slots[$row['position']] = $row;
+            $slots[$row['type']] = $row;
         }
         return $slots;
     }

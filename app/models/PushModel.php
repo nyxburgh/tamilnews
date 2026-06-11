@@ -5,7 +5,7 @@ use App\Core\Model;
 class PushModel extends Model
 {
     protected string $table = 'tn_push_notifications';
-    public function allTopics(): array { return $this->fetchAll("SELECT * FROM tn_fcm_topics WHERE is_active = 1 ORDER BY id"); }
+    public function allTopics(): array { return $this->fetchAll("SELECT * FROM tn_fcm_topics ORDER BY id"); }
     public function history(int $limit = 30): array
     {
         return $this->fetchAll(

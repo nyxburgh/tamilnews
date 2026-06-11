@@ -152,7 +152,7 @@ try {
   <!-- DESKTOP ONLY: [300×250] [LOGO] [300×250] -->
   <div class="masthead">
     <div class="masthead-ad">
-      <img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement" style="width:100%;height:auto;display:block;object-fit:contain">
+      <div class="ad-rotator" data-slot="square" data-category="<?= $categoryId ?? 0 ?>" data-default="<?= ASSET_URL ?>/uploads/vaqua.jpeg"><img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement" style="width:100%;height:auto;display:block;object-fit:contain"></div>
     </div>
     <div class="masthead-center">
       <a href="<?= $baseUrl ?>/public/" class="vel-logo-link">
@@ -166,7 +166,7 @@ try {
       </a>
     </div>
     <div class="masthead-ad">
-      <img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement" style="width:100%;height:auto;display:block;object-fit:contain">
+      <div class="ad-rotator" data-slot="square" data-category="<?= $categoryId ?? 0 ?>" data-default="<?= ASSET_URL ?>/uploads/vaqua.jpeg"><img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement" style="width:100%;height:auto;display:block;object-fit:contain"></div>
     </div>
   </div>
 
@@ -195,12 +195,76 @@ try {
 
   <!-- DESKTOP ONLY: 728×100 banner -->
   <div class="header-banner-ad">
-    <div class="header-banner-ad-inner"><img src="<?= ASSET_URL ?>/uploads/vah.png" alt="Advertisement" style="max-width:728px;width:100%;height:auto;max-height:100px;object-fit:contain;display:block"></div>
+    <div class="header-banner-ad-inner"><div class="ad-rotator" data-slot="horizontal" data-category="<?= $categoryId ?? 0 ?>" data-default="<?= ASSET_URL ?>/uploads/vah.png"><img src="<?= ASSET_URL ?>/uploads/vah.png" alt="Advertisement" style="max-width:728px;width:100%;height:auto;max-height:100px;object-fit:contain;display:block"></div></div>
   </div>
 
 </header>
 
-<main><?= $content ?></main>
+<div class="page-layout-wrap" id="pageLayoutWrap">
+<?php if (!empty($noSidebar)): ?>
+  <!-- Article page: full width, no sidebar -->
+  <main class="page-full"><?= $content ?></main>
+<?php else: ?>
+  <!-- All other pages: main + sidebar -->
+  <div class="page-layout">
+    <main class="page-main"><?= $content ?></main>
+    <aside class="page-sidebar">
+      <!-- Square Ad -->
+      <div class="sb-widget">
+        <img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement"
+             style="width:100%;height:auto;object-fit:contain;display:block;border-radius:4px">
+        <div class="sb-ad-label">Advertisement</div>
+      </div>
+      <!-- Trending -->
+      <?php if (!empty($trending)): ?>
+      <div class="sb-widget">
+        <div class="sb-widget-head">🔥 Trending</div>
+        <?php foreach ($trending as $i => $t): ?>
+        <a href="<?= $baseUrl ?>/public/article/<?= htmlspecialchars($t['slug']) ?>" class="sb-item">
+          <div class="sb-num"><?= $i+1 ?></div>
+          <div>
+            <div class="sb-title"><?= htmlspecialchars($t['title']) ?></div>
+            <div class="sb-meta"><?= \App\Core\Helper::timeAgo($t['published_at']) ?></div>
+          </div>
+        </a>
+        <?php endforeach; ?>
+      </div>
+      <?php endif; ?>
+      <!-- Editor's Picks -->
+      <?php if (!empty($editorsPick)): ?>
+      <div class="sb-widget">
+        <div class="sb-widget-head">✦ Editor's Picks</div>
+        <?php foreach ($editorsPick as $ep): ?>
+        <a href="<?= $baseUrl ?>/public/article/<?= htmlspecialchars($ep['slug']) ?>" class="sb-rc">
+          <img src="<?= !empty($ep['thumb_url']) ? $ep['thumb_url'] : (!empty($ep['image_url']) ? $ep['image_url'] : 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=120&q=60') ?>"
+               alt="" loading="lazy">
+          <div class="sb-rc-body">
+            <div class="sb-title"><?= htmlspecialchars($ep['title']) ?></div>
+            <div class="sb-meta"><?= \App\Core\Helper::timeAgo($ep['published_at']) ?></div>
+          </div>
+        </a>
+        <?php endforeach; ?>
+      </div>
+      <?php endif; ?>
+      <!-- Breaking -->
+      <?php if (!empty($breaking)): ?>
+      <div class="sb-widget">
+        <div class="sb-widget-head">🔴 Breaking</div>
+        <?php foreach (array_slice($breaking,0,5) as $b): ?>
+        <a href="<?= $baseUrl ?>/public/article/<?= htmlspecialchars($b['slug']) ?>" class="sb-item">
+          <div class="sb-num" style="background:#C0001A;flex-shrink:0">🔴</div>
+          <div>
+            <div class="sb-title"><?= htmlspecialchars($b['title']) ?></div>
+            <div class="sb-meta"><?= \App\Core\Helper::timeAgo($b['published_at']) ?></div>
+          </div>
+        </a>
+        <?php endforeach; ?>
+      </div>
+      <?php endif; ?>
+    </aside>
+  </div>
+<?php endif; ?>
+</div>
 
 <!-- FOOTER: copyright only -->
 <footer class="site-footer">
@@ -216,12 +280,33 @@ try {
 </footer>
 
 <!-- MOBILE BOTTOM NAV -->
+
+<!-- MOBILE FLOATING RATE ICONS -->
+<div class="mob-rate-icons" id="mobRateIcons">
+  <div class="mob-rate-btn" onclick="toggleRate('gold')" title="Gold Rate">🥇</div>
+  <div class="mob-rate-btn" onclick="toggleRate('silver')" title="Silver Rate">🥈</div>
+  <div class="mob-rate-btn" onclick="toggleRate('petrol')" title="Petrol">⛽</div>
+  <div class="mob-rate-btn" onclick="toggleRate('diesel')" title="Diesel">🚛</div>
+  <div class="mob-rate-btn" onclick="toggleRate('currency_usd')" title="USD Rate">💵</div>
+</div>
+<!-- Rate Popup -->
+<div class="mob-rate-popup" id="mobRatePopup" style="display:none">
+  <div class="mob-rate-popup-inner">
+    <button class="mob-rate-popup-close" onclick="closeRate()">✕</button>
+    <div class="mob-rate-popup-icon" id="rateIcon">🥇</div>
+    <div class="mob-rate-popup-label" id="rateLabel">Gold Rate</div>
+    <div class="mob-rate-popup-value" id="rateValue">Loading...</div>
+    <div class="mob-rate-popup-change" id="rateChange"></div>
+    <div class="mob-rate-popup-city" id="rateCity"></div>
+  </div>
+</div>
+
 <nav class="mobile-bottom-nav">
   <div class="mobile-bottom-nav-inner">
     <a href="<?= $baseUrl ?>/public/" class="mob-nav-item">
       <div class="mob-nav-icon">🏠</div><div class="mob-nav-label">முகப்பு</div>
     </a>
-    <a href="<?= $baseUrl ?>/public/tamil-news/breaking" class="mob-nav-item">
+    <a href="<?= $baseUrl ?>/public/breaking" class="mob-nav-item">
       <?php if (!empty($breakingTicker)): ?><div class="mob-nav-badge"><?= count($breakingTicker) ?></div><?php endif; ?>
       <div class="mob-nav-icon">🔴</div><div class="mob-nav-label">BREAKING</div>
     </a>
@@ -236,7 +321,7 @@ try {
 
 <!-- MOBILE FLOATING AD — above bottom nav, shows on every page load -->
 <div class="mob-float-ad" id="mobFloatAd">
-  <div class="mob-float-ad-inner"><img src="<?= ASSET_URL ?>/uploads/vah.png" alt="Advertisement" style="width:100%;height:66px;object-fit:contain;display:block"></div>
+  <div class="mob-float-ad-inner ad-rotator" data-slot="horizontal" data-category="<?= $categoryId ?? 0 ?>" data-default="<?= ASSET_URL ?>/uploads/vah.png"><img src="<?= ASSET_URL ?>/uploads/vah.png" alt="Advertisement" style="width:100%;height:66px;object-fit:contain;display:block"></div>
   <button class="mob-float-ad-close" onclick="closeMobAd(this)" aria-label="Close">✕</button>
 </div>
 
@@ -328,6 +413,121 @@ function closeMobAd(btn) {
   const el = btn.closest('.mob-float-ad');
   if (el) { el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }
 }
+
+
+// ── RATE ICONS ────────────────────────────────────────
+let ratesCache = null;
+const rateConfig = {
+  gold: { icon:'🥇', label:'Gold Rate', unit:'/gram' },
+  silver: { icon:'🥈', label:'Silver Rate', unit:'/gram' },
+  petrol: { icon:'⛽', label:'Petrol', unit:'/litre' },
+  diesel: { icon:'🚛', label:'Diesel', unit:'/litre' },
+  currency_usd: { icon:'💵', label:'USD Rate', unit:'/USD' },
+};
+
+function toggleRate(type) {
+  const popup = document.getElementById('mobRatePopup');
+  const cfg = rateConfig[type];
+  document.getElementById('rateIcon').textContent  = cfg.icon;
+  document.getElementById('rateLabel').textContent = cfg.label;
+  document.getElementById('rateValue').textContent = 'Loading...';
+  document.getElementById('rateChange').textContent = '';
+  document.getElementById('rateCity').textContent = '';
+  popup.style.display = 'block';
+
+  const load = (rates) => {
+    const r = rates.find(x => x.type === type);
+    if (r) {
+      document.getElementById('rateValue').textContent = '₹' + parseFloat(r.value).toFixed(2) + cfg.unit;
+      if (r.change_val) {
+        const pos = r.change_val >= 0;
+        document.getElementById('rateChange').innerHTML =
+          '<span style="color:' + (pos?'#10B981':'#EF4444') + '">' +
+          (pos?'+':'') + parseFloat(r.change_val).toFixed(2) + ' (' +
+          (r.change_pct ? parseFloat(r.change_pct).toFixed(2) + '%)' : ')') + '</span>';
+      }
+      if (r.city) document.getElementById('rateCity').textContent = r.city;
+    } else {
+      document.getElementById('rateValue').textContent = 'Not available';
+    }
+  };
+
+  if (ratesCache) { load(ratesCache); return; }
+  fetch('<?= $baseUrl ?>/public/api/rates')
+    .then(r => r.json())
+    .then(d => { if (d.success) { ratesCache = d.rates; load(ratesCache); } })
+    .catch(() => { document.getElementById('rateValue').textContent = 'Unavailable'; });
+}
+function closeRate() { document.getElementById('mobRatePopup').style.display='none'; }
+
+
+// ── AD ROTATION — one image at a time, 25s, zoom-out effect ──
+const adPool  = {};
+const adIndex = {};
+
+function initAdRotators() {
+  document.querySelectorAll('.ad-rotator').forEach(el => {
+    const slot   = el.dataset.slot;
+    const defImg = el.dataset.default;
+    const img    = el.querySelector('img');
+    if (!slot || !img) return;
+
+    function startRotation(images) {
+      adPool[slot]  = images;
+      adIndex[slot] = 0;
+
+      function showNext() {
+        const cur = adPool[slot][adIndex[slot] % adPool[slot].length];
+        // Zoom-out transition
+        img.style.transition = 'none';
+        img.style.transform  = 'scale(1.08)';
+        img.style.opacity    = '1';
+        // Start zoom-out
+        requestAnimationFrame(() => {
+          img.style.transition = 'transform 24s linear, opacity 0.5s ease';
+          img.style.transform  = 'scale(1)';
+        });
+        // Swap image halfway through fade
+        img.style.opacity = '0.85';
+        setTimeout(() => {
+          const src = cur.src.startsWith('http') ? cur.src : '<?= ASSET_URL ?>' + cur.src;
+          if (img.src !== src) img.src = src;
+          img.alt = cur.alt || 'Advertisement';
+          const wrap = img.closest('a');
+          if (wrap && cur.link && cur.link !== '#') wrap.href = cur.link;
+          img.style.opacity = '1';
+        }, 400);
+        adIndex[slot]++;
+      }
+
+      showNext();
+      setInterval(showNext, 25000);
+    }
+
+    // Load from API — flatten ALL images from ALL active ads into one pool
+    const cacheKey = `${slot}_${el.dataset.category||0}`;
+    if (adPool[cacheKey]) { startRotation(adPool[cacheKey]); return; }
+
+    fetch(`<?= $baseUrl ?>/public/api/ads/${slot}?category_id=${el.dataset.category||0}`)
+      .then(r => r.ok ? r.json() : null)
+      .then(d => {
+        const images = [];
+        if (d && d.success && d.ads.length) {
+          d.ads.forEach(ad => {
+            ad.images.forEach(img => {
+              images.push({ src: img.src, alt: img.alt, link: img.link });
+            });
+          });
+        }
+        // Fallback to default if no images
+        if (!images.length) images.push({ src: defImg, alt: 'Advertisement', link: '#' });
+        startRotation(images);
+      })
+      .catch(() => startRotation([{ src: defImg, alt: 'Advertisement', link: '#' }]));
+  });
+}
+
+document.addEventListener('DOMContentLoaded', initAdRotators);
 
 </script>
 </body>

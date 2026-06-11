@@ -39,10 +39,8 @@ class SpecialCategoryController extends Controller
             'banner_icon'  => $this->post('banner_icon','🔴') ?: null,
             'category_id'  => (int)$this->post('category_id',0) ?: null,
             'is_active'    => (int)(bool)$this->post('is_active',1),
-            'is_pinned'    => (int)(bool)$this->post('is_pinned',0),
             'starts_at'    => $this->post('starts_at','') ?: null,
             'ends_at'      => $this->post('ends_at','') ?: null,
-            'sort_order'   => (int)$this->post('sort_order',0),
         ]);
         $this->flash('success','Special category created.');
         $this->redirect('/admin/special-categories');
@@ -78,10 +76,8 @@ class SpecialCategoryController extends Controller
             'banner_icon'  => $this->post('banner_icon','') ?: null,
             'category_id'  => (int)$this->post('category_id',0) ?: null,
             'is_active'    => (int)(bool)$this->post('is_active',0),
-            'is_pinned'    => (int)(bool)$this->post('is_pinned',0),
             'starts_at'    => $this->post('starts_at','') ?: null,
             'ends_at'      => $this->post('ends_at','') ?: null,
-            'sort_order'   => (int)$this->post('sort_order',0),
         ]);
         $this->flash('success','Updated.');
         $this->redirect('/admin/special-categories/edit/'.$id);

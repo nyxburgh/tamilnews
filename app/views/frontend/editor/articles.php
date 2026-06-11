@@ -44,7 +44,7 @@ $writeUrl   = $isContrib ? ($r.'/contribute/articles/create') : ($r.'/admin/arti
         <tr>
           <td>
             <span class="portal-article-link" style="font-weight:500"><?= htmlspecialchars(mb_substr($a['title'],0,60)) ?></span>
-            <?php if (!empty($a['pending_edit'])): ?>
+            <?php if (false): // pending_edit removed from new schema
             <span style="font-size:10px;background:#FEF4E0;color:#A06800;padding:1px 6px;border-radius:3px;display:inline-block;margin-top:2px">✏️ Edit pending admin approval</span>
             <?php endif; ?>
             <?php if (!empty($a['is_premium'])): ?>
