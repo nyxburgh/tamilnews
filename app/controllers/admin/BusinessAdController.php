@@ -19,7 +19,7 @@ class BusinessAdController extends Controller
 
     public function __construct()
     {
-        $this->requireAuth(); // All logged-in staff can manage their own ads
+        $this->requireRole('admin','chief_editor','editor','district_editor','category_editor','reporter');
         $this->ads       = new BusinessAdModel();
         $this->locations = new LocationModel();
     }
@@ -289,6 +289,27 @@ class BusinessAdController extends Controller
         $this->ads->confirmPayment((int)$id, Auth::id(), $note);
         $this->flash('success','Payment confirmed. Ad is now active.');
         $this->redirect('/admin/business-ads/show/' . $id);
+    }
+
+
+    // ── Delete entire ad + files ─────────────────────────────
+    public function delete(string $adId): void
+    {
+        \App\Core\CSRF::validate();
+        $id = (int)$adId;
+        $ad = $this->ads->find($id);
+        if (!$ad) {
+            $this->flash('danger', 'Ad not found.');
+            $this->redirect('/admin/business-ads');
+        }
+        if (!in_array(\App\Core\Auth::role(), ['admin','chief_editor'])
+            && (int)$ad['submitted_by'] !== \App\Core\Auth::id()) {
+            $this->flash('danger', 'Access denied.');
+            $this->redirect('/admin/business-ads');
+        }
+        $this->ads->deleteWithFiles($id);
+        $this->flash('success', 'Ad deleted. All images removed.');
+        $this->redirect('/admin/business-ads');
     }
 
     // ── Delete image ─────────────────────────────────────────

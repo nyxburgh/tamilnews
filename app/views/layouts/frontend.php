@@ -1,9 +1,21 @@
+<?php
+// Fetch ad images from DB — runs before HTML output
+$_sq = $__hz = $__vt = [];
+try {
+    $_adm = new \App\Models\BusinessAdModel();
+    $__cat = isset($categoryId) ? (int)$categoryId : 0;
+    foreach ($_adm->activeForRotation('square',     $__cat) as $a) foreach ($a['images'] as $i) $_sq[]  = $i;
+    foreach ($_adm->activeForRotation('horizontal', $__cat) as $a) foreach ($a['images'] as $i) $__hz[] = $i;
+    foreach ($_adm->activeForRotation('vertical',   $__cat) as $a) foreach ($a['images'] as $i) $__vt[] = $i;
+} catch (\Exception $e) { error_log('Ad load: '.$e->getMessage()); }
+?>
 <!DOCTYPE html>
 <html lang="ta">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
-<title><?= htmlspecialchars($metaTitle ?? ($siteName ?? 'தினத்துளிர்')) ?></title>
+<title><?= htmlspecialchars($metaTitle ?? ($siteName ?? 'தினத்துளிர்')) ?>
+</title>
 <?php if (!empty($metaDesc)): ?><meta name="description" content="<?= htmlspecialchars($metaDesc) ?>"><?php endif; ?>
 <?php if (!empty($canonical)): ?><link rel="canonical" href="<?= htmlspecialchars($canonical) ?>"><?php endif; ?>
 <meta property="og:url" content="<?= htmlspecialchars($_canonical) ?>">
@@ -151,7 +163,9 @@ try {
 
   <!-- DESKTOP ONLY: [300×250] [LOGO] [300×250] -->
   <div class="masthead">
-    <div class="masthead-ad"><div class="ad-rotator" data-slot="square" data-cat="<?= $categoryId ?? 0 ?>"></div></div>
+    <div class="masthead-ad">
+      <div class="ad-rotator" data-slot="square" data-cat="<?= $categoryId ?? 0 ?>"></div>
+    </div>
     <div class="masthead-center">
       <a href="<?= $baseUrl ?>/public/" class="vel-logo-link">
         <div class="vel-brand-wrap">
@@ -163,11 +177,15 @@ try {
         </div>
       </a>
     </div>
-    <div class="masthead-ad"><div class="ad-rotator" data-slot="square" data-cat="<?= $categoryId ?? 0 ?>"></div></div>
+    <div class="masthead-ad">
+      <div class="ad-rotator" data-slot="square" data-cat="<?= $categoryId ?? 0 ?>"></div>
+    </div>
   </div>
 
-  <!-- MOBILE ONLY: single ad (25vh) -->
-  <div class="mobile-square-ad"><div class="ad-rotator" data-slot="square" data-cat="<?= $categoryId ?? 0 ?>"></div></div>
+  <!-- MOBILE TOP: horizontal ad -->
+  <div class="mob-top-ad">
+    <div class="ad-rotator" data-slot="horizontal" data-cat="<?= $categoryId ?? 0 ?>"></div>
+  </div>
 
   <!-- DESKTOP double rule -->
   <div class="masthead-rule"></div>
@@ -189,8 +207,7 @@ try {
 
   <!-- DESKTOP ONLY: 728×100 banner -->
   <div class="header-banner-ad">
-    <div class="header-banner-ad-inner"><div class="ad-rotator" data-slot="horizontal" data-cat="<?= $categoryId ?? 0 ?>"></div></div></div>
-  </div>
+    <div class="header-banner-ad-inner"><div class="ad-rotator" data-slot="horizontal" data-cat="<?= $categoryId ?? 0 ?>"></div></div>
 
 </header>
 
@@ -203,10 +220,14 @@ try {
   <div class="page-layout">
     <main class="page-main"><?= $content ?></main>
     <aside class="page-sidebar">
-      <!-- Vertical Ad (300x600 desktop sidebar) -->
-      <div class="sb-widget sb-vertical-ad" id="sidebarVerticalAd"><div class="ad-rotator" data-slot="vertical" data-cat="<?= $categoryId ?? 0 ?>"></div><div class="sb-ad-label">Advertisement</div></div>
-      <!-- Trending -->
-      <?php if (!empty($trending)): ?>
+      <!-- Vertical Ad -->
+      <div class="sb-vertical-ad">
+        <div class="ad-rotator" data-slot="vertical" data-cat="<?= $categoryId ?? 0 ?>"></div>
+        <div class="sb-ad-label">Advertisement</div>
+      </div>
+
+      <!-- Trending/Breaking/Picks — hidden on article pages -->
+      <?php if (!empty($trending) && empty($noWidgets)): ?>
       <div class="sb-widget">
         <div class="sb-widget-head">🔥 Trending</div>
         <?php foreach ($trending as $i => $t): ?>
@@ -271,24 +292,6 @@ try {
 
 <!-- MOBILE BOTTOM NAV -->
 
-
-<!-- MOBILE VERTICAL AD OVERLAY -->
-<div id="mobVerticalAd" class="mob-vertical-ad" style="display:none">
-  <div class="mob-vertical-ad-inner">
-    <button class="mob-vertical-ad-close" onclick="closeMobVertical()">✕</button>
-    <div class="ad-rotator" data-slot="vertical" data-cat="<?= $categoryId ?? 0 ?>"></div>
-    <div class="sb-ad-label" style="text-align:center;padding:4px;font-size:9px">Advertisement</div>
-  </div>
-</div>
-
-<!-- MOBILE FLOATING RATE ICONS -->
-<div class="mob-rate-icons" id="mobRateIcons">
-  <div class="mob-rate-btn" onclick="toggleRate('gold')" title="Gold Rate">🥇</div>
-  <div class="mob-rate-btn" onclick="toggleRate('silver')" title="Silver Rate">🥈</div>
-  <div class="mob-rate-btn" onclick="toggleRate('petrol')" title="Petrol">⛽</div>
-  <div class="mob-rate-btn" onclick="toggleRate('diesel')" title="Diesel">🚛</div>
-  <div class="mob-rate-btn" onclick="toggleRate('currency_usd')" title="USD Rate">💵</div>
-</div>
 <!-- Rate Popup -->
 <div class="mob-rate-popup" id="mobRatePopup" style="display:none">
   <div class="mob-rate-popup-inner">
@@ -319,12 +322,13 @@ try {
   </div>
 </nav>
 
-<!-- MOBILE FLOATING AD — above bottom nav, shows on every page load -->
-<div class="mob-float-ad" id="mobFloatAd">
-  <div class="mob-float-ad-inner"><div class="ad-rotator" data-slot="horizontal" data-cat="<?= $categoryId ?? 0 ?>"></div></div>
-  <button class="mob-float-ad-close" onclick="closeMobAd(this)" aria-label="Close">✕</button>
+<!-- Mobile vertical overlay -->
+<div id="mobVerticalAd" class="mob-vertical-ad">
+  <div class="mob-vertical-ad-inner">
+    <button class="mob-vertical-ad-close" onclick="this.closest('.mob-vertical-ad').style.display='none'">✕</button>
+    <div class="ad-rotator" data-slot="vertical" data-cat="<?= $categoryId ?? 0 ?>"></div>
+  </div>
 </div>
-
 <!-- DRAWER OVERLAY -->
 <div class="mob-drawer-overlay" id="drawerOverlay" onclick="closeDrawer()"></div>
 
@@ -334,6 +338,23 @@ try {
     <span><span class="mob-logo-w1" style="font-size:18px">தினத்</span><span class="mob-logo-w2" style="font-size:18px">துளிர்</span></span>
     <button class="mob-drawer-close" onclick="closeDrawer()">✕</button>
   </div>
+  <?php
+  $_su = \App\Core\Auth::check() ? \App\Core\Auth::user() : null;
+  $_cu = \App\Core\Session::get('contributor');
+  $_ru = $reader ?? null;
+  if ($_su || $_cu || $_ru):
+    $_name    = $_su ? $_su['name'] : ($_cu ? $_cu['name'] : $_ru['name']);
+    $_role    = $_su ? ucfirst(str_replace('_',' ', \App\Core\Auth::role() ?? '')) : ($_cu ? 'Contributor' : 'Reader');
+    $_logoutUrl = $_su ? $baseUrl.'/public/logout' : ($_cu ? $baseUrl.'/public/contribute/logout' : $baseUrl.'/public/auth/reader/logout');
+  ?>
+  <div class="mob-drawer-usercard">
+    <div class="mob-drawer-usercard-info">
+      <div class="mob-drawer-usercard-name"><?= htmlspecialchars($_name) ?></div>
+      <div class="mob-drawer-usercard-role"><?= htmlspecialchars($_role) ?></div>
+    </div>
+    <a href="<?= $_logoutUrl ?>" class="mob-drawer-usercard-logout">🚪 Logout</a>
+  </div>
+  <?php endif; ?>
   <div class="mob-drawer-body">
     <a href="<?= $baseUrl ?>/public/" class="mob-drawer-link">🏠 முகப்பு</a>
     <?php foreach ($navCats as $cat): ?>
@@ -347,12 +368,57 @@ try {
     <a href="<?= $baseUrl ?>/public/search" class="mob-drawer-link">🔍 தேடல்</a>
     <a href="<?= $baseUrl ?>/public/contribute/login" class="mob-drawer-link">✍️ கட்டுரை எழுது</a>
     <div class="mob-drawer-divider"></div>
-    <?php if ($reader): ?>
-    <div class="mob-drawer-user">👤 <?= htmlspecialchars($reader['name']) ?></div>
-    <a href="<?= $baseUrl ?>/public/auth/reader/logout" class="mob-drawer-link">🚪 வெளியேறு</a>
+    <?php
+    // Check all user types
+    $_staffUser  = \App\Core\Auth::check() ? \App\Core\Auth::user() : null;
+    $_contributor = \App\Core\Session::get('contributor');
+    ?>
+    <?php if ($_staffUser): ?>
+      <div class="mob-drawer-user">
+        <span style="font-size:26px">👤</span>
+        <div>
+          <div style="font-weight:700;font-size:14px"><?= htmlspecialchars($_staffUser['name']) ?></div>
+          <div style="font-size:11px;color:#9A9890"><?= ucfirst(str_replace('_',' ', \App\Core\Auth::role() ?? '')) ?></div>
+        </div>
+      </div>
+      <a href="<?= $baseUrl ?>/public/portal/dashboard" class="mob-drawer-link">📋 Staff Panel</a>
+      <a href="<?= $baseUrl ?>/public/logout" class="mob-drawer-link" style="color:#C0001A;font-weight:700">🚪 வெளியேறு</a>
+    <?php elseif ($_contributor): ?>
+      <div class="mob-drawer-user">
+        <span style="font-size:26px">✍️</span>
+        <div>
+          <div style="font-weight:700;font-size:14px"><?= htmlspecialchars($_contributor['name']) ?></div>
+          <div style="font-size:11px;color:#9A9890">Contributor</div>
+        </div>
+      </div>
+      <a href="<?= $baseUrl ?>/public/contribute/logout" class="mob-drawer-link" style="color:#C0001A;font-weight:700">🚪 வெளியேறு</a>
+    <?php elseif (!empty($reader)): ?>
+      <div class="mob-drawer-user">
+        <?php if (!empty($reader['avatar'])): ?>
+          <img src="<?= htmlspecialchars($reader['avatar']) ?>" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">
+        <?php else: ?>
+          <span style="font-size:26px">👤</span>
+        <?php endif; ?>
+        <div>
+          <div style="font-weight:700;font-size:14px"><?= htmlspecialchars($reader['name']) ?></div>
+          <div style="font-size:11px;color:#9A9890">Reader</div>
+        </div>
+      </div>
+      <a href="<?= $baseUrl ?>/public/auth/reader/logout" class="mob-drawer-link" style="color:#C0001A;font-weight:700">🚪 வெளியேறு</a>
     <?php else: ?>
-    <div class="mob-drawer-link" onclick="closeDrawer();openModal()" style="cursor:pointer">🔑 Google மூலம் உள்நுழைக</div>
+      <div class="mob-drawer-link" onclick="closeDrawer();openModal()" style="cursor:pointer;display:flex;align-items:center;gap:8px">
+        <svg width="18" height="18" viewBox="0 0 18 18" style="flex-shrink:0">
+          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
+          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
+          <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
+          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
+        </svg>
+        Google மூலம் உள்நுழைக
+      </div>
     <?php endif; ?>
+  </div>
+</div>
+
   </div>
 </div>
 
@@ -408,24 +474,28 @@ function closeDrawer(){document.getElementById('mobDrawer').classList.remove('op
 
 
 
-// ── MOBILE FLOATING AD (shows every page load, close hides for session tab only) ──
-function closeMobAd(btn) {
-  const el = btn.closest('.mob-float-ad');
-  if (el) { el.style.opacity='0'; el.style.transition='opacity .3s'; setTimeout(()=>el.remove(),300); }
-}
 
 
 // ── RATE ICONS ────────────────────────────────────────
+// ── RATE POPUP & ROLLUP ──────────────────────────────
 let ratesCache = null;
 const rateConfig = {
-  gold: { icon:'🥇', label:'Gold Rate', unit:'/gram' },
-  silver: { icon:'🥈', label:'Silver Rate', unit:'/gram' },
-  petrol: { icon:'⛽', label:'Petrol', unit:'/litre' },
-  diesel: { icon:'🚛', label:'Diesel', unit:'/litre' },
-  currency_usd: { icon:'💵', label:'USD Rate', unit:'/USD' },
+  gold:         { icon:'🥇', label:'Gold',   unit:'/gram',  group:'precious' },
+  silver:       { icon:'🥈', label:'Silver', unit:'/gram',  group:'precious' },
+  petrol:       { icon:'⛽', label:'Petrol', unit:'/litre', group:'fuel' },
+  diesel:       { icon:'🚛', label:'Diesel', unit:'/litre', group:'fuel' },
+  currency_usd: { icon:'💵', label:'USD',    unit:'/USD',   group:'precious' },
 };
 
-function toggleRate(type) {
+function toggleRatePanel() {
+  const rollup = document.getElementById('mobRateRollup');
+  rollup.style.display = rollup.style.display === 'none' ? 'block' : 'none';
+}
+
+function closeRateRollup() { document.getElementById('mobRateRollup').style.display='none'; }
+
+function showRatePopup(type) {
+  closeRateRollup();
   const popup = document.getElementById('mobRatePopup');
   const cfg = rateConfig[type];
   document.getElementById('rateIcon').textContent  = cfg.icon;
@@ -435,7 +505,7 @@ function toggleRate(type) {
   document.getElementById('rateCity').textContent = '';
   popup.style.display = 'block';
 
-  const load = (rates) => {
+  function load(rates) {
     const r = rates.find(x => x.type === type);
     if (r) {
       document.getElementById('rateValue').textContent = '₹' + parseFloat(r.value).toFixed(2) + cfg.unit;
@@ -450,7 +520,7 @@ function toggleRate(type) {
     } else {
       document.getElementById('rateValue').textContent = 'Not available';
     }
-  };
+  }
 
   if (ratesCache) { load(ratesCache); return; }
   fetch('<?= $baseUrl ?>/public/api/rates')
@@ -458,128 +528,57 @@ function toggleRate(type) {
     .then(d => { if (d.success) { ratesCache = d.rates; load(ratesCache); } })
     .catch(() => { document.getElementById('rateValue').textContent = 'Unavailable'; });
 }
-function closeRate() { document.getElementById('mobRatePopup').style.display='none'; }
+
+function toggleRate(type) { showRatePopup(type); } // legacy alias
+function closeRate() { document.getElementById('mobRatePopup').style.display = 'none'; }
 
 
-// ── AD ROTATION — API/DB only, no hardcoded images ──
-var adCache = {};
+// ── AD ROTATION — data from PHP, random pick, 15s interval, 0.15s fade ──
+var _adData = {
+  square:     <?= json_encode($_sq)  ?>,
+  horizontal: <?= json_encode($__hz) ?>,
+  vertical:   <?= json_encode($__vt) ?>
+};
 
 function loadAd(el) {
-  var slot  = el.dataset.slot;
-  var cat   = el.dataset.cat || '0';
-  var key   = slot + '_' + cat;
+  var slot   = el.dataset.slot;
+  var pool   = _adData[slot] || [];
+  if (!pool.length) return;
 
-  function render(images) {
-    if (!images || !images.length) return; // nothing to show
-    adCache[key] = images;
-    var idx = 0;
+  var img = document.createElement('img');
+  img.style.cssText = 'display:block;width:100%;transition:opacity 0.15s ease;' +
+    (slot === 'vertical' ? 'height:750px;object-fit:cover;' : 'height:100%;width:100%;object-fit:cover;');
+  el.appendChild(img);
 
-    // Create img element — NO inline styles, CSS controls sizing per slot
-    var img = document.createElement('img');
-    img.style.display = 'block';
-    img.style.width   = '100%';
-    // vertical slot: fill 750px; others: auto height
-    if (slot === 'vertical') {
-      img.style.height      = '750px';
-      img.style.objectFit   = 'cover';
-    } else {
-      img.style.height      = '100%';
-      img.style.objectFit   = 'contain';
-    }
-    img.style.transition = 'opacity 0.4s ease';
-    el.appendChild(img);
-
-    function show() {
-      var cur = images[idx % images.length];
-      idx++;
-      var src = cur.src;
-      if (src && !src.startsWith('http') && !src.startsWith('//')) {
-        src = '<?= rtrim(ASSET_URL, "/") ?>' + (src.charAt(0) === '/' ? src : '/' + src);
-      }
-      img.style.opacity = '0';
-      img.style.transform = 'scale(1.06)';
-      setTimeout(function() {
-        img.src = src;
-        img.alt = cur.alt || 'Advertisement';
-        img.style.opacity = '1';
-        img.style.transform = 'scale(1)';
-        // Set link
-        var wrap = el.parentElement && el.parentElement.tagName === 'A' ? el.parentElement : null;
-        if (wrap && cur.link && cur.link !== '#') wrap.href = cur.link;
-      }, 200);
-    }
-
-    show();
-    setInterval(show, 15000);
+  function show() {
+    var cur = pool[Math.floor(Math.random() * pool.length)];
+    var src = cur.src || '';
+    if (src && src.indexOf('http') !== 0) src = '<?= rtrim(ASSET_URL,"/") ?>' + (src[0]==='/'?src:'/'+src);
+    img.style.opacity = '0';
+    setTimeout(function(){
+      img.src = src; img.alt = cur.alt||''; img.style.opacity = '1';
+      var a = el.closest('a'); if(a && cur.link && cur.link!=='#') a.href = cur.link;
+    }, 150);
   }
 
-  if (adCache[key]) { render(adCache[key]); return; }
-
-  fetch('<?= $baseUrl ?>/public/api/ads/' + slot + '?category_id=' + cat)
-    .then(function(r) { return r.ok ? r.json() : null; })
-    .then(function(data) {
-      var images = [];
-      if (data && data.success && Array.isArray(data.ads)) {
-        data.ads.forEach(function(ad) {
-          if (Array.isArray(ad.images)) {
-            ad.images.forEach(function(im) {
-              if (im.src) images.push(im);
-            });
-          }
-        });
-      }
-      render(images);
-    })
-    .catch(function() {}); // silent fail — blank ad space
+  show();
+  setInterval(show, 15000);
 }
 
 function initAdRotators() {
   document.querySelectorAll('.ad-rotator').forEach(loadAd);
 }
-
 document.addEventListener('DOMContentLoaded', initAdRotators);
 
-
-// ── MOBILE VERTICAL AD: shows on load → slides down → re-shows on scroll stop ──
-(function() {
-  const el = document.getElementById('mobVerticalAd');
-  if (!el || window.innerWidth >= 1024) return;
-
-  let visible = false, hideTimer = null, scrollTimer = null;
-
-  function show() {
-    if (visible) return;
-    visible = true;
-    el.style.display = 'flex';
-    el.style.animation = 'slideInRight 0.4s ease';
-    // Auto-hide after 25s
-    clearTimeout(hideTimer);
-    hideTimer = setTimeout(hide, 15000);
-  }
-
-  function hide() {
-    if (!visible) return;
-    visible = false;
-    el.style.animation = 'slideOutRight 0.4s ease forwards';
-    setTimeout(() => { if (!visible) el.style.display = 'none'; }, 400);
-  }
-
-  window.closeMobVertical = function() {
-    clearTimeout(hideTimer);
-    hide();
-  };
-
-  // Show on page load after 1s
-  setTimeout(show, 1000);
-
-  // On scroll: hide → wait for scroll to stop → show again
-  window.addEventListener('scroll', function() {
-    if (visible) hide();
-    clearTimeout(scrollTimer);
-    scrollTimer = setTimeout(function() {
-      if (!visible) show();
-    }, 800); // show 0.8s after scroll stops
-  }, { passive: true });
+// Mobile vertical: show while scrolling, hide 1.5s after stop
+(function(){
+  if(window.innerWidth>=1024) return;
+  var el=document.getElementById('mobVerticalAd'); if(!el) return;
+  var t=null;
+  window.addEventListener('scroll',function(){
+    el.style.display='flex'; clearTimeout(t);
+    t=setTimeout(function(){ el.style.display='none'; },1500);
+  },{passive:true});
 })();
 
 </script>

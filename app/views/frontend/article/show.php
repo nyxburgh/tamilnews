@@ -9,7 +9,10 @@ function catClass(string $slug): string {
     $map = ['tamil-nadu'=>'red','india'=>'blue','world'=>'teal','cinema'=>'purple','sports'=>'green','technology'=>'blue'];
     return 'cat-' . ($map[$slug] ?? 'red');
 }
-$whatsappMsg = urlencode($article['title'] . "\n\n" . (isset($_SERVER['HTTP_HOST']) ? 'https://'.$_SERVER['HTTP_HOST'].'/article/'.$article['slug'] : ''));
+$_articleUrl = rtrim(BASE_URL, '/') . '/public/article/' . $article['slug'];
+$whatsappMsg = urlencode($article['title'] . "\n\n" . $_articleUrl);
+$_fbUrl      = urlencode($_articleUrl);
+$_twText     = urlencode($article['title'] . ' ' . $_articleUrl);
 $tags     = array_filter(explode('||', $article['tag_names'] ?? ''));
 $tagSlugs = array_filter(explode('||', $article['tag_slugs'] ?? ''));
 $isVideo  = !empty($article['youtube_video_id']);
@@ -24,19 +27,24 @@ $isVideo  = !empty($article['youtube_video_id']);
   <span><?= e(mb_substr($article['title'], 0, 50)) ?>…</span>
 </div>
 
-<div class="article-wrap">
-  <!-- ARTICLE MAIN -->
-  <div class="article-main">
 
     <!-- TITLE (category removed — in breadcrumb already) -->
     <h1 class="art-title"><?= e($article['title']) ?></h1>
 
     <!-- SHARE ICONS — right under title -->
     <div class="art-share-inline">
-      <a href="https://wa.me/?text=<?= $whatsappMsg ?>" target="_blank" rel="noopener" class="sbc sbc-wa" onclick="trackWA()">💬</a>
-      <a href="https://www.facebook.com/sharer/sharer.php?u=<?= urlencode('https://'.$_SERVER['HTTP_HOST'].'/article/'.$article['slug']) ?>" target="_blank" rel="noopener" class="sbc sbc-fb">📘</a>
-      <a href="https://twitter.com/intent/tweet?text=<?= $whatsappMsg ?>" target="_blank" rel="noopener" class="sbc sbc-tw">🐦</a>
-      <button class="sbc sbc-cp" onclick="copyLink()">🔗</button>
+      <a href="https://wa.me/?text=<?= $whatsappMsg ?>" target="_blank" rel="noopener" class="sbc sbc-wa" onclick="trackWA()" title="Share on WhatsApp">
+        <i class="bi bi-whatsapp"></i><span>WhatsApp</span>
+      </a>
+      <a href="https://www.facebook.com/sharer/sharer.php?u=<?= $_fbUrl ?>" target="_blank" rel="noopener" class="sbc sbc-fb" title="Share on Facebook">
+        <i class="bi bi-facebook"></i><span>Facebook</span>
+      </a>
+      <a href="https://twitter.com/intent/tweet?text=<?= $_twText ?>" target="_blank" rel="noopener" class="sbc sbc-tw" title="Share on X">
+        <i class="bi bi-twitter-x"></i><span>X</span>
+      </a>
+      <button class="sbc sbc-cp" onclick="copyLink()" title="Copy link">
+        <i class="bi bi-link-45deg"></i><span>Copy</span>
+      </button>
     </div>
 
     <!-- REPORTER + POST DETAILS — single compact row -->
@@ -71,8 +79,10 @@ $isVideo  = !empty($article['youtube_video_id']);
               frameborder="0" allowfullscreen loading="lazy"></iframe>
     </div>
     <?php elseif (!empty($article['image_url'])): ?>
-    <img src="<?= e($article['image_url']) ?>" alt="<?= e($article['title']) ?>"
-         class="art-hero-img" loading="eager">
+    <div class="art-image-col">
+      <img src="<?= e($article['image_url']) ?>" alt="<?= e($article['title']) ?>"
+           class="art-hero-img" loading="eager">
+    </div>
     <?php endif; ?>
 
     <!-- IN-ARTICLE AD (after image) -->
@@ -111,6 +121,12 @@ $isVideo  = !empty($article['youtube_video_id']);
     </div>
     <?php endif; ?>
 
+    <!-- Square ad after article content (mobile only) -->
+    <div class="art-after-ad mob-only-ad">
+      <div class="ad-rotator" data-slot="square" data-cat="<?= $article['category_id'] ?? 0 ?>"></div>
+    </div>
+
+
 
     <!-- TAGS — always shown, category as fallback -->
     <div class="art-tags">
@@ -128,7 +144,7 @@ $isVideo  = !empty($article['youtube_video_id']);
     <div class="whatsapp-share-block">
       <a href="https://wa.me/?text=<?= $whatsappMsg ?>" target="_blank" rel="noopener"
          class="whatsapp-share-btn" onclick="trackWA()">
-        <span style="font-size:22px">💬</span>
+        <i class="bi bi-whatsapp" style="font-size:28px;color:#25D366"></i>
         <div>
           <div class="whatsapp-share-title">WhatsApp-ல் பகிரவும்</div>
           <div class="whatsapp-share-sub">Share this news with friends & family</div>
@@ -268,38 +284,7 @@ $isVideo  = !empty($article['youtube_video_id']);
       <?php endif; ?>
     </div>
 
-  </div><!-- /article-main -->
 
-  <!-- SIDEBAR -->
-  <div class="article-sidebar">
-    <div class="sidebar-sticky">
-
-      <!-- AD SIDEBAR -->
-      <?php if (!empty($ads['sidebar']['ad_code'])): ?>
-      <div class="sidebar-widget" style="overflow:hidden;margin-bottom:16px"><?= $ads['sidebar']['ad_code'] ?></div>
-      <?php else: ?>
-      <div class="ad-sidebar" style="margin-bottom:16px"><div>Advertisement<br>300×250</div></div>
-      <?php endif; ?>
-
-      <!-- TRENDING -->
-      <?php if (!empty($trending)): ?>
-      <div class="sidebar-widget">
-        <div class="sidebar-widget-head">🔥 Trending Now</div>
-        <?php foreach ($trending as $i => $t): ?>
-        <a href="<?= $r ?>/article/<?= e($t['slug']) ?>" class="sidebar-trending-item">
-          <div class="sidebar-trending-num"><?= $i + 1 ?></div>
-          <div>
-            <div class="sidebar-trending-title"><?= e($t['title']) ?></div>
-            <div class="sidebar-trending-time"><?= Helper::timeAgo($t['published_at']) ?></div>
-          </div>
-        </a>
-        <?php endforeach; ?>
-      </div>
-      <?php endif; ?>
-
-    </div>
-  </div>
-</div><!-- /article-wrap -->
 
 <script>
 window._baseUrl = '<?= $r ?>';

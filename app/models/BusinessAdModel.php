@@ -281,27 +281,18 @@ class BusinessAdModel extends Model
     /** Get default fallback image path for a slot type */
     public function getDefaultImage(string $type): string
     {
-        $defaults = [
-            'square'     => '/uploads/vaqua.jpeg',
-            'horizontal' => '/uploads/vah.png',
-            'vertical'   => '/uploads/vaqua.jpeg',
-        ];
+        $defaults = ['square'=>'/uploads/vaqua.jpeg','horizontal'=>'/uploads/vah.png','vertical'=>'/uploads/vaqua.jpeg'];
         try {
-            $row = $this->fetchOne(
-                "SELECT ad_code FROM tn_ad_slots WHERE type = ? LIMIT 1", [$type]
-            );
-            // Only use ad_code if it is an image path (not HTML)
+            $row = $this->fetchOne("SELECT ad_code FROM tn_ad_slots WHERE type = ? LIMIT 1", [$type]);
             if (!empty($row['ad_code'])) {
-                $code = trim($row['ad_code']);
-                if (str_starts_with($code, '/') || str_starts_with($code, 'http')) {
-                    return $code;
-                }
+                $v = trim($row['ad_code']);
+                if ($v[0] === '/' || str_starts_with($v, 'http')) return $v;
             }
         } catch (\Exception $e) {}
         return $defaults[$type] ?? '/uploads/vaqua.jpeg';
     }
 
-    /** Get active ads for rotation from DB */
+    /** Get active approved ads for rotation — up to 5 images per ad */
     public function activeForRotation(string $slotType, ?int $categoryId = null): array
     {
         try {
@@ -314,29 +305,19 @@ class BusinessAdModel extends Model
                  WHERE b.status IN ('active','approved')
                    AND (b.valid_from IS NULL OR b.valid_from <= CURDATE())
                    AND (b.valid_until IS NULL OR b.valid_until >= CURDATE())
-                   AND (
-                     b.display_type = 'global'
-                     OR (b.display_type = 'category' AND b.category_id = ?)
-                   )
+                   AND (b.display_type = 'global' OR (b.display_type = 'category' AND b.category_id = ?))
                  ORDER BY b.id ASC, ai.sort_order ASC",
                 [$slotType, $categoryId ?? 0]
             );
-        } catch (\Exception $e) {
-            error_log('activeForRotation error: ' . $e->getMessage());
-            $rows = [];
-        }
+        } catch (\Exception $e) { return []; }
 
-        // Group images by ad
+        // Group images by ad (max 5 each)
         $ads = [];
         foreach ($rows as $row) {
             $id = $row['id'];
             if (!isset($ads[$id])) {
-                $ads[$id] = [
-                    'ad_id'         => $id,
-                    'business_name' => $row['business_name'],
-                    'website_url'   => $row['website_url'] ?? '#',
-                    'images'        => [],
-                ];
+                $ads[$id] = ['ad_id'=>$id, 'business_name'=>$row['business_name'],
+                             'website_url'=>$row['website_url'] ?? '#', 'images'=>[]];
             }
             if ($row['filepath'] && count($ads[$id]['images']) < 5) {
                 $ads[$id]['images'][] = [
@@ -347,25 +328,15 @@ class BusinessAdModel extends Model
             }
         }
 
-        $result = array_values($ads);
-
-        // If no DB ads, return default slot image
-        if (empty($result)) {
+        // If no active DB ads → return default image
+        if (empty($ads)) {
             $default = $this->getDefaultImage($slotType);
-            $result  = [[
-                'ad_id'         => 0,
-                'business_name' => 'Advertisement',
-                'website_url'   => '#',
-                'images'        => [['src' => $default, 'alt' => 'Advertisement', 'link' => '#']],
-            ]];
+            return [['ad_id'=>0, 'business_name'=>'Advertisement', 'website_url'=>'#',
+                     'images'=>[['src'=>$default, 'alt'=>'Advertisement', 'link'=>'#']]]];
         }
 
-        return $result;
+        return array_values($ads);
     }
-
-    /**
-     * Delete ad and all its image files from disk
-     */
     public function deleteWithFiles(int $adId): void
     {
         $images = $this->fetchAll("SELECT filepath FROM tn_ad_images WHERE ad_id = ?", [$adId]);

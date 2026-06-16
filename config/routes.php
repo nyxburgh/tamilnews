@@ -66,6 +66,7 @@ return [
     /* ── MEDIA ── */
     ['GET',  '/admin/media',             'admin\MediaController@index'],
     ['POST', '/admin/media/upload',      'admin\MediaController@upload'],
+    ['POST', '/admin/media/upload-ajax',  'admin\\MediaController@uploadAjax'],
     ['POST', '/admin/media/delete/{id}', 'admin\MediaController@delete'],
     ['GET',  '/admin/media/modal',       'admin\MediaController@modal'],
     /* ── USERS ── */
@@ -241,6 +242,7 @@ return [
     ['POST', '/admin/business-ads/approve/{id}',        'admin\\BusinessAdController@approve'],
     ['POST', '/admin/business-ads/reject/{id}',         'admin\\BusinessAdController@reject'],
     ['POST', '/admin/business-ads/confirm-payment/{id}','admin\\BusinessAdController@confirmPayment'],
+    ['POST', '/admin/business-ads/delete/{id}',        'admin\\BusinessAdController@delete'],
     ['POST', '/admin/business-ads/delete-image/{id}',   'admin\\BusinessAdController@deleteImage'],
     ['GET',  '/admin/business-ads/cities/{id}',         'admin\\BusinessAdController@citiesByDistrict'],
     ['GET', '/lang/{lang}', 'frontend\\LangController@switch'],

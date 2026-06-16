@@ -75,16 +75,15 @@ class ArticleController extends Controller
         }
 
         $isPremiumLocked = $isPremiumLocked ?? false;
-        $noSidebar   = true;
         $categoryId  = (int)($article['category_id'] ?? 0);
+        $noWidgets   = true; // article page: sidebar = vertical ad only
         $csrf = \App\Core\CSRF::token();
 
         $this->view('frontend.article.show', compact(
             'article', 'related', 'ratingStats', 'reviews',
             'readerId', 'userRating', 'categories', 'siteName',
             'trending', 'ads', 'metaTitle', 'metaDesc', 'canonical', 'ogImage', 'csrf',
-            'categoryId',
-            'noSidebar'
+            'categoryId', 'noWidgets',
         ), 'frontend');
     }
 }

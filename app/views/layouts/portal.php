@@ -207,10 +207,10 @@ if ($alertType && $alertMsg):
     <i class="bi bi-megaphone"></i>
     <span>Ads</span>
   </a>
-  <a href="<?= $r ?>/portal/profile" class="portal-mob-item <?= str_contains($current,'/profile') ? 'active' : '' ?>">
-    <i class="bi bi-person-circle"></i>
-    <span>Profile</span>
-  </a>
+  <div class="portal-mob-item" onclick="openPortalMenu()">
+    <i class="bi bi-grid-3x3-gap-fill"></i>
+    <span>Menu</span>
+  </div>
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
@@ -224,5 +224,50 @@ document.addEventListener('click', e => {
     document.getElementById('portalUserMenu')?.classList.remove('open');
 });
 </script>
+
+<!-- Portal Menu Bottom Sheet -->
+<div class="portal-bottom-overlay" id="portalBottomOverlay" onclick="closePortalMenu()"></div>
+<div class="portal-bottom-sheet" id="portalBottomSheet">
+  <div class="portal-bottom-sheet-handle"></div>
+  <!-- User Info -->
+  <div class="portal-bottom-user">
+    <div class="portal-bottom-user-avatar" style="background:<?= $roleColor ?>">
+      <?= strtoupper(substr($userName,0,1)) ?>
+    </div>
+    <div>
+      <div class="portal-bottom-user-name"><?= htmlspecialchars($userName) ?></div>
+      <div class="portal-bottom-user-role" style="color:<?= $roleColor ?>"><?= $roleLabel ?></div>
+    </div>
+  </div>
+  <div class="portal-bottom-divider"></div>
+  <!-- Menu items -->
+  <a href="<?= $r ?>/portal/profile" class="portal-bottom-item">
+    <i class="bi bi-person-circle"></i> Profile
+  </a>
+  <a href="<?= $r ?>/portal/notifications" class="portal-bottom-item">
+    <i class="bi bi-bell"></i> Notifications
+  </a>
+  <?php if (!$isContributor): ?>
+  <a href="<?= $r ?>/admin/settings" class="portal-bottom-item">
+    <i class="bi bi-gear"></i> Settings
+  </a>
+  <?php endif; ?>
+  <div class="portal-bottom-divider"></div>
+  <a href="<?= $logoutUrl ?>" class="portal-bottom-item portal-bottom-logout">
+    <i class="bi bi-box-arrow-right"></i> Logout
+  </a>
+</div>
+
+<script>
+function openPortalMenu() {
+  document.getElementById('portalBottomOverlay').classList.add('open');
+  document.getElementById('portalBottomSheet').classList.add('open');
+}
+function closePortalMenu() {
+  document.getElementById('portalBottomOverlay').classList.remove('open');
+  document.getElementById('portalBottomSheet').classList.remove('open');
+}
+</script>
+
 </body>
 </html>

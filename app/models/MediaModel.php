@@ -37,10 +37,16 @@ class MediaModel extends Model
         $dest = $dir . '/' . $filename;
         if (!move_uploaded_file($file['tmp_name'], $dest)) return false;
 
-        // Get image dimensions
+        // Get image dimensions + resize + create thumbnail
         $width = $height = null;
         if (str_starts_with($file['type'], 'image/')) {
             [$width, $height] = @getimagesize($dest) ?: [null, null];
+            // Resize original to max 1200px wide (saves bandwidth)
+            if ($width && $width > 1200) {
+                $this->createThumbnail($dest, $dest, 1200); // overwrite original
+                [$width, $height] = @getimagesize($dest) ?: [$width, $height];
+            }
+            // Create 400px thumbnail for news cards
             $this->createThumbnail($dest, $dir . '/thumb_' . $filename, 400);
         }
 

@@ -227,7 +227,7 @@ class ArticleController extends Controller
         return [
             'user_id'          => $existing['user_id'] ?? Auth::id(),
             'category_id'      => (int)$this->post('category_id', 1),
-            'city_id'          => (int)$this->post('city_id', 0) ?: (
+            'city_id'          => ((int)$this->post('city_id', 0)) ?: (
                 // Auto-assign reporter's district first city if no city selected
                 !empty(\App\Core\Auth::user()['assigned_district_id'])
                     ? $this->locations->firstCityByDistrict((int)\App\Core\Auth::user()['assigned_district_id'])
@@ -248,7 +248,6 @@ class ArticleController extends Controller
             'read_time'        => Helper::readTime($content),
             'meta_title'       => $this->post('meta_title', '') ?: null,
             'meta_desc'        => $this->post('meta_desc', '') ?: null,
-            'schema_type'      => $youtubeId ? 'VideoObject' : 'NewsArticle',
             'published_at'     => $publishedAt,
             'scheduled_at'     => $scheduledAt,
         ];

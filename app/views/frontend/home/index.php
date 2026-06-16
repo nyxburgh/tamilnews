@@ -104,8 +104,7 @@ $catSections = [
 
 <!-- Mobile sidebar ad -->
 <div class="mob-sidebar-ad">
-  <img src="<?= ASSET_URL ?>/uploads/vaqua.jpeg" alt="Advertisement"
-       style="max-width:300px;height:auto;object-fit:contain;display:block;margin:0 auto">
+  <div class="ad-rotator" data-slot="square" data-cat="<?= $categoryId ?? 0 ?>"></div>
 </div>
 
 <!-- ══════════════════════════════════════════

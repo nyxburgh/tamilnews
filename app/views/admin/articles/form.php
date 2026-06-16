@@ -127,8 +127,71 @@
     <!-- 3. CONTENT EDITOR -->
     <div class="tn-card mb-3">
       <div class="tn-card-header"><span><i class="bi bi-pencil-square me-2"></i>Content</span></div>
-      <div class="tn-card-body">
-        <textarea id="content" name="content"><?= htmlspecialchars($article['content'] ?? '') ?></textarea>
+      <div class="tn-card-body" style="padding:0">
+        
+<style>
+.art-content-area {
+  min-height: 520px;
+  font-family: 'Noto Sans Tamil', 'Source Sans 3', sans-serif;
+  font-size: 16px;
+  line-height: 1.8;
+  padding: 16px;
+  border: 1px solid #D8D6CE;
+  border-radius: 6px;
+  resize: vertical;
+  width: 100%;
+  background: #FAFAF8;
+}
+.art-content-area:focus { border-color: #C0001A; outline: none; box-shadow: 0 0 0 2px rgba(192,0,26,.1); }
+.art-toolbar { display:flex; flex-wrap:wrap; gap:4px; padding:8px; background:#F5F5F2; border:1px solid #D8D6CE; border-bottom:none; border-radius:6px 6px 0 0; }
+.art-toolbar button { padding:4px 10px; font-size:12px; font-weight:600; border:1px solid #D8D6CE; background:#fff; border-radius:4px; cursor:pointer; color:#1A1A1A; }
+.art-toolbar button:hover { background:#C0001A; color:#fff; border-color:#C0001A; }
+.art-toolbar .sep { width:1px; background:#D8D6CE; margin:2px 4px; }
+</style>
+<div class="art-toolbar">
+  <button type="button" onclick="fmt('bold')" title="Bold"><b>B</b></button>
+  <button type="button" onclick="fmt('italic')" title="Italic"><i>I</i></button>
+  <button type="button" onclick="fmt('underline')" title="Underline"><u>U</u></button>
+  <span class="sep"></span>
+  <button type="button" onclick="wrapTag('h2')" title="Heading">H2</button>
+  <button type="button" onclick="wrapTag('h3')" title="Sub-heading">H3</button>
+  <button type="button" onclick="wrapTag('p')" title="Paragraph">P</button>
+  <span class="sep"></span>
+  <button type="button" onclick="wrapTag('blockquote')" title="Quote">❝</button>
+  <button type="button" onclick="insertUL()" title="Bullet List">• List</button>
+  <span class="sep"></span>
+  <button type="button" onclick="insertLink()" title="Link">🔗</button>
+</div>
+<script>
+function fmt(cmd) {
+  const ta = document.getElementById('content');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e);
+  const tags = { bold:'<strong>', italic:'<em>', underline:'<u>' };
+  const close = { bold:'</strong>', italic:'</em>', underline:'</u>' };
+  ta.setRangeText(tags[cmd] + sel + close[cmd], s, e, 'end');
+}
+function wrapTag(tag) {
+  const ta = document.getElementById('content');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const sel = ta.value.substring(s, e) || 'Text here';
+  ta.setRangeText(`<${tag}>${sel}</${tag}>`, s, e, 'end');
+}
+function insertUL() {
+  const ta = document.getElementById('content');
+  const s = ta.selectionStart;
+  ta.setRangeText('\n<ul>\n  <li>Item 1</li>\n  <li>Item 2</li>\n</ul>\n', s, s, 'end');
+}
+function insertLink() {
+  const url = prompt('Enter URL:');
+  if (!url) return;
+  const ta = document.getElementById('content');
+  const s = ta.selectionStart, e = ta.selectionEnd;
+  const txt = ta.value.substring(s, e) || 'Link text';
+  ta.setRangeText(`<a href="${url}">${txt}</a>`, s, e, 'end');
+}
+</script>
+<textarea id="content" name="content" class="form-control art-content-area" style="border-radius:0 0 6px 6px"><?= htmlspecialchars($article['content'] ?? '') ?></textarea>
       </div>
     </div>
 
@@ -221,6 +284,7 @@
               <div style="font-size:28px;margin-bottom:6px">🖼️</div>
               <div style="font-weight:600;font-size:13px;margin-bottom:4px">Click or drag image</div>
               <div style="font-size:11px;color:#6B6A64">JPG, PNG, WebP — max 5MB</div>
+              <div id="uploadError" style="display:none;color:#C0001A;font-size:11px;margin-top:4px"></div>
             </div>
             <div id="uploadProgress" style="display:none">
               <div style="font-size:12px;margin-bottom:6px">⏳ Uploading...</div>
@@ -373,7 +437,7 @@ function uploadImage(file) {
   if (!file) return;
   const fd = new FormData();
   fd.append('image', file);
-  fd.append('csrf_token', document.querySelector('[name=csrf_token]')?.value);
+  fd.append('_token', document.querySelector('[name=_token]')?.value || document.querySelector('[name=csrf_token]')?.value || '');
   document.getElementById('uploadZoneContent').style.display = 'none';
   document.getElementById('uploadProgress').style.display = 'block';
   const bar = document.getElementById('uploadBar');
@@ -390,11 +454,12 @@ function uploadImage(file) {
         document.getElementById('uploadZone').style.display = 'none';
         bar.style.width = '100%';
       } else {
-        alert(d.error || 'Upload failed');
+        const errEl = document.getElementById('uploadError');
+        if (errEl) { errEl.textContent = d.error || 'Upload failed'; errEl.style.display = 'block'; }
         resetUploadZone();
       }
     })
-    .catch(() => { clearInterval(timer); alert('Upload error'); resetUploadZone(); });
+    .catch(() => { clearInterval(timer); resetUploadZone(); resetUploadZone(); });
 }
 function handleImageDrop(e) {
   e.preventDefault();
@@ -470,3 +535,45 @@ document.getElementById('tagPicker')?.addEventListener('click', e => {
   .col-xl-8, .col-xl-4 { /* already handled by Bootstrap col-12 */ }
 }
 </style>
+
+<script>
+tinymce.init({
+  selector: '#content',
+  height: 500,
+  plugins: [
+    'anchor', 'autolink', 'charmap', 'codesample', 'emoticons',
+    'image', 'link', 'lists', 'media', 'searchreplace',
+    'table', 'visualblocks', 'wordcount'
+  ],
+  toolbar: 'undo redo | blocks fontsize | bold italic underline | ' +
+           'alignleft aligncenter alignright alignjustify | ' +
+           'bullist numlist | link image media table | ' +
+           'removeformat | searchreplace',
+  toolbar_mode: 'wrap',
+  content_style: 'body { font-family: Noto Sans Tamil, Source Sans 3, sans-serif; font-size: 16px; line-height: 1.7; direction: ltr; }',
+  language: 'en',
+  directionality: 'ltr',
+  statusbar: true,
+  branding: false,
+  promotion: false,
+  paste_as_text: false,
+  images_upload_url: '<?= $r ?>/admin/media/upload-ajax',
+  images_upload_handler: function(blobInfo, progress) {
+    return new Promise((resolve, reject) => {
+      const fd = new FormData();
+      fd.append('image', blobInfo.blob(), blobInfo.filename());
+      fd.append('csrf_token', document.querySelector('[name=csrf_token]')?.value || '');
+      fetch('<?= $r ?>/admin/media/upload-ajax', { method: 'POST', body: fd })
+        .then(r => r.json())
+        .then(d => { if (d.success) resolve(d.url); else reject(d.error || 'Upload failed'); })
+        .catch(e => reject(e.toString()));
+    });
+  },
+  setup: function(editor) {
+    // Sync content back to textarea on form submit
+    document.getElementById('articleForm')?.addEventListener('submit', function() {
+      editor.save();
+    });
+  }
+});
+</script>

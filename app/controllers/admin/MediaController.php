@@ -63,4 +63,32 @@ class MediaController extends Controller
         $this->json(['success'=>true]);
     }
 
+
+    /** POST /admin/media/upload-ajax — returns JSON with url for article form */
+    public function uploadAjax(): void
+    {
+        header('Content-Type: application/json');
+        // Verify CSRF token from POST or header
+        // Accept _token (standard field) or csrf_token (JS sends this)
+        $token = $_POST['_token'] ?? $_POST['csrf_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+        if (!\App\Core\CSRF::verify($token)) {
+            echo json_encode(['success'=>false,'error'=>'Session expired. Refresh the page and try again.']);
+            exit;
+        }
+        try {
+            $fileKey = !empty($_FILES['image']) ? 'image' : (!empty($_FILES['file']) ? 'file' : null);
+            if (!$fileKey) { echo json_encode(['success'=>false,'error'=>'No file received.']); exit; }
+            $id = $this->media->upload($_FILES[$fileKey], Auth::id());
+            if (!$id) { echo json_encode(['success'=>false,'error'=>'Upload failed. Check file type (JPG/PNG/WebP) and size (max 5MB).']); exit; }
+            $file = $this->media->find($id);
+            $fp   = ltrim($file['filepath'] ?? '', '/');
+            $url  = rtrim(ASSET_URL, '/') . '/' . $fp;
+            echo json_encode(['success'=>true,'media_id'=>$id,'url'=>$url]);
+        } catch (\Exception $e) {
+            error_log('Upload error: '.$e->getMessage());
+            echo json_encode(['success'=>false,'error'=>'Server error: '.$e->getMessage()]);
+        }
+        exit;
+    }
+
 }

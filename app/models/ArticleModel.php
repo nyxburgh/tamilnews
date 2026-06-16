@@ -86,8 +86,8 @@ class ArticleModel extends Model
         $breaking = $article['is_breaking'] ? 0 : 1;
         $expiry   = $breaking ? date('Y-m-d H:i:s', strtotime("+{$expiryHours} hours")) : null;
         $this->query(
-            "UPDATE tn_articles SET is_breaking = ?, breaking_expires_at = ? WHERE id = ?",
-            [$breaking, $expiry, $id]
+            "UPDATE tn_articles SET is_breaking = ? WHERE id = ?",
+            [$breaking, $id]
         );
     }
 

@@ -151,6 +151,14 @@
               <button class="btn btn-sm btn-success" title="Approve">✓</button>
             </form>
             <?php endif; ?>
+            <form method="POST" action="<?= $r ?>/admin/business-ads/delete/<?= $ad['id'] ?>"
+                  class="d-inline"
+                  onsubmit="return confirm('Delete this ad and all its images permanently?')">
+              <?= CSRF::field() ?>
+              <button class="btn btn-sm btn-outline-danger" title="Delete">
+                <i class="bi bi-trash"></i>
+              </button>
+            </form>
           </div>
         </td>
       </tr>

@@ -21,7 +21,7 @@ class SearchController extends Controller
         $navCategories = (new CategoryModel())->allWithParent();
 
         // Sidebar data
-        try { $trending = $articleModel->trending(6); } catch(\Exception $e) { $trending = []; }
+        try { $trending = (new FrontendArticleModel())->trending(6); } catch(\Exception $e) { $trending = []; }
         $this->view('frontend.search.index', [
             'q'             => $q,
             'articles'      => $result['data'],
@@ -31,6 +31,8 @@ class SearchController extends Controller
             'navCategories' => $navCategories,
             'siteName'      => $settings->getValue('site_name', 'தமிழ் செய்தி'),
             'metaTitle'     => $q ? "'{$q}' தேடல் முடிவுகள்" : 'தேடல்',
+            'trending'      => $trending ?? [],
+            'categoryId'    => 0,
         ], 'frontend');
     }
 }
