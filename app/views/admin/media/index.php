@@ -128,7 +128,7 @@ async function uploadFiles(files) {
 function deleteMedia(id) {
   if (!confirm('Delete this file permanently?')) return;
   const form = document.getElementById('deleteMediaForm');
-  form.action = '/admin/media/delete/' + id;
+  form.action = r + '/admin/media/delete/' + id;
   form.submit();
 }
 </script>

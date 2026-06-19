@@ -1,20 +1,21 @@
-<?php
-// Fetch ad images from DB — runs before HTML output
-$_sq = $__hz = $__vt = [];
-try {
-    $_adm = new \App\Models\BusinessAdModel();
-    $__cat = isset($categoryId) ? (int)$categoryId : 0;
-    foreach ($_adm->activeForRotation('square',     $__cat) as $a) foreach ($a['images'] as $i) $_sq[]  = $i;
-    foreach ($_adm->activeForRotation('horizontal', $__cat) as $a) foreach ($a['images'] as $i) $__hz[] = $i;
-    foreach ($_adm->activeForRotation('vertical',   $__cat) as $a) foreach ($a['images'] as $i) $__vt[] = $i;
-} catch (\Exception $e) { error_log('Ad load: '.$e->getMessage()); }
-?>
 <!DOCTYPE html>
 <html lang="ta">
 <head>
 <meta charset="UTF-8">
 <meta name="viewport" content="width=device-width, initial-scale=1.0">
 <title><?= htmlspecialchars($metaTitle ?? ($siteName ?? 'தினத்துளிர்')) ?>
+<?php
+// Load ad images directly from DB — no API needed
+$_adSquare     = [];
+$_adHorizontal = [];
+$_adVertical   = [];
+try {
+    $_adModel      = new \App\Models\BusinessAdModel();
+    $_adSquare     = $_adModel->activeForRotation('square',     $categoryId ?? 0);
+    $_adHorizontal = $_adModel->activeForRotation('horizontal', $categoryId ?? 0);
+    $_adVertical   = $_adModel->activeForRotation('vertical',   $categoryId ?? 0);
+} catch (\Exception $e) {}
+?>
 </title>
 <?php if (!empty($metaDesc)): ?><meta name="description" content="<?= htmlspecialchars($metaDesc) ?>"><?php endif; ?>
 <?php if (!empty($canonical)): ?><link rel="canonical" href="<?= htmlspecialchars($canonical) ?>"><?php endif; ?>
@@ -82,6 +83,7 @@ $_keywords  = str_replace('||', ', ', $_keywords);
 <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css">
 <link rel="stylesheet" href="<?= ASSET_URL ?>/assets/css/frontend.css">
 <link rel="stylesheet" href="<?= ASSET_URL ?>/assets/css/masthead.css">
+<link rel="stylesheet" href="<?= ASSET_URL ?>/assets/css/responsive.css">
 </head>
 <body>
 <?php
@@ -226,8 +228,8 @@ try {
         <div class="sb-ad-label">Advertisement</div>
       </div>
 
-      <!-- Trending/Breaking/Picks — hidden on article pages -->
-      <?php if (!empty($trending) && empty($noWidgets)): ?>
+      <!-- Trending -->
+      <?php if (!empty($trending)): ?>
       <div class="sb-widget">
         <div class="sb-widget-head">🔥 Trending</div>
         <?php foreach ($trending as $i => $t): ?>
@@ -309,18 +311,41 @@ try {
     <a href="<?= $baseUrl ?>/public/" class="mob-nav-item">
       <div class="mob-nav-icon">🏠</div><div class="mob-nav-label">முகப்பு</div>
     </a>
-    <a href="<?= $baseUrl ?>/public/breaking" class="mob-nav-item">
-      <?php if (!empty($breakingTicker)): ?><div class="mob-nav-badge"><?= count($breakingTicker) ?></div><?php endif; ?>
-      <div class="mob-nav-icon">🔴</div><div class="mob-nav-label">BREAKING</div>
-    </a>
     <a href="<?= $baseUrl ?>/public/search" class="mob-nav-item">
       <div class="mob-nav-icon">🔍</div><div class="mob-nav-label">தேடல்</div>
     </a>
+    <div class="mob-nav-item" onclick="openRateSheet()">
+      <div class="mob-nav-icon">📊</div><div class="mob-nav-label">விலைகள்</div>
+    </div>
     <div class="mob-nav-item" onclick="openDrawer()">
       <div class="mob-nav-icon">☰</div><div class="mob-nav-label">மெனு</div>
     </div>
   </div>
 </nav>
+
+<!-- Rate bottom sheet -->
+<div class="mob-rate-overlay" id="mobRateOverlay" onclick="closeRateSheet()"></div>
+<div class="mob-rate-sheet" id="mobRateSheet">
+  <div class="mob-rate-sheet-handle"></div>
+  <div class="mob-rate-sheet-title">நடப்பு விலைகள்</div>
+  <div class="mob-rate-sheet-grid">
+    <div class="mob-rate-sheet-btn" onclick="closeRateSheet();toggleRate('gold')">
+      <span class="mob-rate-sheet-icon">🥇</span><span>Gold</span>
+    </div>
+    <div class="mob-rate-sheet-btn" onclick="closeRateSheet();toggleRate('silver')">
+      <span class="mob-rate-sheet-icon">🥈</span><span>Silver</span>
+    </div>
+    <div class="mob-rate-sheet-btn" onclick="closeRateSheet();toggleRate('petrol')">
+      <span class="mob-rate-sheet-icon">⛽</span><span>Petrol</span>
+    </div>
+    <div class="mob-rate-sheet-btn" onclick="closeRateSheet();toggleRate('diesel')">
+      <span class="mob-rate-sheet-icon">🚛</span><span>Diesel</span>
+    </div>
+    <div class="mob-rate-sheet-btn" onclick="closeRateSheet();toggleRate('currency_usd')">
+      <span class="mob-rate-sheet-icon">💵</span><span>USD</span>
+    </div>
+  </div>
+</div>
 
 <!-- Mobile vertical overlay -->
 <div id="mobVerticalAd" class="mob-vertical-ad">
@@ -338,23 +363,6 @@ try {
     <span><span class="mob-logo-w1" style="font-size:18px">தினத்</span><span class="mob-logo-w2" style="font-size:18px">துளிர்</span></span>
     <button class="mob-drawer-close" onclick="closeDrawer()">✕</button>
   </div>
-  <?php
-  $_su = \App\Core\Auth::check() ? \App\Core\Auth::user() : null;
-  $_cu = \App\Core\Session::get('contributor');
-  $_ru = $reader ?? null;
-  if ($_su || $_cu || $_ru):
-    $_name    = $_su ? $_su['name'] : ($_cu ? $_cu['name'] : $_ru['name']);
-    $_role    = $_su ? ucfirst(str_replace('_',' ', \App\Core\Auth::role() ?? '')) : ($_cu ? 'Contributor' : 'Reader');
-    $_logoutUrl = $_su ? $baseUrl.'/public/logout' : ($_cu ? $baseUrl.'/public/contribute/logout' : $baseUrl.'/public/auth/reader/logout');
-  ?>
-  <div class="mob-drawer-usercard">
-    <div class="mob-drawer-usercard-info">
-      <div class="mob-drawer-usercard-name"><?= htmlspecialchars($_name) ?></div>
-      <div class="mob-drawer-usercard-role"><?= htmlspecialchars($_role) ?></div>
-    </div>
-    <a href="<?= $_logoutUrl ?>" class="mob-drawer-usercard-logout">🚪 Logout</a>
-  </div>
-  <?php endif; ?>
   <div class="mob-drawer-body">
     <a href="<?= $baseUrl ?>/public/" class="mob-drawer-link">🏠 முகப்பு</a>
     <?php foreach ($navCats as $cat): ?>
@@ -368,57 +376,12 @@ try {
     <a href="<?= $baseUrl ?>/public/search" class="mob-drawer-link">🔍 தேடல்</a>
     <a href="<?= $baseUrl ?>/public/contribute/login" class="mob-drawer-link">✍️ கட்டுரை எழுது</a>
     <div class="mob-drawer-divider"></div>
-    <?php
-    // Check all user types
-    $_staffUser  = \App\Core\Auth::check() ? \App\Core\Auth::user() : null;
-    $_contributor = \App\Core\Session::get('contributor');
-    ?>
-    <?php if ($_staffUser): ?>
-      <div class="mob-drawer-user">
-        <span style="font-size:26px">👤</span>
-        <div>
-          <div style="font-weight:700;font-size:14px"><?= htmlspecialchars($_staffUser['name']) ?></div>
-          <div style="font-size:11px;color:#9A9890"><?= ucfirst(str_replace('_',' ', \App\Core\Auth::role() ?? '')) ?></div>
-        </div>
-      </div>
-      <a href="<?= $baseUrl ?>/public/portal/dashboard" class="mob-drawer-link">📋 Staff Panel</a>
-      <a href="<?= $baseUrl ?>/public/logout" class="mob-drawer-link" style="color:#C0001A;font-weight:700">🚪 வெளியேறு</a>
-    <?php elseif ($_contributor): ?>
-      <div class="mob-drawer-user">
-        <span style="font-size:26px">✍️</span>
-        <div>
-          <div style="font-weight:700;font-size:14px"><?= htmlspecialchars($_contributor['name']) ?></div>
-          <div style="font-size:11px;color:#9A9890">Contributor</div>
-        </div>
-      </div>
-      <a href="<?= $baseUrl ?>/public/contribute/logout" class="mob-drawer-link" style="color:#C0001A;font-weight:700">🚪 வெளியேறு</a>
-    <?php elseif (!empty($reader)): ?>
-      <div class="mob-drawer-user">
-        <?php if (!empty($reader['avatar'])): ?>
-          <img src="<?= htmlspecialchars($reader['avatar']) ?>" alt="" style="width:32px;height:32px;border-radius:50%;object-fit:cover;flex-shrink:0">
-        <?php else: ?>
-          <span style="font-size:26px">👤</span>
-        <?php endif; ?>
-        <div>
-          <div style="font-weight:700;font-size:14px"><?= htmlspecialchars($reader['name']) ?></div>
-          <div style="font-size:11px;color:#9A9890">Reader</div>
-        </div>
-      </div>
-      <a href="<?= $baseUrl ?>/public/auth/reader/logout" class="mob-drawer-link" style="color:#C0001A;font-weight:700">🚪 வெளியேறு</a>
+    <?php if ($reader): ?>
+    <div class="mob-drawer-user">👤 <?= htmlspecialchars($reader['name']) ?></div>
+    <a href="<?= $baseUrl ?>/public/auth/reader/logout" class="mob-drawer-link">🚪 வெளியேறு</a>
     <?php else: ?>
-      <div class="mob-drawer-link" onclick="closeDrawer();openModal()" style="cursor:pointer;display:flex;align-items:center;gap:8px">
-        <svg width="18" height="18" viewBox="0 0 18 18" style="flex-shrink:0">
-          <path d="M17.64 9.2c0-.637-.057-1.251-.164-1.84H9v3.481h4.844c-.209 1.125-.843 2.078-1.796 2.717v2.258h2.908c1.702-1.567 2.684-3.875 2.684-6.615z" fill="#4285F4"/>
-          <path d="M9 18c2.43 0 4.467-.806 5.956-2.18l-2.908-2.259c-.806.54-1.837.86-3.048.86-2.344 0-4.328-1.584-5.036-3.711H.957v2.332A8.997 8.997 0 009 18z" fill="#34A853"/>
-          <path d="M3.964 10.71A5.41 5.41 0 013.682 9c0-.593.102-1.17.282-1.71V4.958H.957A8.996 8.996 0 000 9c0 1.452.348 2.827.957 4.042l3.007-2.332z" fill="#FBBC05"/>
-          <path d="M9 3.58c1.321 0 2.508.454 3.44 1.345l2.582-2.58C13.463.891 11.426 0 9 0A8.997 8.997 0 00.957 4.958L3.964 6.29C4.672 4.163 6.656 3.58 9 3.58z" fill="#EA4335"/>
-        </svg>
-        Google மூலம் உள்நுழைக
-      </div>
+    <div class="mob-drawer-link" onclick="closeDrawer();openModal()" style="cursor:pointer">🔑 Google மூலம் உள்நுழைக</div>
     <?php endif; ?>
-  </div>
-</div>
-
   </div>
 </div>
 
@@ -477,25 +440,16 @@ function closeDrawer(){document.getElementById('mobDrawer').classList.remove('op
 
 
 // ── RATE ICONS ────────────────────────────────────────
-// ── RATE POPUP & ROLLUP ──────────────────────────────
 let ratesCache = null;
 const rateConfig = {
-  gold:         { icon:'🥇', label:'Gold',   unit:'/gram',  group:'precious' },
-  silver:       { icon:'🥈', label:'Silver', unit:'/gram',  group:'precious' },
-  petrol:       { icon:'⛽', label:'Petrol', unit:'/litre', group:'fuel' },
-  diesel:       { icon:'🚛', label:'Diesel', unit:'/litre', group:'fuel' },
-  currency_usd: { icon:'💵', label:'USD',    unit:'/USD',   group:'precious' },
+  gold: { icon:'🥇', label:'Gold Rate', unit:'/gram' },
+  silver: { icon:'🥈', label:'Silver Rate', unit:'/gram' },
+  petrol: { icon:'⛽', label:'Petrol', unit:'/litre' },
+  diesel: { icon:'🚛', label:'Diesel', unit:'/litre' },
+  currency_usd: { icon:'💵', label:'USD Rate', unit:'/USD' },
 };
 
-function toggleRatePanel() {
-  const rollup = document.getElementById('mobRateRollup');
-  rollup.style.display = rollup.style.display === 'none' ? 'block' : 'none';
-}
-
-function closeRateRollup() { document.getElementById('mobRateRollup').style.display='none'; }
-
-function showRatePopup(type) {
-  closeRateRollup();
+function toggleRate(type) {
   const popup = document.getElementById('mobRatePopup');
   const cfg = rateConfig[type];
   document.getElementById('rateIcon').textContent  = cfg.icon;
@@ -505,7 +459,7 @@ function showRatePopup(type) {
   document.getElementById('rateCity').textContent = '';
   popup.style.display = 'block';
 
-  function load(rates) {
+  const load = (rates) => {
     const r = rates.find(x => x.type === type);
     if (r) {
       document.getElementById('rateValue').textContent = '₹' + parseFloat(r.value).toFixed(2) + cfg.unit;
@@ -520,7 +474,7 @@ function showRatePopup(type) {
     } else {
       document.getElementById('rateValue').textContent = 'Not available';
     }
-  }
+  };
 
   if (ratesCache) { load(ratesCache); return; }
   fetch('<?= $baseUrl ?>/public/api/rates')
@@ -528,12 +482,15 @@ function showRatePopup(type) {
     .then(d => { if (d.success) { ratesCache = d.rates; load(ratesCache); } })
     .catch(() => { document.getElementById('rateValue').textContent = 'Unavailable'; });
 }
-
-function toggleRate(type) { showRatePopup(type); } // legacy alias
-function closeRate() { document.getElementById('mobRatePopup').style.display = 'none'; }
+function closeRate() { document.getElementById('mobRatePopup').style.display='none'; }
 
 
 // ── AD ROTATION — data from PHP, random pick, 15s interval, 0.15s fade ──
+<?php
+$_sq  = [];  foreach ($_adSquare     as $a) foreach ($a['images'] as $i) $_sq[]  = $i;
+$__hz = [];  foreach ($_adHorizontal as $a) foreach ($a['images'] as $i) $__hz[] = $i;
+$__vt = [];  foreach ($_adVertical   as $a) foreach ($a['images'] as $i) $__vt[] = $i;
+?>
 var _adData = {
   square:     <?= json_encode($_sq)  ?>,
   horizontal: <?= json_encode($__hz) ?>,
@@ -547,7 +504,7 @@ function loadAd(el) {
 
   var img = document.createElement('img');
   img.style.cssText = 'display:block;width:100%;transition:opacity 0.15s ease;' +
-    (slot === 'vertical' ? 'height:750px;object-fit:cover;' : 'height:100%;width:100%;object-fit:cover;');
+    (slot === 'vertical' ? 'height:750px;object-fit:cover;' : 'height:100%;object-fit:contain;');
   el.appendChild(img);
 
   function show() {
@@ -557,6 +514,11 @@ function loadAd(el) {
     img.style.opacity = '0';
     setTimeout(function(){
       img.src = src; img.alt = cur.alt||''; img.style.opacity = '1';
+      img.dataset.adName     = cur.name     || cur.alt || '';
+      img.dataset.adPhone    = cur.phone    || '';
+      img.dataset.adEmail    = cur.email    || '';
+      img.dataset.adDistrict = cur.district || '';
+      img.dataset.adLink     = cur.link     || '#';
       var a = el.closest('a'); if(a && cur.link && cur.link!=='#') a.href = cur.link;
     }, 150);
   }
@@ -580,6 +542,99 @@ document.addEventListener('DOMContentLoaded', initAdRotators);
     t=setTimeout(function(){ el.style.display='none'; },1500);
   },{passive:true});
 })();
+
+</script>
+
+<!-- AD LIGHTBOX -->
+<div id="adLightbox" class="ad-lightbox" onclick="closeAdLightbox()" style="display:none;position:fixed;inset:0;background:rgba(0,0,0,.88);z-index:9999;align-items:center;justify-content:center;padding:16px">
+  <div onclick="event.stopPropagation()" style="position:relative;max-width:92vw;width:340px;background:#fff;border-radius:12px;overflow:hidden;max-height:90vh;display:flex;flex-direction:column">
+    <button onclick="closeAdLightbox()" style="position:absolute;top:8px;right:8px;background:rgba(0,0,0,.6);color:#fff;border:none;border-radius:50%;width:30px;height:30px;font-size:14px;cursor:pointer;z-index:1">&#x2715;</button>
+    <img id="adLightboxImg" src="" alt="" style="width:100%;max-height:55vh;object-fit:contain;display:block;background:#F5F5F0;flex-shrink:0">
+    <div style="padding:14px 16px;overflow-y:auto">
+      <div id="adLightboxName" style="font-weight:700;font-size:16px;color:#1A1A1A;margin-bottom:8px"></div>
+      <div id="adLightboxDetails" style="display:flex;flex-direction:column;gap:6px;font-size:13px;color:#4A4A45"></div>
+    </div>
+    <a id="adLightboxLink" href="#" target="_blank" rel="noopener" style="display:none;width:100%;padding:13px;text-align:center;background:#C0001A;color:#fff;font-weight:700;font-size:14px;text-decoration:none;flex-shrink:0">Visit Website</a>
+  </div>
+</div>
+<script>
+document.addEventListener("click", function(e) {
+  var el = e.target;
+  if (el.tagName !== "IMG") return;
+  var p = el.parentElement;
+  if (!p || !p.classList.contains("ad-rotator")) return;
+  e.preventDefault();
+
+  document.getElementById("adLightboxImg").src = el.src;
+  document.getElementById("adLightboxName").textContent = el.dataset.adName || "Advertisement";
+
+  // Build details list from whatever data is available
+  var rows = [
+    { icon: "📞", val: el.dataset.adPhone },
+    { icon: "✉️", val: el.dataset.adEmail },
+    { icon: "📍", val: el.dataset.adDistrict }
+  ];
+  var box = document.getElementById("adLightboxDetails");
+  box.innerHTML = "";
+  rows.forEach(function(r) {
+    if (!r.val) return;
+    var div = document.createElement("div");
+    div.textContent = r.icon + " " + r.val;
+    box.appendChild(div);
+  });
+
+  var lk = document.getElementById("adLightboxLink");
+  var link = el.dataset.adLink || "";
+  if (link && link !== "#") { lk.href = link; lk.style.display = "block"; }
+  else { lk.style.display = "none"; }
+
+  var lb = document.getElementById("adLightbox");
+  lb.style.display = "flex";
+  document.body.style.overflow = "hidden";
+});
+function closeAdLightbox() {
+  document.getElementById("adLightbox").style.display = "none";
+  document.body.style.overflow = "";
+}
+
+// ── MOBILE VERTICAL AD: show on idle, hide on scroll ──
+(function() {
+  if (window.innerWidth >= 1024) return;
+  var el = document.getElementById('mobVerticalAd');
+  if (!el) return;
+  var closed = false;
+  var scrollTimer = null;
+
+  // Override close button
+  var btn = el.querySelector('.mob-vertical-ad-close');
+  if (btn) btn.onclick = function() { closed = true; el.style.display='none'; };
+
+  // Show on load after 1s
+  setTimeout(function() {
+    if (!closed) el.style.display = 'flex';
+  }, 1000);
+
+  // Hide on scroll, re-show 2s after scroll stops
+  window.addEventListener('scroll', function() {
+    if (!closed) {
+      el.style.display = 'none';
+      clearTimeout(scrollTimer);
+      scrollTimer = setTimeout(function() {
+        if (!closed) el.style.display = 'flex';
+      }, 2000);
+    }
+  }, { passive: true });
+})();
+
+// ── RATE SHEET ──
+function openRateSheet() {
+  document.getElementById('mobRateOverlay').classList.add('open');
+  document.getElementById('mobRateSheet').classList.add('open');
+}
+function closeRateSheet() {
+  document.getElementById('mobRateOverlay').classList.remove('open');
+  document.getElementById('mobRateSheet').classList.remove('open');
+}
 
 </script>
 </body>

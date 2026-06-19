@@ -238,12 +238,47 @@ a { text-decoration: none; color: inherit; }
   display: grid; grid-template-columns: repeat(auto-fill, minmax(150px, 1fr)); gap: 12px;
 }
 .tn-media-item {
-  border: 1.5px solid var(--ep-gray2); border-radius: 8px; overflow: hidden; cursor: pointer;
+  background: var(--ep-white);
+  border: 1.5px solid var(--ep-gray2); border-radius: 8px; overflow: hidden;
   transition: border-color .15s;
 }
 .tn-media-item:hover { border-color: var(--ep-red); }
-.tn-media-item img { width: 100%; height: 110px; object-fit: cover; }
-.tn-media-item-info { padding: 8px 10px; font-size: 11px; color: var(--ep-muted); }
+.tn-media-selectable { cursor: pointer; }
+.tn-media-selectable:hover .tn-media-select-overlay { opacity: 1; }
+
+.tn-media-thumb {
+  aspect-ratio: 4/3;
+  overflow: hidden;
+  background: var(--ep-gray1);
+  position: relative;
+  display: flex; align-items: center; justify-content: center;
+}
+.tn-media-thumb img { width: 100%; height: 100%; object-fit: cover; display: block; }
+.tn-media-select-overlay {
+  position: absolute; inset: 0;
+  background: rgba(192,0,26,.5);
+  display: flex; align-items: center; justify-content: center;
+  font-size: 26px; color: #fff;
+  opacity: 0; transition: opacity .15s;
+}
+.tn-media-icon { font-size: 26px; color: var(--ep-muted); }
+
+.tn-media-info { padding: 8px 10px 2px; }
+.tn-media-name { font-size: 11px; font-weight: 600; color: var(--ep-text); white-space: nowrap; overflow: hidden; text-overflow: ellipsis; }
+.tn-media-meta { font-size: 10px; color: var(--ep-muted); }
+
+.tn-media-actions { display: flex; gap: 4px; padding: 6px 8px 8px; }
+
+/* Drop zone */
+.tn-drop-zone {
+  border: 2px dashed var(--ep-gray2); border-radius: 10px;
+  padding: 36px 18px; text-align: center; cursor: pointer; position: relative;
+  transition: border-color .15s, background .15s;
+}
+.tn-drop-zone:hover, .tn-drop-zone.dragging {
+  border-color: var(--ep-red); background: rgba(192,0,26,.04);
+}
+.tn-drop-input { position: absolute; inset: 0; opacity: 0; cursor: pointer; }
 
 /* ── SIDEBAR OVERLAY (mobile) ── */
 .ep-sidebar-overlay {
@@ -262,10 +297,83 @@ a { text-decoration: none; color: inherit; }
     transition: transform .25s ease;
   }
   .ep-sidebar.open { transform: translateX(0); box-shadow: 4px 0 24px rgba(0,0,0,.15); }
-  .ep-content { padding: 14px 12px 40px; }
+  .ep-content { padding: 14px 12px 40px 12px; padding-bottom: 78px; }
   .ep-topbar-btn > span { display: none; }
   .tn-page-header { flex-direction: column; gap: 10px; }
 }
+
+/* ═══════════════════════════════════════════
+   MOBILE STICKY FOOTER — Chief Editor (5 icons)
+   Mirrors portal.css .portal-mob-footer pattern
+═══════════════════════════════════════════ */
+.ep-mob-footer {
+  display: none;
+  position: fixed;
+  bottom: 0; left: 0; right: 0;
+  height: 62px;
+  background: var(--ep-white);
+  border-top: 1px solid var(--ep-gray2);
+  box-shadow: 0 -4px 20px rgba(0,0,0,.10);
+  z-index: 9999;
+  padding-bottom: env(safe-area-inset-bottom);
+  align-items: stretch;
+}
+.ep-mob-item {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  text-decoration: none;
+  color: var(--ep-gray3);
+  font-size: 9.5px;
+  font-weight: 600;
+  letter-spacing: .2px;
+  transition: color .18s ease;
+  -webkit-tap-highlight-color: transparent;
+  position: relative;
+  cursor: pointer;
+  border: none;
+  background: transparent;
+}
+.ep-mob-item i { font-size: 21px; line-height: 1; }
+.ep-mob-item span { font-size: 9.5px; line-height: 1; }
+.ep-mob-item.active { color: var(--ep-red); }
+.ep-mob-item:active { background: var(--ep-gray1); }
+
+/* Center "Write" raised button */
+.ep-mob-write {
+  flex: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: flex-end;
+  gap: 2px;
+  text-decoration: none;
+  color: var(--ep-gray3);
+  font-size: 9.5px;
+  font-weight: 600;
+  padding-bottom: 6px;
+  position: relative;
+}
+.ep-mob-write-btn {
+  width: 44px; height: 44px;
+  border-radius: 50%;
+  background: var(--ep-red);
+  display: flex; align-items: center; justify-content: center;
+  color: #fff;
+  font-size: 19px;
+  margin-top: -22px;
+  box-shadow: 0 4px 12px rgba(192,0,26,.35);
+}
+
+@media (max-width: 900px) {
+  .ep-mob-footer { display: flex !important; }
+  /* Hide the cramped corner hamburger — bottom-nav Menu icon replaces it */
+  .ep-sidebar-toggle { display: none !important; }
+}
+
 
 /* ═══════════════════════════════════════════
    UNIVERSAL PAGINATION — tn-pag
@@ -361,3 +469,145 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
   .tn-pag-btn  { min-width: 30px; height: 30px; font-size: 12px; padding: 0 7px; }
   .tn-pag-info { font-size: 11px; }
 }
+
+
+/* ── Ad form layout fix (appended) ── */
+/* ══════════════════════════════════════════════════════
+   AD FORM — clean layout, mobile-first
+   CSS-only fix, no PHP/HTML changes
+══════════════════════════════════════════════════════ */
+
+#adForm { max-width: 980px; margin: 0 auto; }
+
+/* ── Cards: consistent spacing, no clutter ── */
+#adForm .tn-card {
+  border-radius: 10px;
+  border: 1px solid var(--card-border, #E5E3DC);
+  overflow: hidden;
+}
+#adForm .tn-card-header {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 16px;
+  background: var(--portal-gray1, #F7F6F2);
+  border-bottom: 1px solid var(--card-border, #E5E3DC);
+}
+#adForm .tn-card-body { padding: 16px; }
+
+/* ── Labels & inputs: breathing room ── */
+#adForm .form-label {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+#adForm .form-control,
+#adForm .form-select {
+  font-size: 14px;
+  padding: 9px 12px;
+  border-radius: 7px;
+}
+#adForm .form-text { font-size: 11px; margin-top: 4px; }
+
+/* ── Slot picker: equal width, clean ── */
+#adForm .slot-pick {
+  min-width: 0;
+}
+
+/* ── Display type radios: stack cleanly ── */
+#adForm .form-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+/* ── Image thumbnails grid ── */
+#adForm .ad-img-thumb {
+  position: relative;
+  display: inline-block;
+}
+#adForm .ad-img-thumb img {
+  display: block;
+}
+#adForm .ad-img-del {
+  position: absolute;
+  top: -6px; right: -6px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #C0001A;
+  color: #fff;
+  border: 2px solid #fff;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+}
+#adForm .ad-img-del:active { transform: scale(0.92); }
+
+/* ── Submit area: single clear button, breathing room ── */
+#adForm .d-grid.gap-2 {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--card-border, #E5E3DC);
+}
+#adForm .btn-lg {
+  padding: 13px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+/* ── Two-column grid: tighter gap on desktop ── */
+@media (min-width: 769px) {
+  #adForm .row.g-4 { --bs-gutter-x: 1.25rem; }
+}
+
+/* ════════════════════════════════════════
+   MOBILE (≤ 768px)
+════════════════════════════════════════ */
+@media (max-width: 768px) {
+  #adForm { padding: 0 2px; }
+
+  /* Stack columns fully, no side-by-side */
+  #adForm .row.g-4 { row-gap: 16px !important; }
+  #adForm .col-md-7,
+  #adForm .col-md-5 { width: 100%; }
+
+  #adForm .tn-card { margin-bottom: 14px !important; }
+  #adForm .tn-card-header { font-size: 13px; padding: 10px 14px; }
+  #adForm .tn-card-body { padding: 14px; }
+
+  /* Phone/Email side-by-side too cramped → stack */
+  #adForm .row.g-2 > .col-sm-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 10px;
+  }
+  #adForm .row.g-2 > .col-sm-6:last-child { margin-bottom: 0; }
+
+  /* Slot picker: stack vertically on small screens */
+  #adForm .d-flex.gap-3:has(.slot-pick) {
+    flex-direction: column;
+  }
+
+  /* Display type: full-width tappable rows */
+  #adForm .form-check {
+    padding: 8px 10px;
+    background: var(--portal-gray1, #F7F6F2);
+    border-radius: 8px;
+  }
+
+  /* Submit button: full width, generous tap target */
+  #adForm .btn-lg {
+    padding: 14px;
+    font-size: 16px;
+  }
+
+  /* Image thumbs: slightly bigger tap targets */
+  #adForm .ad-img-thumb img { width: 72px !important; height: 56px !important; }
+}
+
+/* Small action buttons (Media Library view/edit/delete) */
+.btn-xs { font-size: 12px; padding: 2px 8px; }

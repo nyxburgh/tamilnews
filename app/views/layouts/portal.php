@@ -214,16 +214,6 @@ if ($alertType && $alertMsg):
 </nav>
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
-<script>
-const r = '<?= ASSET_URL ?>';
-function togglePortalMenu() {
-  document.getElementById('portalUserMenu')?.classList.toggle('open');
-}
-document.addEventListener('click', e => {
-  if (!e.target.closest('.portal-user'))
-    document.getElementById('portalUserMenu')?.classList.remove('open');
-});
-</script>
 
 <!-- Portal Menu Bottom Sheet -->
 <div class="portal-bottom-overlay" id="portalBottomOverlay" onclick="closePortalMenu()"></div>
@@ -258,16 +248,9 @@ document.addEventListener('click', e => {
   </a>
 </div>
 
-<script>
-function openPortalMenu() {
-  document.getElementById('portalBottomOverlay').classList.add('open');
-  document.getElementById('portalBottomSheet').classList.add('open');
-}
-function closePortalMenu() {
-  document.getElementById('portalBottomOverlay').classList.remove('open');
-  document.getElementById('portalBottomSheet').classList.remove('open');
-}
-</script>
 
+
+
+<script src="<?= ASSET_URL ?>/assets/js/portal-nav.js"></script>
 </body>
 </html>

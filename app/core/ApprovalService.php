@@ -262,13 +262,4 @@ class ApprovalService
         $this->notif->notifyChiefEditors('escalated',$msg,$articleId,$editorId);
     }
 
-    public function chiefApprove(int $articleId, int $chiefId): void
-    {
-        $article = $this->articles->find($articleId);
-        if (!$article) return;
-        $this->db->prepare("UPDATE tn_articles SET status='published', approval_stage='published', approved_by=?, approved_at=NOW(), published_at=COALESCE(published_at,NOW()) WHERE id=?")->execute([$chiefId,$articleId]);
-        if (!empty($article['user_id'])) {
-            $this->notif->send($article['user_id'],'article_published',"Your article was published by Chief Editor: \"{$article['title']}\"", $articleId,$chiefId);
-        }
     }
-}

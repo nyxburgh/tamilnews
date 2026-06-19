@@ -37,13 +37,22 @@ class MediaModel extends Model
         $dest = $dir . '/' . $filename;
         if (!move_uploaded_file($file['tmp_name'], $dest)) return false;
 
-        // Get image dimensions + resize + create thumbnail
+        // Get image dimensions + resize + convert to WebP + thumbnail
         $width = $height = null;
+        $finalMime = $file['type'];
         if (str_starts_with($file['type'], 'image/')) {
             [$width, $height] = @getimagesize($dest) ?: [null, null];
             // Resize original to max 1200px wide (saves bandwidth)
             if ($width && $width > 1200) {
                 $this->createThumbnail($dest, $dest, 1200); // overwrite original
+                [$width, $height] = @getimagesize($dest) ?: [$width, $height];
+            }
+            // Convert to WebP for storage efficiency (skip if already webp)
+            $webpResult = $this->convertToWebp($dest, $dir, $filename);
+            if ($webpResult !== $filename) {
+                $filename  = $webpResult;
+                $dest      = $dir . '/' . $filename;
+                $finalMime = 'image/webp';
                 [$width, $height] = @getimagesize($dest) ?: [$width, $height];
             }
             // Create 400px thumbnail for news cards
@@ -55,12 +64,47 @@ class MediaModel extends Model
             'filename'   => $file['name'],
             'filepath'   => $cfg['upload']['url_path'] . $folder . '/' . $filename,
             'thumb_path' => $cfg['upload']['url_path'] . $folder . '/thumb_' . $filename,
-            'mime_type'  => $file['type'],
-            'size'       => $file['size'],
+            'mime_type'  => $finalMime,
+            'size'       => @filesize($dest) ?: $file['size'],
             'width'      => $width,
             'height'     => $height,
             'folder'     => $folder,
         ]);
+    }
+
+    /** Convert an image file to WebP, delete original, return new filename */
+    private function convertToWebp(string $srcPath, string $dir, string $originalName): string
+    {
+        if (!function_exists('imagewebp')) return $originalName;
+
+        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        if ($ext === 'webp') return $originalName;
+
+        $info = @getimagesize($srcPath);
+        if (!$info) return $originalName;
+
+        $img = match ($info[2]) {
+            IMAGETYPE_JPEG => @imagecreatefromjpeg($srcPath),
+            IMAGETYPE_PNG  => @imagecreatefrompng($srcPath),
+            IMAGETYPE_GIF  => @imagecreatefromgif($srcPath),
+            default        => null,
+        };
+        if (!$img) return $originalName;
+
+        imagepalettetotruecolor($img);
+        imagealphablending($img, true);
+        imagesavealpha($img, true);
+
+        $webpName = pathinfo($originalName, PATHINFO_FILENAME) . '.webp';
+        $webpPath = $dir . '/' . $webpName;
+
+        if (imagewebp($img, $webpPath, 82)) {
+            imagedestroy($img);
+            @unlink($srcPath);
+            return $webpName;
+        }
+        imagedestroy($img);
+        return $originalName;
     }
 
     private function createThumbnail(string $src, string $dest, int $maxW): void

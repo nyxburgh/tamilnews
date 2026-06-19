@@ -2,7 +2,7 @@
 namespace App\Controllers\Admin;
 
 use App\Core\{Controller, Auth, CSRF, Helper};
-use App\Models\{BusinessAdModel, LocationModel, CategoryModel, AdModel, NotificationModel};
+use App\Models\{BusinessAdModel, LocationModel, CategoryModel, AdModel, NotificationModel, AdPackageModel};
 
 class BusinessAdController extends Controller
 {
@@ -67,9 +67,9 @@ class BusinessAdController extends Controller
             'pageTitle' => 'New Business Ad',
             'ad'        => [],
             'districts' => $this->locations->allDistricts(),
-            'cities'    => [],
             'categories'=> (new CategoryModel())->allWithParent(),
             'slots'     => (new AdModel())->allSlots(),
+            'packages'  => (new AdPackageModel())->active(),
             'isEdit'    => false,
         ], $this->layout());
     }
@@ -85,7 +85,7 @@ class BusinessAdController extends Controller
             'contact_phone'  => Helper::sanitize($this->post('contact_phone','')),
             'contact_email'  => Helper::sanitize($this->post('contact_email','')),
             'district_id'    => (int)$this->post('district_id',0) ?: null,
-            'city_id'        => (int)$this->post('city_id',0)     ?: null,
+            'package_id'      => (int)$this->post('package_id',0) ?: null,
             'slot_id'        => (int)$this->post('slot_id',0),
             'display_type'   => $this->post('display_type','global'),
             'category_id'    => (int)$this->post('category_id',0) ?: null,
@@ -111,6 +111,7 @@ class BusinessAdController extends Controller
 
         // Upload images if provided
         if (!empty($_FILES['images']['name'][0])) {
+            $slotType = (new AdModel())->slotType((int)$data['slot_id']);
             foreach ($_FILES['images']['name'] as $i => $name) {
                 if (!$name) continue;
                 $file = [
@@ -120,7 +121,16 @@ class BusinessAdController extends Controller
                     'size'     => $_FILES['images']['size'][$i],
                 ];
                 $linkUrl = $this->post('link_url_'.$i, '');
-                $this->ads->uploadImage($adId, $file, $linkUrl);
+                $this->ads->uploadImage($adId, $file, $linkUrl, '', $slotType);
+            }
+        }
+
+        // Attach images picked from the media library
+        $existingMediaJson = $this->post('existing_media', '');
+        if ($existingMediaJson) {
+            $paths = json_decode($existingMediaJson, true);
+            if (is_array($paths)) {
+                $this->ads->attachExistingImages($adId, $paths);
             }
         }
 
@@ -173,11 +183,9 @@ class BusinessAdController extends Controller
             'pageTitle'  => 'Edit Ad — ' . $ad['business_name'],
             'ad'         => $ad,
             'districts'  => $this->locations->allDistricts(),
-            'cities'     => $ad['district_id']
-                            ? $this->locations->allCities($ad['district_id'])
-                            : [],
             'categories' => (new CategoryModel())->allWithParent(),
             'slots'      => (new AdModel())->allSlots(),
+            'packages'   => (new AdPackageModel())->active(),
             'isEdit'     => true,
         ], $this->layout());
     }
@@ -198,7 +206,7 @@ class BusinessAdController extends Controller
             'contact_phone' => Helper::sanitize($this->post('contact_phone','')),
             'contact_email' => Helper::sanitize($this->post('contact_email','')),
             'district_id'   => (int)$this->post('district_id',0) ?: null,
-            'city_id'       => (int)$this->post('city_id',0)     ?: null,
+            'package_id'     => (int)$this->post('package_id',0) ?: null,
             'slot_id'       => (int)$this->post('slot_id',0),
             'display_type'  => $this->post('display_type','global'),
             'category_id'   => (int)$this->post('category_id',0) ?: null,
@@ -213,6 +221,7 @@ class BusinessAdController extends Controller
 
         // Upload new images
         if (!empty($_FILES['images']['name'][0])) {
+            $slotType = (new AdModel())->slotType((int)$data['slot_id']);
             foreach ($_FILES['images']['name'] as $i => $name) {
                 if (!$name) continue;
                 $file = [
@@ -221,7 +230,16 @@ class BusinessAdController extends Controller
                     'error'    => $_FILES['images']['error'][$i],
                     'size'     => $_FILES['images']['size'][$i],
                 ];
-                $this->ads->uploadImage((int)$id, $file, $this->post('link_url_'.$i,''));
+                $this->ads->uploadImage((int)$id, $file, $this->post('link_url_'.$i,''), '', $slotType);
+            }
+        }
+
+        // Attach images picked from the media library
+        $existingMediaJson = $this->post('existing_media', '');
+        if ($existingMediaJson) {
+            $paths = json_decode($existingMediaJson, true);
+            if (is_array($paths)) {
+                $this->ads->attachExistingImages((int)$id, $paths);
             }
         }
 
@@ -322,7 +340,12 @@ class BusinessAdController extends Controller
         $ad      = $this->ads->find($adId);
 
         if (!$ad) { $this->json(['error'=>'Not found']); return; }
-        if (!in_array(Auth::role(),['admin','chief_editor']) && $ad['submitted_by'] != Auth::id()) {
+        // Allow: admin/chief OR owner OR auto_approve staff
+        $user = Auth::user();
+        $isOwner   = (int)$ad['submitted_by'] === Auth::id();
+        $isManager = in_array(Auth::role(), ['admin','chief_editor','editor']);
+        $canSelfManage = !empty($user['auto_approve']);
+        if (!$isManager && !$isOwner && !$canSelfManage) {
             $this->json(['error'=>'Access denied']); return;
         }
 

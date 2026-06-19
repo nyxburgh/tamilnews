@@ -20,7 +20,7 @@ class BusinessAdModel extends Model
 
     // ── Upload images (max 5) ────────────────────────────────
 
-    public function uploadImage(int $adId, array $file, string $linkUrl = '', string $altText = ''): bool
+    public function uploadImage(int $adId, array $file, string $linkUrl = '', string $altText = '', string $slotType = ''): bool
     {
         // Check existing count
         $count = (int)$this->fetchColumn(
@@ -32,18 +32,148 @@ class BusinessAdModel extends Model
         $allowed  = ['jpg','jpeg','png','gif','webp'];
         if (!in_array($ext, $allowed)) return false;
 
-        $filename = 'ad_' . $adId . '_' . uniqid() . '.' . $ext;
+        $tmpName   = 'ad_' . $adId . '_' . uniqid() . '.' . $ext;
         $uploadDir = dirname(__DIR__, 2) . '/public/uploads/ads/';
         if (!is_dir($uploadDir)) mkdir($uploadDir, 0755, true);
+        $tmpPath = $uploadDir . $tmpName;
 
-        if (!move_uploaded_file($file['tmp_name'], $uploadDir . $filename)) return false;
+        if (!move_uploaded_file($file['tmp_name'], $tmpPath)) return false;
+
+        // Normalize "square" slot ads to a fixed 2:1 preset (300x150 / 600x300 / 900x450)
+        if ($slotType === 'square') {
+            $this->resizeToAdPreset($tmpPath);
+        }
+
+        // Convert to WebP to save storage (skip if already webp)
+        $finalName = $this->convertToWebp($tmpPath, $uploadDir, $tmpName);
 
         $this->db->prepare(
             "INSERT INTO tn_ad_images (ad_id, filepath, link_url, alt_text, sort_order)
              VALUES (?, ?, ?, ?, (SELECT COALESCE(MAX(sort_order),0)+1 FROM tn_ad_images ai2 WHERE ad_id=?))"
-        )->execute([$adId, '/uploads/ads/' . $filename, $linkUrl, $altText, $adId]);
+        )->execute([$adId, '/uploads/ads/' . $finalName, $linkUrl, $altText, $adId]);
 
         return true;
+    }
+
+    /**
+     * Resize + center-crop an ad image to the nearest fixed preset size:
+     * 300×150, 600×300, or 900×450 (all 2:1 ratio). Picks the preset
+     * closest to the source width, capped at 900×450 max. Overwrites
+     * the file in place.
+     */
+    private function resizeToAdPreset(string $path): void
+    {
+        $info = @getimagesize($path);
+        if (!$info) return;
+        [$srcW, $srcH, $type] = $info;
+
+        // Choose nearest preset based on source width
+        if ($srcW <= 450)      { $tgtW = 300; $tgtH = 150; }
+        elseif ($srcW <= 750)  { $tgtW = 600; $tgtH = 300; }
+        else                   { $tgtW = 900; $tgtH = 450; }
+
+        $src = match ($type) {
+            IMAGETYPE_JPEG => @imagecreatefromjpeg($path),
+            IMAGETYPE_PNG  => @imagecreatefrompng($path),
+            IMAGETYPE_GIF  => @imagecreatefromgif($path),
+            IMAGETYPE_WEBP => @imagecreatefromwebp($path),
+            default        => null,
+        };
+        if (!$src) return;
+
+        // Cover-fit: scale to fill target, then crop center
+        $srcRatio = $srcW / $srcH;
+        $tgtRatio = $tgtW / $tgtH;
+
+        if ($srcRatio > $tgtRatio) {
+            // source wider than target → scale by height, crop width
+            $scaleH = $tgtH;
+            $scaleW = (int)round($srcW * ($tgtH / $srcH));
+        } else {
+            // source taller/narrower → scale by width, crop height
+            $scaleW = $tgtW;
+            $scaleH = (int)round($srcH * ($tgtW / $srcW));
+        }
+
+        $scaled = imagecreatetruecolor($scaleW, $scaleH);
+        imagealphablending($scaled, false);
+        imagesavealpha($scaled, true);
+        imagecopyresampled($scaled, $src, 0, 0, 0, 0, $scaleW, $scaleH, $srcW, $srcH);
+
+        $cropX = (int)round(($scaleW - $tgtW) / 2);
+        $cropY = (int)round(($scaleH - $tgtH) / 2);
+
+        $final = imagecreatetruecolor($tgtW, $tgtH);
+        imagealphablending($final, false);
+        imagesavealpha($final, true);
+        imagecopy($final, $scaled, 0, 0, $cropX, $cropY, $tgtW, $tgtH);
+
+        match ($type) {
+            IMAGETYPE_PNG => imagepng($final, $path, 8),
+            IMAGETYPE_GIF => imagegif($final, $path),
+            default       => imagejpeg($final, $path, 90),
+        };
+
+        imagedestroy($src);
+        imagedestroy($scaled);
+        imagedestroy($final);
+    }
+
+    /** Attach images already in the media library — copies the path reference only */
+    public function attachExistingImages(int $adId, array $paths): int
+    {
+        $added = 0;
+        foreach ($paths as $p) {
+            $count = (int)$this->fetchColumn(
+                "SELECT COUNT(*) FROM tn_ad_images WHERE ad_id = ?", [$adId]
+            );
+            if ($count >= 5) break;
+            $filepath = is_array($p) ? ($p['filepath'] ?? '') : (string)$p;
+            $alt      = is_array($p) ? ($p['alt'] ?? '')      : '';
+            if (!$filepath) continue;
+            $this->db->prepare(
+                "INSERT INTO tn_ad_images (ad_id, filepath, link_url, alt_text, sort_order)
+                 VALUES (?, ?, '', ?, (SELECT COALESCE(MAX(sort_order),0)+1 FROM tn_ad_images ai2 WHERE ad_id=?))"
+            )->execute([$adId, $filepath, $alt, $adId]);
+            $added++;
+        }
+        return $added;
+    }
+
+    /** Convert an uploaded image file to WebP format, delete original, return new filename */
+    private function convertToWebp(string $srcPath, string $dir, string $originalName): string
+    {
+        if (!function_exists('imagewebp')) return $originalName; // GD WebP not available
+
+        $ext = strtolower(pathinfo($originalName, PATHINFO_EXTENSION));
+        if ($ext === 'webp') return $originalName; // already webp
+
+        $info = @getimagesize($srcPath);
+        if (!$info) return $originalName;
+
+        $img = match ($info[2]) {
+            IMAGETYPE_JPEG => @imagecreatefromjpeg($srcPath),
+            IMAGETYPE_PNG  => @imagecreatefrompng($srcPath),
+            IMAGETYPE_GIF  => @imagecreatefromgif($srcPath),
+            default        => null,
+        };
+        if (!$img) return $originalName;
+
+        // Preserve transparency for PNG/GIF
+        imagepalettetotruecolor($img);
+        imagealphablending($img, true);
+        imagesavealpha($img, true);
+
+        $webpName = pathinfo($originalName, PATHINFO_FILENAME) . '.webp';
+        $webpPath = $dir . $webpName;
+
+        if (imagewebp($img, $webpPath, 82)) {
+            imagedestroy($img);
+            @unlink($srcPath); // remove original, keep only webp
+            return $webpName;
+        }
+        imagedestroy($img);
+        return $originalName;
     }
 
     public function images(int $adId): array
@@ -297,10 +427,12 @@ class BusinessAdModel extends Model
     {
         try {
             $rows = $this->fetchAll(
-                "SELECT b.id, b.business_name, b.website_url,
+                "SELECT b.id, b.business_name, b.website_url, b.contact_phone, b.contact_email,
+                        d.name AS district_name,
                         ai.filepath, ai.alt_text, ai.link_url, ai.sort_order
                  FROM tn_business_ads b
                  JOIN tn_ad_slots s ON s.id = b.slot_id AND s.type = ?
+                 LEFT JOIN tn_districts d ON d.id = b.district_id
                  LEFT JOIN tn_ad_images ai ON ai.ad_id = b.id AND ai.is_active = 1
                  WHERE b.status IN ('active','approved')
                    AND (b.valid_from IS NULL OR b.valid_from <= CURDATE())
@@ -321,9 +453,13 @@ class BusinessAdModel extends Model
             }
             if ($row['filepath'] && count($ads[$id]['images']) < 5) {
                 $ads[$id]['images'][] = [
-                    'src'  => $row['filepath'],
-                    'alt'  => $row['alt_text'] ?? '',
-                    'link' => $row['link_url'] ?: ($row['website_url'] ?? '#'),
+                    'src'      => $row['filepath'],
+                    'alt'      => $row['alt_text'] ?? '',
+                    'link'     => $row['link_url'] ?: ($row['website_url'] ?? '#'),
+                    'name'     => $row['business_name'] ?? '',
+                    'phone'    => $row['contact_phone'] ?? '',
+                    'email'    => $row['contact_email'] ?? '',
+                    'district' => $row['district_name'] ?? '',
                 ];
             }
         }

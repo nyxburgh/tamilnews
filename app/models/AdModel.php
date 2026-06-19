@@ -16,6 +16,14 @@ class AdModel extends Model
         return $this->update($id, $data);
     }
 
+    /** Get the type ('square'/'horizontal'/'vertical') for a given slot id */
+    public function slotType(int $slotId): string
+    {
+        if (!$slotId) return '';
+        $type = $this->fetchColumn("SELECT type FROM tn_ad_slots WHERE id = ?", [$slotId]);
+        return $type ?: '';
+    }
+
     /**
      * Get active ad for a slot type: 'square' or 'horizontal'
      * Tries business ads first, falls back to manual ad_code

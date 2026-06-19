@@ -68,6 +68,7 @@ return [
     ['POST', '/admin/media/upload',      'admin\MediaController@upload'],
     ['POST', '/admin/media/upload-ajax',  'admin\\MediaController@uploadAjax'],
     ['POST', '/admin/media/delete/{id}', 'admin\MediaController@delete'],
+    ['POST', '/admin/media/update/{id}', 'admin\MediaController@update'],
     ['GET',  '/admin/media/modal',       'admin\MediaController@modal'],
     /* ── USERS ── */
     ['GET',  '/admin/users',             'admin\UserController@index'],
@@ -192,11 +193,7 @@ return [
     ['GET',  '/portal/notifications',          'frontend\EditorPortalController@notifications'],
     ['POST', '/portal/notifications/read',     'frontend\EditorPortalController@markRead'],
 
-    /* ── PORTAL (unified: editor+reporter+contributor) ── */
-    ['GET',  '/portal/dashboard',      'frontend\EditorPortalController@dashboard'],
-    ['GET',  '/portal/articles',       'frontend\EditorPortalController@myArticles'],
-    ['GET',  '/portal/profile',        'frontend\EditorPortalController@profile'],
-    ['POST', '/portal/profile/update', 'frontend\EditorPortalController@updateProfile'],
+    /* ── PORTAL article self-edit submission ── */
     ['POST', '/portal/articles/edit/{id}', 'frontend\EditorPortalController@submitEdit'],
 
     /* ── LIVE BLOG API (external post) ── */

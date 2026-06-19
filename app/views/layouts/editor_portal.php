@@ -195,31 +195,32 @@ try {
   </div>
 </div>
 
+<!-- MOBILE STICKY FOOTER (Chief Editor — 5 icons) -->
+<nav class="ep-mob-footer">
+  <a href="<?= $r ?>/portal/dashboard" class="ep-mob-item <?= str_contains($current,'/dashboard') ? 'active' : '' ?>">
+    <i class="bi bi-speedometer2"></i>
+    <span>Dashboard</span>
+  </a>
+  <a href="<?= $r ?>/admin/articles" class="ep-mob-item <?= (epActive('/admin/articles',$current) && !str_contains($current,'/create')) ? 'active' : '' ?>">
+    <i class="bi bi-file-earmark-text"></i>
+    <span>Articles</span>
+  </a>
+  <a href="<?= $r ?>/admin/articles/create" class="ep-mob-write">
+    <div class="ep-mob-write-btn"><i class="bi bi-pencil-square"></i></div>
+    <span>Write</span>
+  </a>
+  <a href="<?= $r ?>/admin/media" class="ep-mob-item <?= epActive('/admin/media',$current) ? 'active' : '' ?>">
+    <i class="bi bi-images"></i>
+    <span>Media</span>
+  </a>
+  <div class="ep-mob-item" onclick="document.getElementById('epSidebarToggle')?.click()">
+    <i class="bi bi-grid-3x3-gap-fill"></i>
+    <span>Menu</span>
+  </div>
+</nav>
+
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
-<script>
-const r = '<?= ASSET_URL ?>';
-// Sidebar toggle
-const epSidebar = document.getElementById('epSidebar');
-const epOverlay = document.getElementById('epSidebarOverlay');
-document.getElementById('epSidebarToggle')?.addEventListener('click', () => {
-  epSidebar?.classList.toggle('open');
-  epOverlay?.classList.toggle('open');
-});
-epOverlay?.addEventListener('click', () => {
-  epSidebar?.classList.remove('open');
-  epOverlay?.classList.remove('open');
-});
-// User menu
-function toggleEpMenu() {
-  document.getElementById('epUserMenu')?.classList.toggle('open');
-}
-document.addEventListener('click', e => {
-  if (!e.target.closest('.ep-user')) document.getElementById('epUserMenu')?.classList.remove('open');
-});
-// Admin JS compatibility
-const sidebarToggle = { addEventListener: () => {} };
-const sidebar = epSidebar;
-</script>
+<script src="<?= ASSET_URL ?>/assets/js/portal-nav.js"></script>
 </body>
 </html>

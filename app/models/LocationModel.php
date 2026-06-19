@@ -81,7 +81,7 @@ class LocationModel extends Model
     public function firstCityByDistrict(int $districtId): ?int
     {
         $row = $this->fetchOne(
-            "SELECT id FROM tn_cities WHERE district_id = ? AND is_active = 1 ORDER BY id ASC LIMIT 1",
+            "SELECT id FROM tn_cities WHERE district_id = ? ORDER BY id ASC LIMIT 1",
             [$districtId]
         );
         return $row ? (int)$row['id'] : null;

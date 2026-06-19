@@ -1,0 +1,173 @@
+
+/* ── HERO SECTION — minimalistic, fixed height ── */
+.hero4-grid {
+  display: grid;
+  grid-template-columns: 3fr 2fr;
+  gap: 10px;
+  margin: 12px 0 16px;
+  align-items: stretch;
+}
+
+/* Big card — fixed 240px height, not stretching */
+.hero4-big {
+  display: block;
+  position: relative;
+  border-radius: 8px;
+  overflow: hidden;
+  height: 240px;
+  text-decoration: none;
+  background: #1A1A1A;
+}
+.hero4-big > img {
+  width: 100% !important;
+  height: 240px !important;
+  object-fit: contain !important;
+  object-position: center !important;
+  background: #1A1A1A !important;
+  display: block !important;
+  opacity: .85;
+}
+
+/* Small cards column — 3 equal rows to match big card height */
+.hero4-right {
+  display: grid;
+  grid-template-rows: 1fr 1fr 1fr;
+  gap: 6px;
+  height: 240px;
+}
+.hero4-sm {
+  display: flex;
+  overflow: hidden;
+  border-radius: 6px;
+  border: 1px solid #E8E6E0;
+  background: #fff;
+  text-decoration: none;
+}
+.hero4-sm > img {
+  width: 90px !important;
+  height: 100% !important;
+  min-height: unset !important;
+  object-fit: cover !important;
+  flex-shrink: 0 !important;
+}
+
+/* Mobile */
+@media (max-width: 1023px) {
+  .hero4-grid      { grid-template-columns: 1fr; height: auto; }
+  .hero4-big       { height: 220px; }
+  .hero4-big > img { height: 220px !important; }
+  .hero4-right     { height: auto; grid-template-rows: none; }
+  .hero4-sm > img  { width: 80px !important; }
+}
+@media (max-width: 480px) {
+  .hero4-big       { height: 180px; }
+  .hero4-big > img { height: 180px !important; }
+}
+
+/* ══════════════════════════════════════════════════════
+   RESPONSIVE.CSS — visibility + image rules. Loaded last.
+══════════════════════════════════════════════════════ */
+
+/* ── NEWS CARD IMAGES ── */
+.nc img {
+  width: 100%;
+  height: 170px;
+  object-fit: contain;
+  object-position: center;
+  background: #F5F5F0;
+  display: block;
+  flex-shrink: 0;
+}
+.hero4-big > img {
+  width: 100%;
+  height: 360px;
+  object-fit: contain;
+  object-position: center;
+  background: #111;
+}
+.hero4-sm img {
+  width: 110px;
+  height: 82px;
+  object-fit: contain;
+  background: #F5F5F0;
+  flex-shrink: 0;
+}
+
+/* ── ARTICLE IMAGE — desktop: float left square ── */
+@media (min-width: 1024px) {
+  .art-image-col {
+    float: left;
+    width: 40%;
+    margin: 0 20px 16px 0;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #F5F5F0;
+  }
+  .art-hero-img {
+    width: 100%;
+    aspect-ratio: 1/1;
+    object-fit: contain;
+    object-position: center;
+    background: #F5F5F0;
+    display: block;
+  }
+  .art-body::after { content: ''; display: table; clear: both; }
+}
+
+/* ── AD IMAGES: contain, centered, background ── */
+.ad-rotator { background: #F5F5F0; }
+.ad-rotator img {
+  object-fit: contain !important;
+  object-position: center center !important;
+  background: #F5F5F0 !important;
+}
+
+/* ── DESKTOP (≥ 1024px): show/hide ── */
+@media (min-width: 1024px) {
+  .mob-top-ad, .mob-vertical-ad,
+  .mob-sidebar-ad, .mob-only-ad  { display: none !important; }
+  .mid-article-ad                { display: none !important; }
+  .masthead-ad                   { display: block !important; }
+  .header-banner-ad              { display: flex !important; }
+  .page-sidebar                  { display: block !important; }
+}
+
+/* ── MOBILE (< 1024px): layout + show/hide ── */
+@media (max-width: 1023px) {
+  .masthead-ad, .header-banner-ad { display: none !important; }
+  .sb-vertical-ad                 { display: none !important; }
+  .page-sidebar                   { display: none !important; }
+  .mob-top-ad                     { display: block !important; }
+  /* vertical overlay: JS controls */
+  .mob-vertical-ad                { display: none; } /* JS shows it */
+  .mob-sidebar-ad                 { display: block !important; }
+  .mid-article-ad                 { display: block !important; }
+  .mob-only-ad                    { display: block !important; }
+  .page-layout                    { display: block !important; }
+  .page-main                      { width: 100% !important; }
+  /* Article image: full width on mobile */
+  .art-image-col {
+    width: 100% !important;
+    float: none !important;
+    margin: 0 0 12px !important;
+    border-radius: 8px;
+    overflow: hidden;
+    background: #F5F5F0;
+  }
+  .art-hero-img {
+    width: 100% !important;
+    aspect-ratio: 16/9 !important;
+    max-height: 260px !important;
+    object-fit: contain !important;
+    background: #F5F5F0 !important;
+  }
+  /* Smaller card images */
+  .nc img          { height: 130px !important; }
+  .hero4-big > img { height: 220px !important; }
+  .hero4-sm img    { width: 90px !important; height: 70px !important; }
+}
+
+@media (max-width: 480px) {
+  .nc img          { height: 110px !important; }
+  .hero4-big > img { height: 180px !important; }
+}

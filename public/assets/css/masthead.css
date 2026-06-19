@@ -83,6 +83,20 @@
   
   background: #fff;
 }
+.masthead-ad {
+  width: 300px;
+  height: 150px;
+  background: #F0EFE9;
+  border: 1px solid #E0DEDA;
+  border-radius: 6px;
+  overflow: hidden !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  flex-shrink: 0;
+}
+.masthead-ad img,
+.masthead-ad a img { max-width: 100%; height: auto; object-fit: contain; display: block; }
 .masthead-center { text-align: center; }
 .vel-logo-link { text-decoration: none; display: inline-block; }
 .vel-brand-wrap { display: inline-flex; align-items: center; gap: 12px; justify-content: center; }
@@ -105,6 +119,14 @@
 }
 
 /* ─── MOBILE SQUARE AD (hidden on desktop) ──────────── */
+.mobile-square-ad {
+  display: none;
+  background: #F0EFE9;
+  align-items: center;
+  justify-content: center;
+  width: 100%;
+  padding: 4px 0;
+}
 .mob-ad-ph {
   width: 100%; height: 100%;
   display: flex; align-items: center; justify-content: center;
@@ -116,8 +138,33 @@
 .masthead-rule-thin { height: 2px; background: #E8E6E0; }
 
 /* ─── DESKTOP HORIZONTAL BANNER 728×100 ─────────────── */
+.header-banner-ad {
+  background: #fff;
+  border-top: 1px solid #E8E6E0;
+  border-bottom: 1px solid #E8E6E0;
+}
+.header-banner-ad-inner {
+   
+  padding: 6px 20px;
+  height: 112px;
+  display: flex; align-items: center; justify-content: center;
+}
+.header-banner-ad-placeholder {
+  width: 728px; max-width: 100%; height: 100px;
+  background: #F0EFE9; border: 1px dashed #C8C6BE; border-radius: 4px;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px; color: #9A9890;
+}
 
 /* ─── MOBILE HORIZONTAL BANNER (hidden on desktop) ──── */
+.mobile-square-ad img {
+  max-width: 200px;
+  max-height: 100px;
+  width: 100%;
+  height: auto;
+  object-fit: contain;
+  display: block;
+}
 .mobile-banner-ad { display: none !important; }
 .mob-banner-ph {
   width: 100%; height: 80px;
@@ -186,7 +233,43 @@
 
 /* ── < 600px: mobile layout ── */
 
+
 /* ── MOBILE FLOATING AD ─────────────────────────────── */
+.mob-float-ad {
+  position: fixed;
+  bottom: 62px;
+  left: 0; right: 0;
+  z-index: 990;
+  background: #000;
+  height: 66px;
+  display: none;           /* shown via media query below */
+  align-items: center;
+  box-shadow: 0 -3px 12px rgba(0,0,0,.4);
+}
+.mob-float-ad-inner {
+  flex: 1;
+  height: 100%;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  overflow: hidden;
+}
+.mob-float-ad-inner img {
+  width: 100%;
+  height: 66px;
+  object-fit: contain;
+  display: block;
+}
+.mob-float-ad-close {
+  width: 28px;
+  height: 66px;
+  flex-shrink: 0;
+  background: rgba(255,255,255,.1);
+  border: none;
+  color: rgba(255,255,255,.7);
+  font-size: 14px;
+  cursor: pointer;
+}
 
 /* ═══════════════════════════════════════════════════
    RESPONSIVE — 2 breakpoints only
@@ -223,27 +306,50 @@
   .header           { background: #fff; }
 
   /* Mobile top ad: 200×100 centered */
-    
+  .mobile-square-ad {
+    display: flex !important;
+    background: #F5F5F0;
+    align-items: center;
+    justify-content: center;
+    width: 100%;
+    padding: 6px 0;
+    border-bottom: 1px solid #E8E6E0;
+  }
+  .mobile-square-ad img {
+    max-width: 200px;
+    max-height: 100px;
+    width: auto;
+    height: auto;
+    object-fit: contain;
+    display: block;
+  }
+
   /* Rules */
   .masthead-rule      { display: block; height: 4px; }
   .masthead-rule-thin { display: block; height: 2px; }
 
   /* Hide desktop horizontal banner */
-  
+  .header-banner-ad { display: none !important; }
+
   /* Mobile bottom nav */
   .mobile-bottom-nav { display: flex; }
 
   /* Floating horizontal ad above bottom nav */
-    body              { padding-bottom: 130px; }
+  .mob-float-ad     { display: flex !important; }
+  body              { padding-bottom: 130px; }
   .site-footer-inner { font-size: 11px; padding: 12px; }
 }
 
 /* ── DESKTOP (≥ 1024px) ── */
 @media (min-width: 1024px) {
   .mob-topbar        { display: none !important; }
-      .masthead          { display: grid !important; grid-template-columns: 300px 1fr 300px !important; }
-    .header            { position: relative !important; border-bottom: none !important; box-shadow: none !important; }
-    .nav-inner         { padding-right: 110px !important; }
+  .mobile-square-ad  { display: none !important; }
+  .mob-float-ad      { display: none !important; }
+  .masthead          { display: grid !important; grid-template-columns: 300px 1fr 300px !important; }
+  .masthead-ad       { width: 300px !important; height: 150px !important; }
+  .header            { position: relative !important; border-bottom: none !important; box-shadow: none !important; }
+  .header-banner-ad  { display: block !important; }
+  .nav-inner         { padding-right: 110px !important; }
 }
 
 /* ── MOBILE FLOATING RATE ICONS ── */
@@ -303,251 +409,209 @@
 }
 
 /* ── MOB FLOAT AD: force show on mobile (highest specificity) ── */
-
-/* ═══════════════════════════════════════════════
-   AD SYSTEM — single source of truth
-   Desktop: square(×2) + horizontal banner + vertical sidebar
-   Mobile:  horizontal top + square mid-content + vertical scroll overlay
-═══════════════════════════════════════════════ */
-
-/* Base rotator */
-.ad-rotator { display:block; overflow:hidden; width:100%; line-height:0; }
-.ad-rotator img { display:block; width:100%; transition:opacity 0.15s ease; }
-
-/* Desktop masthead square (300×150) */
-.masthead-ad { width:300px; height:150px; overflow:hidden; flex-shrink:0; background:#F0EFE9; border-radius:6px; }
-.masthead-ad .ad-rotator { height:150px; }
-.masthead-ad .ad-rotator img { height:150px; object-fit:contain; }
-
-/* Desktop horizontal banner (728×100) */
-.header-banner-ad { overflow:hidden; height:100px; display:flex; align-items:center; justify-content:center; background:#fff; border-top:1px solid #E8E6E0; border-bottom:1px solid #E8E6E0; }
-.header-banner-ad-inner { max-width:728px; width:100%; height:100px; overflow:hidden; }
-.header-banner-ad-inner .ad-rotator { height:100px; }
-.header-banner-ad-inner .ad-rotator img { height:100px; object-fit:contain; }
-
-/* Desktop sidebar vertical (full height) */
-.sb-vertical-ad { width:100%; background:#F5F5F0; border-radius:6px; overflow:visible !important; border:none !important; }
-.sb-vertical-ad .ad-rotator { width:100%; height:750px; overflow:hidden; }
-.sb-vertical-ad .ad-rotator img { width:100% !important; height:750px !important; object-fit:cover; }
-
-/* Mobile top horizontal (320×66) */
-.mob-top-ad { display:none; width:100%; height:66px; overflow:hidden; background:#F0EFE9; }
-.mob-top-ad .ad-rotator { height:66px; }
-.mob-top-ad .ad-rotator img { height:66px; object-fit:contain; }
-
-/* Mobile vertical overlay (scroll-triggered) */
-.mob-vertical-ad { display:none; position:fixed; bottom:10px; right:10px; z-index:999; }
-.mob-vertical-ad-inner { width:150px; background:#fff; border-radius:8px; box-shadow:0 4px 20px rgba(0,0,0,.25); overflow:hidden; position:relative; }
-.mob-vertical-ad-close { position:absolute; top:4px; right:4px; z-index:1; width:22px; height:22px; border-radius:50%; background:rgba(0,0,0,.5); color:#fff; border:none; font-size:11px; cursor:pointer; }
-.mob-vertical-ad-inner .ad-rotator img { height:auto; max-height:240px; object-fit:contain; }
-
-/* ── RESPONSIVE RULES ── */
-@media (max-width:1023px) {
-  .header-banner-ad  { display:none !important; }   /* no desktop banner on mobile */
-  .sb-vertical-ad    { display:none !important; }   /* no sidebar on mobile */
-  .mob-top-ad        { display:block; }              /* show mobile horizontal */
-}
-@media (min-width:1024px) {
-  .mob-top-ad        { display:none !important; }   /* no mobile top on desktop */
-  .mob-vertical-ad   { display:none !important; }   /* no mobile overlay on desktop */
+@media (max-width: 1023px) {
+  div#mobFloatAd,
+  .mob-float-ad#mobFloatAd { display: flex !important; }
 }
 
-/* Article page — square ad after content */
-.art-after-ad {
-  width: 100%;
-  max-width: 400px;
+/* ════════════════════════════════════════════
+   AD CONTAINERS — strict image containment
+   Images NEVER overflow their slot boundary
+════════════════════════════════════════════ */
+
+/* ── Square ad (desktop masthead 300×150) ── */
+.masthead-ad {
+  width: 300px;
   height: 150px;
-  margin: 24px auto;
-  overflow: hidden;
-  background: #F5F5F0;
+  overflow: hidden !important;
+  flex-shrink: 0;
+  background: #F0EFE9;
+  border: 1px solid #E0DEDA;
   border-radius: 6px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.art-after-ad .ad-rotator { height: 150px; }
-.art-after-ad .ad-rotator img {
-  width: 100%;
-  height: 150px;
-  object-fit: contain;
-}
-
-/* Show only on mobile */
-.mob-only-ad { display:block; }
-@media (min-width:1024px) { .mob-only-ad { display:none !important; } }
-
-/* Mobile sidebar inline square ad */
-.mob-sidebar-ad { display:none; }
-.mob-sidebar-ad .ad-rotator { height:120px; }
-.mob-sidebar-ad .ad-rotator img { height:120px; object-fit:contain; }
-@media (max-width:1023px) {
-  .mob-sidebar-ad { display:block; width:100%; max-width:320px; margin:16px auto; overflow:hidden; background:#F5F5F0; border-radius:6px; }
+.masthead-ad .ad-rotator,
+.masthead-ad img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block;
+  max-width: 100% !important;
+  max-height: 100% !important;
 }
 
-/* Rate rollup panel */
-.mob-rate-rollup {
+/* ── Mobile top square ad (200×100) ── */
+.mobile-square-ad {
   display: none;
-  position: fixed;
-  bottom: 56px;
-  left: 0; right: 0;
-  background: #1A1A1A;
-  z-index: 1001;
-  border-top: 2px solid #C0001A;
-  padding: 8px 0;
-}
-.mob-rate-rollup-row {
-  display: flex;
-  justify-content: space-around;
-  padding: 4px 8px;
-}
-.mob-rate-rollup-btn {
-  display: flex;
-  flex-direction: column;
+  background: #F0EFE9;
   align-items: center;
-  gap: 3px;
-  color: #fff;
-  font-size: 10px;
-  cursor: pointer;
-  padding: 8px 6px;
-  border-radius: 8px;
-  min-width: 52px;
-  text-align: center;
+  justify-content: center;
+  width: 100%;
+  height: 100px;
+  overflow: hidden !important;
+  padding: 0;
 }
-.mob-rate-rollup-btn:active { background: #333; }
-.mob-rate-rollup-btn span:first-child { font-size: 22px; line-height:1; }
-@media (min-width: 1024px) {
-  .mob-rate-rollup { display: none !important; }
+.mobile-square-ad .ad-rotator,
+.mobile-square-ad img {
+  width: 200px !important;
+  height: 100px !important;
+  object-fit: contain !important;
+  display: block;
+  max-width: 200px !important;
+  max-height: 100px !important;
 }
 
-/* All ads fill container */
-.ad-rotator img { object-fit: cover !important; }
-.masthead-ad .ad-rotator img,
-.header-banner-ad-inner .ad-rotator img,
-.mob-top-ad .ad-rotator img,
-.art-after-ad .ad-rotator img,
-.mob-sidebar-ad .ad-rotator img { object-fit: cover !important; }
-
-/* Ensure ALL ad images fill containers completely */
-.masthead-ad .ad-rotator img,
-.mob-top-ad .ad-rotator img,
-.mob-sidebar-ad .ad-rotator img,
-.art-after-ad .ad-rotator img { object-fit: cover !important; width:100% !important; height:100% !important; }
-.header-banner-ad-inner .ad-rotator img { object-fit: cover !important; width:100% !important; height:100px !important; }
-.sb-vertical-ad .ad-rotator img { object-fit: cover !important; width:100% !important; height:750px !important; }
-
-/* Drawer user block */
-.mob-drawer-user {
-  display: flex;
-  align-items: center;
-  gap: 10px;
-  padding: 12px 16px;
-  background: #F5F5F2;
-  border-radius: 8px;
-  margin: 8px 0;
-}
-.mob-drawer-user-icon { font-size: 28px; line-height:1; }
-.mob-drawer-logout {
-  color: #C0001A !important;
-  font-weight: 700 !important;
-}
-.mob-drawer-logout:hover { background: #FFF0F0 !important; }
-
-/* Mobile drawer user card — below logo */
-.mob-drawer-usercard {
-  display: flex;
-  align-items: center;
-  justify-content: space-between;
-  background: #F5F5F2;
-  padding: 10px 16px;
+/* ── Horizontal banner ad (728×100 desktop) ── */
+.header-banner-ad {
+  background: #fff;
+  border-top: 1px solid #E8E6E0;
   border-bottom: 1px solid #E8E6E0;
+  overflow: hidden !important;
+  height: 112px;
+  display: flex;
+  align-items: center;
+  justify-content: center;
 }
-.mob-drawer-usercard-info { flex: 1; }
-.mob-drawer-usercard-name {
-  font-size: 14px;
-  font-weight: 700;
-  color: #1A1A1A;
-}
-.mob-drawer-usercard-role {
-  font-size: 11px;
-  color: #9A9890;
-}
-.mob-drawer-usercard-logout {
-  background: #C0001A;
-  color: #fff;
-  padding: 6px 12px;
-  border-radius: 16px;
-  font-size: 12px;
-  font-weight: 600;
-  text-decoration: none;
-  white-space: nowrap;
+.header-banner-ad .ad-rotator,
+.header-banner-ad-inner .ad-rotator,
+.header-banner-ad img,
+.header-banner-ad-inner img {
+  max-width: 728px !important;
+  width: 100% !important;
+  height: 100px !important;
+  object-fit: contain !important;
+  display: block;
 }
 
-/* ── Portal bottom sheet ── */
-.portal-bottom-overlay {
+/* ── Mobile floating horizontal ad (320×66) ── */
+.mob-float-ad-inner {
+  flex: 1;
+  height: 66px;
+  overflow: hidden !important;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+}
+.mob-float-ad-inner .ad-rotator,
+.mob-float-ad-inner img {
+  width: 100% !important;
+  height: 66px !important;
+  object-fit: contain !important;
+  display: block;
+  max-height: 66px !important;
+}
+
+/* ── Sidebar square ad widget ── */
+.sb-widget .ad-rotator,
+.sb-widget > img {
+  width: 100% !important;
+  height: auto !important;
+  max-height: 150px !important;
+  object-fit: contain !important;
+  display: block;
+}
+
+/* ── Global: ALL ad-rotator containers clip overflow ── */
+.ad-rotator {
+  overflow: hidden !important;
+  display: block;
+  width: 100%;
+}
+.ad-rotator img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: contain !important;
+  display: block;
+  transition: transform 24s linear, opacity 0.4s ease;
+}
+
+/* ── Rate bottom sheet ── */
+.mob-rate-overlay {
   display: none;
   position: fixed; inset: 0;
-  background: rgba(0,0,0,.45);
+  background: rgba(0,0,0,.5);
   z-index: 1050;
 }
-.portal-bottom-overlay.open { display: block; }
+.mob-rate-overlay.open { display: block; }
 
-.portal-bottom-sheet {
+.mob-rate-sheet {
   position: fixed;
-  bottom: -100%;
-  left: 50%;
-  transform: translateX(-50%);
-  width: 75%;
-  max-height: 70vh;
+  bottom: 56px; left: 0; right: 0;
   background: #fff;
   border-radius: 16px 16px 0 0;
   z-index: 1051;
-  transition: bottom .3s ease;
-  padding: 0 0 80px;
-  overflow-y: auto;
+  padding: 0 0 16px;
+  transform: translateY(110%);
+  transition: transform .3s cubic-bezier(.4,0,.2,1);
+  visibility: hidden;
 }
-.portal-bottom-sheet.open { bottom: 56px; } /* above footer nav */
-
-.portal-bottom-sheet-handle {
-  width: 40px; height: 4px;
-  background: #D8D6CE;
-  border-radius: 2px;
+.mob-rate-sheet.open {
+  transform: translateY(0);
+  visibility: visible;
+}
+.mob-rate-sheet-handle {
+  width: 36px; height: 4px;
+  background: #D8D6CE; border-radius: 2px;
   margin: 10px auto 6px;
 }
-
-.portal-bottom-user {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 14px 20px 10px;
+.mob-rate-sheet-title {
+  font-size: 14px; font-weight: 700;
+  color: #1A1A1A; text-align: center;
+  padding: 6px 0 12px;
 }
-.portal-bottom-user-avatar {
-  width: 42px; height: 42px;
-  border-radius: 50%;
+.mob-rate-sheet-grid {
+  display: flex;
+  justify-content: space-around;
+  padding: 0 8px;
+  gap: 8px;
+}
+.mob-rate-sheet-btn {
+  display: flex; flex-direction: column;
+  align-items: center; gap: 4px;
+  font-size: 11px; font-weight: 600;
+  color: #1A1A1A; cursor: pointer;
+  padding: 10px 8px;
+  background: #F5F5F2; border-radius: 10px;
+  flex: 1; text-align: center;
+}
+.mob-rate-sheet-btn:active { background: #E8E6E0; }
+.mob-rate-sheet-icon { font-size: 24px; line-height: 1; }
+
+/* ── Mobile vertical ad ── */
+.mob-vertical-ad {
+  display: none;
+  position: fixed;
+  bottom: 70px; right: 10px;
+  z-index: 999;
+}
+.mob-vertical-ad-inner {
+  width: 150px;
+  background: #fff;
+  border-radius: 10px;
+  overflow: hidden;
+  box-shadow: 0 4px 16px rgba(0,0,0,.2);
+  position: relative;
+}
+.mob-vertical-ad-close {
+  position: absolute; top: 4px; right: 4px;
+  width: 22px; height: 22px;
+  background: rgba(0,0,0,.5); color: #fff;
+  border: none; border-radius: 50%;
+  font-size: 11px; cursor: pointer;
   display: flex; align-items: center; justify-content: center;
-  color: #fff; font-size: 18px; font-weight: 700;
-  flex-shrink: 0;
+  z-index: 1;
 }
-.portal-bottom-user-name { font-weight: 700; font-size: 15px; }
-.portal-bottom-user-role { font-size: 12px; }
-
-.portal-bottom-divider { height: 1px; background: #E8E6E0; margin: 4px 0; }
-
-.portal-bottom-item {
-  display: flex;
-  align-items: center;
-  gap: 12px;
-  padding: 13px 20px;
-  font-size: 14px;
-  color: #1A1A1A;
-  text-decoration: none;
-  border: none;
-  background: none;
-  width: 100%;
-  cursor: pointer;
+.mob-vertical-ad [data-slot="vertical"] {
+  height: 200px;
 }
-.portal-bottom-item:active { background: #F5F5F2; }
-.portal-bottom-item i { font-size: 18px; color: #6B6A64; }
-.portal-bottom-logout { color: #C0001A !important; font-weight: 600; }
-.portal-bottom-logout i { color: #C0001A !important; }
+.mob-vertical-ad [data-slot="vertical"] img {
+  height: 200px !important;
+}
 
 @media (min-width: 1024px) {
-  .portal-bottom-overlay,
-  .portal-bottom-sheet { display: none !important; }
+  .mob-rate-overlay,
+  .mob-rate-sheet,
+  .mob-vertical-ad { display: none !important; }
 }

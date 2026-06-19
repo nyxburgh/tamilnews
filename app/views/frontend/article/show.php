@@ -117,7 +117,36 @@ $isVideo  = !empty($article['youtube_video_id']);
     <?php else: ?>
     <!-- FULL CONTENT -->
     <div class="art-body">
-      <?= $article['content'] ?>
+      <?php
+      // Split content at midpoint for mobile mid-article ad
+      $_content = $article['content'] ?? '';
+      // Split at ~50% — try </p>, then </div>, then hard split
+      $_half  = (int)(mb_strlen($_content) / 2);
+      $_split = false;
+      foreach (['</p>', '</div>', '. ', '。'] as $_tag) {
+          $_pos = mb_strpos($_content, $_tag, $_half);
+          if ($_pos !== false && $_pos < mb_strlen($_content) - 100) {
+              $_split = $_pos + mb_strlen($_tag);
+              break;
+          }
+      }
+      if ($_split) {
+          $_part1 = mb_substr($_content, 0, $_split);
+          $_part2 = mb_substr($_content, $_split);
+      } else {
+          $_part1 = $_content;
+          $_part2 = '';
+      }
+      ?>
+      <?= $_part1 ?>
+      <?php if ($_part2): ?>
+      <!-- Mid-article ad (mobile only) -->
+      <div class="mid-article-ad mob-only-ad" id="midArticleAd">
+        <div class="ad-rotator" data-slot="square" data-cat="<?= $article['category_id'] ?? 0 ?>"></div>
+        <div class="mid-ad-label">Advertisement</div>
+      </div>
+      <?= $_part2 ?>
+      <?php endif; ?>
     </div>
     <?php endif; ?>
 
@@ -371,3 +400,4 @@ function setFont(size) {
   if (saved) setFont(saved);
 })();
 </script>
+

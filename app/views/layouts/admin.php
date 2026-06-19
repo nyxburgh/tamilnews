@@ -237,6 +237,7 @@ if (window.innerWidth < 1024 && document.cookie.indexOf("admin_mobile_ok") < 0) 
 
 <script src="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/js/bootstrap.bundle.min.js"></script>
 <script src="https://cdn.jsdelivr.net/npm/sortablejs@1.15.2/Sortable.min.js"></script>
+<script>const r = '<?= ASSET_URL ?>';</script>
 <script src="<?= ASSET_URL ?>/assets/js/admin.js"></script>
 </body>
 </html>

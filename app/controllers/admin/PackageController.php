@@ -28,7 +28,7 @@ class PackageController extends Controller
     public function store(): void
     {
         CSRF::validate();
-        $this->model->insert([
+        $data = [
             'name'          => Helper::sanitize($this->post('name','')),
             'name_tamil'    => Helper::sanitize($this->post('name_tamil','')),
             'type'          => $this->post('type','paid_ad'),
@@ -40,7 +40,10 @@ class PackageController extends Controller
             'includes_video'=> (int)$this->post('includes_video',0),
             'is_active'     => 1,
             'sort_order'    => (int)$this->post('sort_order',99),
-        ]);
+        ];
+        $qr = $this->handleQrUpload();
+        if ($qr) $data['qr_code_path'] = $qr;
+        $this->model->insert($data);
         $this->flash('success','Package created.');
         $this->redirect('/admin/packages');
     }
@@ -48,15 +51,31 @@ class PackageController extends Controller
     public function update(string $id): void
     {
         CSRF::validate();
-        $this->model->update((int)$id, [
+        $data = [
             'name'          => Helper::sanitize($this->post('name','')),
             'name_tamil'    => Helper::sanitize($this->post('name_tamil','')),
             'price_inr'     => (float)$this->post('price_inr',0),
             'duration_days' => (int)$this->post('duration_days',30),
             'max_images'    => (int)$this->post('max_images',5),
             'is_active'     => (int)$this->post('is_active',1),
-        ]);
+        ];
+        $qr = $this->handleQrUpload();
+        if ($qr) $data['qr_code_path'] = $qr;
+        $this->model->update((int)$id, $data);
         $this->flash('success','Package updated.');
         $this->redirect('/admin/packages');
+    }
+
+    /** Handle optional QR code image upload, returns relative path or null */
+    private function handleQrUpload(): ?string
+    {
+        if (empty($_FILES['qr_code']['name'])) return null;
+        $ext = strtolower(pathinfo($_FILES['qr_code']['name'], PATHINFO_EXTENSION));
+        if (!in_array($ext, ['jpg','jpeg','png','webp'])) return null;
+        $dir = dirname(__DIR__, 3) . '/public/uploads/qr/';
+        if (!is_dir($dir)) mkdir($dir, 0755, true);
+        $filename = 'qr_' . uniqid() . '.' . $ext;
+        if (!move_uploaded_file($_FILES['qr_code']['tmp_name'], $dir . $filename)) return null;
+        return '/uploads/qr/' . $filename;
     }
 }

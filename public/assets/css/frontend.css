@@ -118,7 +118,7 @@ img { display: block; max-width: 100%; }
 .nav-link.active { color:white;border-bottom-color:var(--red-light);background:rgba(192,0,26,.2); }
 
 /* ─── MAIN ─── */
-.main { padding: 0; }
+.main { padding: 12px 0 0; }
 
 /* ─── SECTION HEAD ─── */
 .section-head { display:flex;align-items:center;gap:12px;margin-bottom:14px; }
@@ -234,7 +234,7 @@ img { display: block; max-width: 100%; }
 .breadcrumb { margin:0 auto;padding:12px 20px 0;display:flex;align-items:center;gap:6px;font-size:12px;color:var(--gray-4);flex-wrap:wrap; }
 .breadcrumb a { color:var(--red); }
 .breadcrumb span { color:var(--gray-3); }
-.article-wrap { margin:0; padding:0; } /* sidebar removed */
+.article-wrap { margin:0 auto;padding:16px 20px 30px;display:grid;grid-template-columns:1fr 300px;gap:28px; }
 .article-main { min-width:0; }
 .art-category { display:inline-flex;align-items:center;gap:6px;font-family:'Oswald',sans-serif;font-size:12px;font-weight:600;letter-spacing:1px;text-transform:uppercase;color:var(--red);margin-bottom:10px; }
 .art-category::before { content:'';width:14px;height:2px;background:var(--red);display:inline-block; }
@@ -255,6 +255,7 @@ img { display: block; max-width: 100%; }
 .share-copy { background:var(--gray-1);border:1px solid var(--gray-2);color:var(--charcoal); }
 .share-btn:hover { opacity:.85; }
 
+.art-hero-img { width:100%;border-radius:6px;max-height:440px;object-fit:cover;margin-bottom:6px; }
 .art-img-caption { font-size:11.5px;color:var(--gray-4);text-align:center;margin-bottom:20px;font-style:italic; }
 
 .video-embed-wrap { position:relative;padding-bottom:56.25%;height:0;border-radius:6px;overflow:hidden;margin-bottom:20px; }
@@ -385,7 +386,7 @@ img { display: block; max-width: 100%; }
   
 
   /* Article */
-
+  .article-wrap    { grid-template-columns:1fr; padding:10px 12px 24px; }
   
   .art-title       { font-size:20px; }
   .art-meta-row    { font-size:11px; gap:8px; }
@@ -413,7 +414,7 @@ img { display: block; max-width: 100%; }
   .footer-bottom { flex-direction:column; gap:8px; }
 
   /* Main padding */
-  .main { padding: 0; }
+  .main { padding:12px; }
 
   /* WhatsApp block */
   .whatsapp-share-btn { flex-direction:column; text-align:center; }
@@ -438,7 +439,7 @@ img { display: block; max-width: 100%; }
   
   
   .video-grid       { grid-template-columns:repeat(3,1fr); }
-
+  .article-wrap     { grid-template-columns:1fr 260px; }
 }
 
 @media (min-width:769px) and (max-width:1024px) {
@@ -1198,10 +1199,13 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
 .art-title { font-size:22px; line-height:1.4; margin:6px 0 8px; }
 .art-meta-row { font-size:11.5px; flex-wrap:wrap; gap:4px 8px; margin-bottom:6px; }
 .art-author { gap:6px; }
+.art-hero-img { width:100%; border-radius:6px; margin:10px 0 12px; max-height:400px; object-fit:cover; display:block; }
 
 /* Compact share row */
 .share-row-compact { display:flex; align-items:center; gap:6px; margin-bottom:12px; padding:6px 0; border-top:1px solid var(--gray-2,#E8E6E0); border-bottom:1px solid var(--gray-2,#E8E6E0); }
 .share-label-sm { font-size:11px; color:var(--gray-4,#9A9890); font-weight:600; }
+.sbc { display:inline-flex; align-items:center; justify-content:center; width:28px; height:28px; border-radius:4px; font-size:14px; text-decoration:none; border:none; background:var(--gray-1,#F5F5F0); cursor:pointer; transition:background .15s; }
+.sbc:hover { background:var(--gray-2,#E8E6E0); }
 
 /* Font toggle compact */
 .font-size-toggle { display:flex; align-items:center; gap:4px; }
@@ -1224,7 +1228,8 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
   
   .art-title { font-size:18px; }
   .art-body { font-size:15px; line-height:1.85; }
-    .breadcrumb { font-size:11px; padding:6px 0; }
+  .art-hero-img { max-height:240px; margin:8px 0 10px; }
+  .breadcrumb { font-size:11px; padding:6px 0; }
   .article-main { padding:0 !important; }
 
   /* Ensure content visible on mobile */
@@ -1246,6 +1251,12 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
 }
 
 /* Share icons right under title */
+.art-share-inline {
+  display: flex;
+  align-items: center;
+  gap: 5px;
+  margin-bottom: 6px;
+}
 
 /* Byline: reporter + details in one row */
 .art-byline {
@@ -1462,8 +1473,8 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
 /* Main+Sidebar grid */
 .page-layout {
   display: grid;
-  grid-template-columns: 1fr 260px;
-  gap: 16px;
+  grid-template-columns: 1fr 220px;
+  gap: 14px;
   align-items: start;
   width: 100%;
 }
@@ -1497,7 +1508,7 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
     max-width: 96%; margin-left: auto; margin-right: auto;
   }
   /* Slightly narrower sidebar on small desktops */
-  .page-layout { grid-template-columns: 1fr 220px; gap: 12px; }
+  .page-layout { grid-template-columns: 1fr 190px; gap: 10px; }
 }
 
 /* ── Below 1024px: full width, no sidebar ── */
@@ -1508,183 +1519,4 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
   .nav-inner, .masthead, .header-banner-ad-inner, .site-footer-inner {
     max-width: 100%; margin-left: 0; margin-right: 0;
   }
-}
-
-.sb-widget.sb-vertical-ad { overflow:visible !important; border:none; background:transparent; }
-
-/* ═══════════════════════════════════════════════
-   IMAGE FIT — all containers, all breakpoints
-═══════════════════════════════════════════════ */
-
-/* News card grid (4-col) */
-.nc { overflow: hidden; }
-.nc img { width:100%; height:160px; object-fit:cover; display:block; flex-shrink:0; }
-
-/* Hero big card */
-.hero4-big { overflow: hidden; }
-.hero4-big img { width:100%; height:300px; object-fit:cover; display:block; }
-
-/* Hero small stacked cards */
-.hero4-sm { overflow: hidden; }
-.hero4-sm img { width:110px; height:80px; object-fit:cover; flex-shrink:0; display:block; }
-
-/* Article page image */
-.art-featured-img img,
-.art-img-wrap img    { width:100%; max-height:480px; object-fit:cover; display:block; border-radius:6px; }
-
-/* Sidebar related (sb-rc) */
-.sb-rc img { width:70px; height:52px; object-fit:cover; flex-shrink:0; border-radius:4px; }
-
-/* Article content inline images */
-.art-body img { max-width:100%; height:auto; border-radius:6px; margin:12px 0; display:block; }
-
-/* Mobile breakpoints */
-@media (max-width: 1023px) {
-  .nc img      { height:130px; }
-  .hero4-big img { height:220px; }
-  .hero4-sm img  { width:90px; height:70px; }
-}
-@media (max-width: 600px) {
-  .nc img      { height:110px; }
-  .hero4-big img { height:180px; }
-}
-
-/* Share buttons — branded */
-@media (max-width:600px) {
-      }
-
-/* ═══════════════════════════════════════════════════════
-   DEFINITIVE IMAGE FIT RULES — overrides all above
-═══════════════════════════════════════════════════════ */
-
-/* ── NEWS CARDS (home + category pages) ── */
-.nc {
-  display:flex; flex-direction:column;
-  background:#fff; border-radius:6px; overflow:hidden;
-  border:1px solid #E8E6E0;
-}
-.nc > img,
-.nc img:first-child {
-  width:100% !important;
-  height:180px !important;
-  object-fit:cover !important;
-  display:block !important;
-  flex-shrink:0 !important;
-}
-
-/* ── HERO BIG CARD ── */
-.hero4-grid { display:grid; grid-template-columns:1fr 1fr; gap:12px; margin-bottom:20px; }
-.hero4-big  { position:relative; border-radius:8px; overflow:hidden; min-height:360px; display:block; }
-.hero4-big > img {
-  width:100% !important;
-  height:360px !important;
-  object-fit:cover !important;
-  display:block !important;
-}
-
-/* ── ARTICLE PAGE — desktop 2-col layout ── */
-@media (min-width:1024px) {
-    }
-
-/* ── ARTICLE PAGE — mobile full width ── */
-@media (max-width:1023px) {
-    }
-
-/* ── ARTICLE PAGE AD — square on desktop ── */
-.art-after-ad,
-.mob-only-ad.art-after-ad {
-  max-width:320px;
-  margin:20px auto;
-}
-.art-after-ad .ad-rotator,
-.mob-only-ad.art-after-ad .ad-rotator {
-  aspect-ratio:1/1 !important;
-  width:100% !important;
-  height:unset !important;
-  overflow:hidden;
-}
-.art-after-ad .ad-rotator img,
-.mob-only-ad.art-after-ad .ad-rotator img {
-  width:100% !important;
-  height:100% !important;
-  object-fit:cover !important;
-}
-@media (max-width:1023px) {
-  .art-after-ad { max-width:100%; }
-}
-
-/* ── MOBILE: news cards shorter ── */
-@media (max-width:1023px) {
-  .nc > img, .nc img:first-child { height:130px !important; }
-  .hero4-big > img { height:220px !important; }
-  .hero4-grid { grid-template-columns:1fr; }
-  .hero4-right { display:none; }
-}
-@media (max-width:600px) {
-  .nc > img, .nc img:first-child { height:110px !important; }
-}
-
-/* ── SHARE BUTTONS ── */
-.art-share-inline {
-  display: flex;
-  gap: 8px;
-  flex-wrap: wrap;
-  margin: 10px 0 16px;
-  align-items: center;
-}
-.sbc {
-  display: inline-flex;
-  align-items: center;
-  gap: 6px;
-  padding: 7px 16px;
-  border-radius: 20px;
-  font-size: 13px;
-  font-weight: 600;
-  text-decoration: none;
-  border: none;
-  cursor: pointer;
-  transition: opacity .15s;
-  line-height: 1;
-}
-.sbc:hover  { opacity: .82; }
-.sbc i      { font-size: 15px; }
-.sbc-wa     { background: #25D366; color: #fff; }
-.sbc-fb     { background: #1877F2; color: #fff; }
-.sbc-tw     { background: #000;    color: #fff; }
-.sbc-cp     { background: #F0EFE9; color: #1A1A1A; border: 1px solid #D8D6CE; }
-
-/* Mobile: icon-only circles */
-@media (max-width: 600px) {
-  .sbc       { padding: 9px; border-radius: 50%; width: 38px; height: 38px; justify-content: center; gap: 0; }
-  .sbc span  { display: none; }
-  .sbc i     { font-size: 17px; }
-}
-
-/* ── ARTICLE PAGE — image float layout ── */
-
-/* Desktop: image floats left, content wraps beside + below */
-@media (min-width: 1024px) {
-  .art-image-col {
-    float: left;
-    width: 42%;
-    margin: 0 20px 16px 0;
-    border-radius: 8px;
-    overflow: hidden;
-  }
-  .art-image-col::after { content: ''; display: table; }
-  .art-hero-img {
-    width: 100% !important;
-    aspect-ratio: 1 / 1;
-    object-fit: cover !important;
-    display: block !important;
-    border-radius: 8px;
-  }
-  /* Clear float after content so next section is full width */
-  .art-body::after { content: ''; display: table; clear: both; }
-}
-
-/* Mobile: full width stacked */
-@media (max-width: 1023px) {
-  .art-image-col { width: 100%; margin: 0 0 12px 0; border-radius: 8px; overflow: hidden; }
-  .art-hero-img  { width: 100% !important; height: 220px !important; object-fit: cover !important; display: block !important; border-radius: 8px; }
 }

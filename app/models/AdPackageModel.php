@@ -8,9 +8,11 @@ class AdPackageModel extends Model
 
     public function active(): array
     {
-        return $this->fetchAll(
-            "SELECT * FROM tn_ad_packages WHERE is_active=1 ORDER BY sort_order"
-        );
+        try {
+            return $this->fetchAll(
+                "SELECT * FROM tn_ad_packages WHERE is_active=1 ORDER BY sort_order"
+            );
+        } catch (\Exception $e) { return []; }
     }
 
     public function allPackages(): array

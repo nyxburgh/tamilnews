@@ -705,3 +705,142 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
   color: #fff;
   border-color: #C0001A;
 }
+
+
+/* ── Ad form layout fix (appended) ── */
+/* ══════════════════════════════════════════════════════
+   AD FORM — clean layout, mobile-first
+   CSS-only fix, no PHP/HTML changes
+══════════════════════════════════════════════════════ */
+
+#adForm { max-width: 980px; margin: 0 auto; }
+
+/* ── Cards: consistent spacing, no clutter ── */
+#adForm .tn-card {
+  border-radius: 10px;
+  border: 1px solid var(--card-border, #E5E3DC);
+  overflow: hidden;
+}
+#adForm .tn-card-header {
+  font-size: 14px;
+  font-weight: 700;
+  padding: 12px 16px;
+  background: var(--portal-gray1, #F7F6F2);
+  border-bottom: 1px solid var(--card-border, #E5E3DC);
+}
+#adForm .tn-card-body { padding: 16px; }
+
+/* ── Labels & inputs: breathing room ── */
+#adForm .form-label {
+  font-size: 13px;
+  margin-bottom: 6px;
+}
+#adForm .form-control,
+#adForm .form-select {
+  font-size: 14px;
+  padding: 9px 12px;
+  border-radius: 7px;
+}
+#adForm .form-text { font-size: 11px; margin-top: 4px; }
+
+/* ── Slot picker: equal width, clean ── */
+#adForm .slot-pick {
+  min-width: 0;
+}
+
+/* ── Display type radios: stack cleanly ── */
+#adForm .form-check {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  margin-bottom: 6px;
+}
+
+/* ── Image thumbnails grid ── */
+#adForm .ad-img-thumb {
+  position: relative;
+  display: inline-block;
+}
+#adForm .ad-img-thumb img {
+  display: block;
+}
+#adForm .ad-img-del {
+  position: absolute;
+  top: -6px; right: -6px;
+  width: 22px; height: 22px;
+  border-radius: 50%;
+  background: #C0001A;
+  color: #fff;
+  border: 2px solid #fff;
+  font-size: 11px;
+  line-height: 1;
+  cursor: pointer;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  box-shadow: 0 1px 4px rgba(0,0,0,.25);
+}
+#adForm .ad-img-del:active { transform: scale(0.92); }
+
+/* ── Submit area: single clear button, breathing room ── */
+#adForm .d-grid.gap-2 {
+  margin-top: 8px;
+  padding-top: 12px;
+  border-top: 1px solid var(--card-border, #E5E3DC);
+}
+#adForm .btn-lg {
+  padding: 13px 20px;
+  font-size: 15px;
+  font-weight: 700;
+  border-radius: 8px;
+}
+
+/* ── Two-column grid: tighter gap on desktop ── */
+@media (min-width: 769px) {
+  #adForm .row.g-4 { --bs-gutter-x: 1.25rem; }
+}
+
+/* ════════════════════════════════════════
+   MOBILE (≤ 768px)
+════════════════════════════════════════ */
+@media (max-width: 768px) {
+  #adForm { padding: 0 2px; }
+
+  /* Stack columns fully, no side-by-side */
+  #adForm .row.g-4 { row-gap: 16px !important; }
+  #adForm .col-md-7,
+  #adForm .col-md-5 { width: 100%; }
+
+  #adForm .tn-card { margin-bottom: 14px !important; }
+  #adForm .tn-card-header { font-size: 13px; padding: 10px 14px; }
+  #adForm .tn-card-body { padding: 14px; }
+
+  /* Phone/Email side-by-side too cramped → stack */
+  #adForm .row.g-2 > .col-sm-6 {
+    flex: 0 0 100%;
+    max-width: 100%;
+    margin-bottom: 10px;
+  }
+  #adForm .row.g-2 > .col-sm-6:last-child { margin-bottom: 0; }
+
+  /* Slot picker: stack vertically on small screens */
+  #adForm .d-flex.gap-3:has(.slot-pick) {
+    flex-direction: column;
+  }
+
+  /* Display type: full-width tappable rows */
+  #adForm .form-check {
+    padding: 8px 10px;
+    background: var(--portal-gray1, #F7F6F2);
+    border-radius: 8px;
+  }
+
+  /* Submit button: full width, generous tap target */
+  #adForm .btn-lg {
+    padding: 14px;
+    font-size: 16px;
+  }
+
+  /* Image thumbs: slightly bigger tap targets */
+  #adForm .ad-img-thumb img { width: 72px !important; height: 56px !important; }
+}
