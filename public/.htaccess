@@ -1,6 +1,6 @@
 Options -Indexes
 RewriteEngine On
-RewriteBase /tamilnews/public/
+RewriteBase /thinathulir/public/
 
 # Allow real files and directories
 RewriteCond %{REQUEST_FILENAME} !-f

@@ -32,7 +32,7 @@ $debug = filter_var($_ENV['APP_DEBUG'] ?? false, FILTER_VALIDATE_BOOLEAN);
 define('APP_DEBUG', $debug);
 
 // ── BASE & ASSET URL ─────────────────────────────
-$_appUrl = rtrim($_ENV['APP_URL'] ?? 'http://localhost/tamilnews', '/');
+$_appUrl = rtrim($_ENV['APP_URL'] ?? 'http://localhost/thinathulir', '/');
 define('BASE_URL',  $_appUrl);
 define('ASSET_URL', $_appUrl . '/public');
 if ($debug) {
