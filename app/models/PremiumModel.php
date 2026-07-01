@@ -69,6 +69,24 @@ class PremiumModel extends Model
         return ['data' => $data, 'total' => $total, 'page' => $page, 'per_page' => $perPage];
     }
 
+    public function allPlans(): array
+    {
+        return $this->fetchAll("SELECT * FROM tn_premium_plans ORDER BY price_inr ASC");
+    }
+
+    public function allSubscribers(int $limit = 200): array
+    {
+        return $this->fetchAll(
+            "SELECT pa.*, r.name AS reader_name, r.email AS reader_email,
+                    pp.name AS plan_name, pp.price_inr
+             FROM tn_premium_access pa
+             JOIN tn_readers r ON r.id = pa.reader_id
+             JOIN tn_premium_plans pp ON pp.id = pa.plan_id
+             ORDER BY pa.created_at DESC LIMIT ?",
+            [$limit]
+        );
+    }
+
     public function stats(): array
     {
         return [

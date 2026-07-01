@@ -844,3 +844,61 @@ body:not(.portal-body):not(.ep-body) .tn-pag-btn.tn-pag-dots { color: #6b7280; }
   /* Image thumbs: slightly bigger tap targets */
   #adForm .ad-img-thumb img { width: 72px !important; height: 56px !important; }
 }
+
+/* Browse label in media library upload zone */
+.tn-browse-label {
+  color: var(--accent, #3B82F6);
+  text-decoration: underline;
+  cursor: pointer;
+  font-weight: 600;
+}
+.upload-row { background: #F8FAFC; border-radius: 6px; padding: 8px 12px; }
+.upload-filename { max-width: 200px; }
+
+/* ── Sidebar rates widget ── */
+.tn-sidebar-rates {
+  padding: 10px 14px;
+  border-top: 1px solid rgba(255,255,255,.08);
+  border-bottom: 1px solid rgba(255,255,255,.08);
+}
+.tn-sidebar-rate-item {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  padding: 4px 0;
+  font-size: 12px;
+}
+.tn-sr-icon  { font-size: 14px; flex-shrink: 0; }
+.tn-sr-label { color: rgba(255,255,255,.5); font-size: 11px; text-transform: uppercase; letter-spacing: .3px; flex: 1; }
+.tn-sr-val   { font-weight: 700; color: #fff; font-size: 12px; }
+.tn-sr-edit  { display: block; text-align: right; font-size: 10px; color: rgba(255,255,255,.4); text-decoration: none; margin-top: 4px; }
+.tn-sr-edit:hover { color: rgba(255,255,255,.7); }
+
+/* ── Citizen report review view ── */
+.citizen-report-content {
+  font-size: 14px;
+  line-height: 1.8;
+  color: var(--text);
+  white-space: pre-wrap;
+  word-break: break-word;
+}
+.citizen-report-image {
+  border-radius: 8px;
+  overflow: hidden;
+  max-width: 480px;
+}
+.citizen-report-image img {
+  width: 100%;
+  max-height: 320px;
+  object-fit: contain;
+  background: rgba(255,255,255,.05);
+  display: block;
+}
+
+/* Inline quick-create tag box (shown when no suggestion match) */
+.tn-tag-quickadd {
+  padding: 10px 12px;
+  border-top: 1px solid var(--card-border);
+}
+.tn-tag-quickadd input { margin-bottom: 6px; }
+.tn-tag-quickadd input:last-of-type { margin-bottom: 8px; }

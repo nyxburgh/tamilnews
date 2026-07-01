@@ -116,4 +116,23 @@ class ContributorModel extends Model
             );
         } catch (\Exception $e) { return 0; }
     }
+
+    public function update(int $id, array $data): bool
+    {
+        if (empty($data)) return false;
+        $cols = implode(', ', array_map(fn($k) => "$k = ?", array_keys($data)));
+        $vals = array_values($data);
+        $vals[] = $id;
+        $this->query("UPDATE tn_contributors SET $cols WHERE id = ?", $vals);
+        return true;
+    }
+
+    public function findByGoogleId(string $googleId): array|false
+    {
+        return $this->query(
+            "SELECT * FROM tn_contributors WHERE google_id = ? LIMIT 1",
+            [$googleId]
+        )->fetch(\PDO::FETCH_ASSOC);
+    }
+
 }

@@ -47,7 +47,23 @@ class ReaderAuthController extends Controller
 
         $return = Session::get('reader_return', '/');
         Session::delete('reader_return');
-        Helper::redirect($return);
+
+        // First-time login: redirect to T&C + district agreement
+        $target = empty($reader['has_agreed_terms']) ? '/reader/agree' : $return;
+
+        // If opened in popup, close it and reload parent
+        echo '<!DOCTYPE html><html><head><meta charset="UTF-8"></head><body>
+<script>
+if (window.opener && !window.opener.closed) {
+  window.opener.location.reload();
+  window.close();
+} else {
+  window.location = ' . json_encode(BASE_URL . '/public' . $target) . ';
+}
+</script>
+<p>Redirecting... <a href="' . htmlspecialchars(BASE_URL . '/public' . $target) . '">Click here</a></p>
+</body></html>';
+        exit;
     }
 
     public function logout(): void
@@ -59,10 +75,15 @@ class ReaderAuthController extends Controller
 
     public function rate(): void
     {
+        header('Content-Type: application/json');
         if (!Session::get('reader_id')) {
-            Helper::json(['error' => 'Login required'], 401);
+            echo json_encode(['error' => 'Login required', 'redirect' => '/auth/reader/login']); exit;
         }
-        CSRF::validate();
+        // Manual CSRF check — return JSON on failure (AJAX endpoint)
+        $token = $_POST['_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+        if (!CSRF::verify($token)) {
+            echo json_encode(['error' => 'Session expired. Please refresh the page.']); exit;
+        }
 
         $articleId = (int)($_POST['article_id'] ?? 0);
         $rating    = max(1, min(5, (int)($_POST['rating'] ?? 0)));

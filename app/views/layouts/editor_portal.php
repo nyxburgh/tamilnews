@@ -9,8 +9,10 @@
 <link href="https://cdn.jsdelivr.net/npm/bootstrap@5.3.3/dist/css/bootstrap.min.css" rel="stylesheet">
 <link href="https://cdn.jsdelivr.net/npm/bootstrap-icons@1.11.3/font/bootstrap-icons.css" rel="stylesheet">
 <link href="<?= ASSET_URL ?>/assets/css/editor_portal.css" rel="stylesheet">
+<link href="<?= ASSET_URL ?>/assets/css/ads.css" rel="stylesheet">
 <meta name="csrf-token" content="<?= \App\Core\CSRF::token() ?>">
 <meta name="base-url"   content="<?= ASSET_URL ?>">
+<link rel="stylesheet" href="<?= ASSET_URL ?>/assets/css/article-form.css">
 </head>
 <body class="ep-body">
 
@@ -83,13 +85,13 @@ try {
         <i class="bi bi-speedometer2"></i> Dashboard
         <?php if ($notifCount > 0): ?><span class="ep-badge"><?= $notifCount ?></span><?php endif; ?>
       </a>
-      <a href="<?= $r ?>/admin/articles" class="ep-nav-item <?= (epActive('/admin/articles',$current) && !str_contains($current,'/pending')) ? 'active' : '' ?>">
+      <a href="<?= $r ?>/portal/all-articles" class="ep-nav-item <?= (epActive('/portal/all-articles',$current) && !str_contains($current,'/pending')) ? 'active' : '' ?>">
         <i class="bi bi-file-earmark-text"></i> All Articles
       </a>
-      <a href="<?= $r ?>/admin/articles/create" class="ep-nav-item">
+      <a href="<?= $r ?>/portal/write" class="ep-nav-item">
         <i class="bi bi-plus-circle"></i> New Article
       </a>
-      <a href="<?= $r ?>/admin/articles?status=review" class="ep-nav-item <?= ($_GET['status']??'')==='review'?'active':'' ?>">
+      <a href="<?= $r ?>/portal/all-articles?status=review" class="ep-nav-item <?= ($_GET['status']??'')==='review'?'active':'' ?>">
         <i class="bi bi-hourglass-split"></i> Review Queue
         <?php
         try {
@@ -98,26 +100,26 @@ try {
         } catch (\Exception $e) {}
         ?>
       </a>
-      <a href="<?= $r ?>/admin/articles/pending-edits" class="ep-nav-item <?= epActive('/pending-edits',$current) ?>">
+      <a href="<?= $r ?>/portal/all-articles/pending-edits" class="ep-nav-item <?= epActive('/pending-edits',$current) ?>">
         <i class="bi bi-pencil-square"></i> Pending Edits
       </a>
 
       <div class="ep-nav-label">Content</div>
-      <a href="<?= $r ?>/admin/categories" class="ep-nav-item <?= epActive('/admin/categories',$current) ?>">
+      <a href="<?= $r ?>/portal/categories" class="ep-nav-item <?= epActive('/portal/categories',$current) ?>">
         <i class="bi bi-grid-3x3-gap"></i> Categories
       </a>
-      <a href="<?= $r ?>/admin/tags" class="ep-nav-item <?= epActive('/admin/tags',$current) ?>">
+      <a href="<?= $r ?>/portal/tags" class="ep-nav-item <?= epActive('/portal/tags',$current) ?>">
         <i class="bi bi-tags"></i> Tags
       </a>
-      <a href="<?= $r ?>/admin/media" class="ep-nav-item <?= epActive('/admin/media',$current) ?>">
+      <a href="<?= $r ?>/portal/media" class="ep-nav-item <?= epActive('/portal/media',$current) ?>">
         <i class="bi bi-images"></i> Media Library
       </a>
-      <a href="<?= $r ?>/admin/special-categories" class="ep-nav-item <?= epActive('/admin/special-categories',$current) ?>">
+      <a href="<?= $r ?>/portal/special-categories" class="ep-nav-item <?= epActive('/portal/special-categories',$current) ?>">
         <i class="bi bi-flag"></i> Special Categories
       </a>
 
       <div class="ep-nav-label">Live & Premium</div>
-      <a href="<?= $r ?>/admin/live-blog" class="ep-nav-item <?= epActive('/admin/live-blog',$current) ?>">
+      <a href="<?= $r ?>/portal/live-blog" class="ep-nav-item <?= epActive('/portal/live-blog',$current) ?>">
         <i class="bi bi-broadcast"></i> Live Blog
         <?php
         try {
@@ -126,12 +128,12 @@ try {
         } catch (\Exception $e) {}
         ?>
       </a>
-      <a href="<?= $r ?>/admin/premium" class="ep-nav-item <?= epActive('/admin/premium',$current) ?>">
+      <a href="<?= $r ?>/portal/premium" class="ep-nav-item <?= epActive('/portal/premium',$current) ?>">
         <i class="bi bi-lock"></i> Premium Articles
       </a>
 
       <div class="ep-nav-label">People</div>
-      <a href="<?= $r ?>/admin/contributors" class="ep-nav-item <?= epActive('/admin/contributors',$current) ?>">
+      <a href="<?= $r ?>/portal/contributors" class="ep-nav-item <?= epActive('/portal/contributors',$current) ?>">
         <i class="bi bi-person-badge"></i> Contributors
         <?php
         try {
@@ -142,7 +144,7 @@ try {
       </a>
 
       <div class="ep-nav-label">Insights</div>
-      <a href="<?= $r ?>/admin/analytics" class="ep-nav-item <?= epActive('/admin/analytics',$current) ?>">
+      <a href="<?= $r ?>/portal/analytics" class="ep-nav-item <?= epActive('/portal/analytics',$current) ?>">
         <i class="bi bi-bar-chart-line"></i> Analytics
       </a>
       <a href="<?= $r ?>/admin/push" class="ep-nav-item <?= epActive('/admin/push',$current) ?>">
@@ -150,7 +152,7 @@ try {
       </a>
 
       <div class="ep-nav-label">Newspaper</div>
-      <a href="<?= $r ?>/admin/newspaper" class="ep-nav-item <?= epActive('/admin/newspaper',$current) ?>">
+      <a href="<?= $r ?>/portal/newspaper" class="ep-nav-item <?= epActive('/portal/newspaper',$current) ?>">
         <i class="bi bi-newspaper"></i> E-Paper Archive
       </a>
 <div class="ep-nav-label">Print</div>
@@ -158,7 +160,7 @@ try {
   <i class="bi bi-printer"></i> Print Editions
 </a>
       <div class="ep-nav-label">Advertising</div>
-      <a href="<?= $r ?>/admin/business-ads" class="ep-nav-item <?= epActive('/admin/business-ads',$current) ?>">
+      <a href="<?= $r ?>/portal/ads" class="ep-nav-item <?= epActive('/portal/ads',$current) ?>">
         <i class="bi bi-megaphone"></i> Business Ads
         <?php try { $bac=(new \App\Models\BusinessAdModel())->pendingCount(); if($bac>0): ?><span class="ep-badge"><?= $bac ?></span><?php endif; } catch(\Exception $e) {} ?>
       </a>
@@ -201,15 +203,15 @@ try {
     <i class="bi bi-speedometer2"></i>
     <span>Dashboard</span>
   </a>
-  <a href="<?= $r ?>/admin/articles" class="ep-mob-item <?= (epActive('/admin/articles',$current) && !str_contains($current,'/create')) ? 'active' : '' ?>">
+  <a href="<?= $r ?>/portal/all-articles" class="ep-mob-item <?= (epActive('/portal/all-articles',$current) && !str_contains($current,'/create')) ? 'active' : '' ?>">
     <i class="bi bi-file-earmark-text"></i>
     <span>Articles</span>
   </a>
-  <a href="<?= $r ?>/admin/articles/create" class="ep-mob-write">
+  <a href="<?= $r ?>/portal/write" class="ep-mob-write">
     <div class="ep-mob-write-btn"><i class="bi bi-pencil-square"></i></div>
     <span>Write</span>
   </a>
-  <a href="<?= $r ?>/admin/media" class="ep-mob-item <?= epActive('/admin/media',$current) ? 'active' : '' ?>">
+  <a href="<?= $r ?>/portal/media" class="ep-mob-item <?= epActive('/portal/media',$current) ? 'active' : '' ?>">
     <i class="bi bi-images"></i>
     <span>Media</span>
   </a>

@@ -1,54 +1,68 @@
-<?php use App\Core\{Helper, Auth, CSRF}; ?>
+<?php use App\Core\{Helper, Auth, CSRF};
+$isAdmin = Auth::role()==='admin';
+$backUrl = $isAdmin ? BASE_URL.'/public/admin/articles' : BASE_URL.'/public/portal/all-articles';
+// Prefill from Photo News
+if (!empty($_prefill['title'] ?? '')) {
+    $article['title'] = ($article['title'] ?? '') ?: ($_prefill['title'] ?? '');
+    $article['slug']  = ($article['slug']  ?? '') ?: ($_prefill['slug']  ?? '');
+    if (!empty($_prefill['_pn_tags'] ?? [])) {
+        $tags = array_values(array_unique(array_merge($tags ?? [], $_prefill['_pn_tags']), SORT_REGULAR));
+    }
+}
+if ($isEdit) {
+    $action = $isAdmin
+        ? BASE_URL.'/public/admin/articles/edit/'.($article['id']??0)
+        : BASE_URL.'/public/portal/all-articles/edit/'.($article['id']??0);
+} else {
+    $action = $isAdmin
+        ? BASE_URL.'/public/admin/articles/create'
+        : BASE_URL.'/public/portal/write';
+}
 
-<div class="tn-page-header">
-  <div>
-    <h2 class="tn-page-title"><?= $isEdit ? 'Edit Article' : 'New Article' ?></h2>
-    <p class="tn-page-sub"><?= $isEdit ? 'ID #'.$article['id'].' · '.Helper::e($article['slug']??'') : 'Fill all fields below' ?></p>
+$parentCats = []; $childMap = [];
+foreach ($categories as $cat) {
+    if (!$cat['parent_id']) $parentCats[] = $cat;
+    else $childMap[$cat['parent_id']][] = $cat;
+}
+$currentCatId = (int)($article['category_id'] ?? 0);
+$selectedParent = $selectedChild = 0;
+foreach ($categories as $cat) {
+    if ($cat['id'] === $currentCatId) {
+        if ($cat['parent_id']) { $selectedParent = (int)$cat['parent_id']; $selectedChild = $currentCatId; }
+        else { $selectedParent = $currentCatId; }
+    }
+}
+?>
+
+<div class="af-topbar">
+  <a href="<?= htmlspecialchars($backUrl) ?>" class="btn btn-sm btn-outline-secondary"><i class="bi bi-arrow-left"></i></a>
+  <div class="af-topbar-title">
+    <?= $isEdit ? 'Edit Article' : 'New Article' ?>
+    <?php if ($isEdit && !empty($article['updated_at'])): ?>
+    <small class="af-topbar-meta">Saved <?= date('d M, H:i', strtotime($article['updated_at'])) ?></small>
+    <?php endif; ?>
   </div>
-  <?php $backUrl = Auth::role()==='admin' ? $r.'/admin/articles' : $r.'/portal/articles'; ?>
-  <a href="<?= $backUrl ?>" class="btn btn-outline-secondary"><i class="bi bi-arrow-left me-2"></i>Back</a>
 </div>
 
-<form method="POST" action="<?= $r ?>/admin/articles/<?= $isEdit ? 'edit/'.$article['id'] : 'create' ?>" id="articleForm">
+<form method="POST" action="<?= $action ?>" id="articleForm" enctype="multipart/form-data">
 <?= CSRF::field() ?>
 
-<div class="row g-3">
+<div class="af-grid">
 
-  <!-- ════ LEFT COLUMN ════ -->
-  <div class="col-xl-8 col-lg-7">
+  <!-- ════ LEFT — MAIN CONTENT ════ -->
+  <div class="af-col-main">
 
-    <!-- 1. CLASSIFICATION — Category first -->
-    <div class="tn-card mb-3">
-      <div class="tn-card-header"><span><i class="bi bi-folder2-open me-2"></i>Classification</span></div>
-      <div class="tn-card-body">
-        <div class="row g-3">
+    <!-- SECTION 1: Content -->
+    <div class="af-card">
+      <div class="af-card-head"><i class="bi bi-pencil-square me-2"></i>Content</div>
+      <div class="af-card-body">
 
-          <!-- Category -->
-          <div class="col-md-6">
-            <label class="form-label fw-600">Category <span class="text-danger">*</span></label>
-            <?php
-            $parentCats = [];
-            $childMap   = [];
-            foreach ($categories as $cat) {
-              if (!$cat['parent_id']) $parentCats[] = $cat;
-              else $childMap[$cat['parent_id']][] = $cat;
-            }
-            $currentCatId   = (int)($article['category_id'] ?? 0);
-            $selectedParent = 0;
-            $selectedChild  = 0;
-            foreach ($categories as $cat) {
-              if ($cat['id'] === $currentCatId) {
-                if ($cat['parent_id']) {
-                  $selectedParent = (int)$cat['parent_id'];
-                  $selectedChild  = $currentCatId;
-                } else {
-                  $selectedParent = $currentCatId;
-                }
-              }
-            }
-            ?>
-            <select name="parent_category_id" id="parentCatSelect" class="form-select" onchange="loadSubcats(this.value)">
-              <option value="">-- Select Category --</option>
+        <!-- Category + Subcategory -->
+        <div class="row g-2 mb-3">
+          <div class="col-6">
+            <label class="af-label">Category <span class="af-req">*</span></label>
+            <select name="parent_category_id" id="parentCatSelect" class="af-select">
+              <option value="">— Select —</option>
               <?php foreach ($parentCats as $cat): ?>
               <option value="<?= $cat['id'] ?>"
                       data-children="<?= htmlspecialchars(json_encode($childMap[$cat['id']] ?? [])) ?>"
@@ -59,12 +73,10 @@
             </select>
             <input type="hidden" name="category_id" id="finalCategoryId" value="<?= $currentCatId ?: '' ?>">
           </div>
-
-          <!-- Subcategory -->
-          <div class="col-md-6" id="subcatWrap" style="<?= empty($childMap[$selectedParent]) ? 'visibility:hidden' : '' ?>">
-            <label class="form-label fw-600">Subcategory</label>
-            <select id="subcatSelect" class="form-select">
-              <option value="<?= $selectedParent ?>">-- All --</option>
+          <div class="col-6" id="subcatWrap" style="<?= empty($childMap[$selectedParent]) ? 'display:none' : '' ?>">
+            <label class="af-label">Subcategory</label>
+            <select id="subcatSelect" class="af-select">
+              <option value="<?= $selectedParent ?>">— All —</option>
               <?php foreach ($childMap[$selectedParent] ?? [] as $sub): ?>
               <option value="<?= $sub['id'] ?>" <?= $selectedChild===(int)$sub['id'] ? 'selected' : '' ?>>
                 <?= Helper::e($sub['name_tamil'] ?: $sub['name']) ?>
@@ -72,508 +84,273 @@
               <?php endforeach; ?>
             </select>
           </div>
-
-          <!-- Content Type -->
-          <div class="col-md-6">
-            <label class="form-label fw-600">Content Type</label>
-            <select name="content_type" class="form-select">
-              <?php foreach (['news'=>'News','video'=>'Video','short_news'=>'Short News','live_update'=>'Live Update','gallery'=>'Gallery'] as $v=>$l): ?>
-              <option value="<?= $v ?>" <?= ($article['content_type']??'news')===$v ? 'selected' : '' ?>><?= $l ?></option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-
-          <!-- City / Location -->
-          <div class="col-md-6">
-            <label class="form-label fw-600">City / Location</label>
-            <select name="city_id" class="form-select">
-              <option value="">None</option>
-              <?php foreach ($cities as $city): ?>
-              <option value="<?= $city['id'] ?>" <?= ($article['city_id']??0)==$city['id'] ? 'selected' : '' ?>>
-                <?= Helper::e($city['name']) ?><?= !empty($city['district_name']) ? ' ('.$city['district_name'].')' : '' ?>
-              </option>
-              <?php endforeach; ?>
-            </select>
-          </div>
-
         </div>
-      </div>
-    </div>
 
-    <!-- 2. TITLE & SLUG -->
-    <div class="tn-card mb-3">
-      <div class="tn-card-header"><span><i class="bi bi-card-heading me-2"></i>Title & Slug</span></div>
-      <div class="tn-card-body">
+        <!-- Content Type -->
         <div class="mb-3">
-          <label class="form-label fw-600">Article Title <span class="text-danger">*</span></label>
-          <input type="text" name="title" id="titleInput" class="form-control form-control-lg"
-                 placeholder="Tamil or English headline…"
+          <label class="af-label">Content Type</label>
+          <select name="content_type" class="af-select">
+            <?php foreach (['news'=>'News','video'=>'Video','short_news'=>'Short News','live_update'=>'Live Update','gallery'=>'Gallery','special'=>'Special','sponsored'=>'Sponsored'] as $v=>$l): ?>
+            <option value="<?= $v ?>" <?= ($article['content_type']??'news')===$v ? 'selected' : '' ?>><?= $l ?></option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <!-- District -->
+        <div class="mb-3">
+          <label class="af-label">District</label>
+          <select name="district_id" class="af-select">
+            <option value="">— All Districts —</option>
+            <?php
+            $selectedDistrict = $article['district_id'] ?? ($article['city_district_id'] ?? 0);
+            foreach ($districts ?? [] as $dist): ?>
+            <option value="<?= $dist['id'] ?>" <?= $selectedDistrict == $dist['id'] ? 'selected' : '' ?>>
+              <?= Helper::e($dist['name']) ?>
+            </option>
+            <?php endforeach; ?>
+          </select>
+        </div>
+
+        <!-- City / Area / Town — free text -->
+        <div class="mb-3">
+          <label class="af-label">City / Area / Town</label>
+          <input type="text" name="city_name" class="af-input"
+                 placeholder="e.g. Chennai, Madurai, Anna Nagar…"
+                 value="<?= Helper::e($article['city_text'] ?? $article['city_name'] ?? '') ?>">
+        </div>
+
+        <!-- Title + Slug -->
+        <div class="mb-3">
+          <label class="af-label">Article Title <span class="af-req">*</span></label>
+          <input type="text" name="title" id="titleInput" class="af-input af-input-title"
+                 placeholder="Enter headline in Tamil or English…"
                  value="<?= Helper::e($article['title'] ?? '') ?>" required>
-        </div>
-        <div>
-          <label class="form-label fw-600">URL Slug</label>
-          <div class="input-group">
-            <span class="input-group-text text-muted small">/article/</span>
-            <input type="text" name="slug" id="slugInput" class="form-control"
+          <div class="af-slug-group mt-2">
+            <span class="af-slug-prefix">/article/</span>
+            <input type="text" name="slug" id="slugInput" class="af-slug-input"
                    value="<?= Helper::e($article['slug'] ?? '') ?>" placeholder="auto-generated">
-            <button type="button" class="btn btn-outline-secondary" id="regenSlug" title="Regenerate">
-              <i class="bi bi-arrow-clockwise"></i>
-            </button>
+            <button type="button" class="af-slug-regen" id="regenSlug" title="Regenerate">↺</button>
           </div>
         </div>
-      </div>
-    </div>
 
-    <!-- 3. CONTENT EDITOR -->
-    <div class="tn-card mb-3">
-      <div class="tn-card-header"><span><i class="bi bi-pencil-square me-2"></i>Content</span></div>
-      <div class="tn-card-body" style="padding:0">
-        
-<style>
-.art-content-area {
-  min-height: 520px;
-  font-family: 'Noto Sans Tamil', 'Source Sans 3', sans-serif;
-  font-size: 16px;
-  line-height: 1.8;
-  padding: 16px;
-  border: 1px solid #D8D6CE;
-  border-radius: 6px;
-  resize: vertical;
-  width: 100%;
-  background: #FAFAF8;
-}
-.art-content-area:focus { border-color: #C0001A; outline: none; box-shadow: 0 0 0 2px rgba(192,0,26,.1); }
-.art-toolbar { display:flex; flex-wrap:wrap; gap:4px; padding:8px; background:#F5F5F2; border:1px solid #D8D6CE; border-bottom:none; border-radius:6px 6px 0 0; }
-.art-toolbar button { padding:4px 10px; font-size:12px; font-weight:600; border:1px solid #D8D6CE; background:#fff; border-radius:4px; cursor:pointer; color:#1A1A1A; }
-.art-toolbar button:hover { background:#C0001A; color:#fff; border-color:#C0001A; }
-.art-toolbar .sep { width:1px; background:#D8D6CE; margin:2px 4px; }
-</style>
-<div class="art-toolbar">
-  <button type="button" onclick="fmt('bold')" title="Bold"><b>B</b></button>
-  <button type="button" onclick="fmt('italic')" title="Italic"><i>I</i></button>
-  <button type="button" onclick="fmt('underline')" title="Underline"><u>U</u></button>
-  <span class="sep"></span>
-  <button type="button" onclick="wrapTag('h2')" title="Heading">H2</button>
-  <button type="button" onclick="wrapTag('h3')" title="Sub-heading">H3</button>
-  <button type="button" onclick="wrapTag('p')" title="Paragraph">P</button>
-  <span class="sep"></span>
-  <button type="button" onclick="wrapTag('blockquote')" title="Quote">❝</button>
-  <button type="button" onclick="insertUL()" title="Bullet List">• List</button>
-  <span class="sep"></span>
-  <button type="button" onclick="insertLink()" title="Link">🔗</button>
-</div>
-<script>
-function fmt(cmd) {
-  const ta = document.getElementById('content');
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.substring(s, e);
-  const tags = { bold:'<strong>', italic:'<em>', underline:'<u>' };
-  const close = { bold:'</strong>', italic:'</em>', underline:'</u>' };
-  ta.setRangeText(tags[cmd] + sel + close[cmd], s, e, 'end');
-}
-function wrapTag(tag) {
-  const ta = document.getElementById('content');
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const sel = ta.value.substring(s, e) || 'Text here';
-  ta.setRangeText(`<${tag}>${sel}</${tag}>`, s, e, 'end');
-}
-function insertUL() {
-  const ta = document.getElementById('content');
-  const s = ta.selectionStart;
-  ta.setRangeText('\n<ul>\n  <li>Item 1</li>\n  <li>Item 2</li>\n</ul>\n', s, s, 'end');
-}
-function insertLink() {
-  const url = prompt('Enter URL:');
-  if (!url) return;
-  const ta = document.getElementById('content');
-  const s = ta.selectionStart, e = ta.selectionEnd;
-  const txt = ta.value.substring(s, e) || 'Link text';
-  ta.setRangeText(`<a href="${url}">${txt}</a>`, s, e, 'end');
-}
-</script>
-<textarea id="content" name="content" class="form-control art-content-area" style="border-radius:0 0 6px 6px"><?= htmlspecialchars($article['content'] ?? '') ?></textarea>
-      </div>
-    </div>
-
-    <!-- 4. EXCERPT -->
-    <div class="tn-card mb-3">
-      <div class="tn-card-header"><span><i class="bi bi-text-paragraph me-2"></i>Excerpt / Summary</span></div>
-      <div class="tn-card-body">
-        <textarea name="excerpt" class="form-control" rows="3"
-                  placeholder="Short summary (auto-generated if blank)…"><?= Helper::e($article['excerpt'] ?? '') ?></textarea>
-      </div>
-    </div>
-
-    <!-- 5. SEO -->
-    <div class="tn-card mb-3">
-      <div class="tn-card-header"><span><i class="bi bi-search me-2"></i>SEO</span></div>
-      <div class="tn-card-body">
+        <!-- Content Editor -->
         <div class="mb-3">
-          <label class="form-label">Meta Title <small class="text-muted">(blank = article title)</small></label>
-          <input type="text" name="meta_title" class="form-control"
-                 value="<?= Helper::e($article['meta_title'] ?? '') ?>" maxlength="300">
+          <label class="af-label">Article Content <span class="af-req">*</span></label>
+          <div class="af-editor-wrap">
+            <div class="af-toolbar art-toolbar">
+              <button type="button" data-fmt="bold" title="Bold"><b>B</b></button>
+              <button type="button" data-fmt="italic" title="Italic"><i>I</i></button>
+              <span class="af-toolbar-sep"></span>
+              <button type="button" data-tag="h2" title="Heading 2">H2</button>
+              <button type="button" data-tag="h3" title="Heading 3">H3</button>
+              <button type="button" data-tag="p" title="Paragraph">¶</button>
+              <span class="af-toolbar-sep"></span>
+              <button type="button" id="insertLinkBtn" title="Insert link">🔗 Link</button>
+            </div>
+            <textarea id="content" name="content" class="af-textarea af-textarea-content"><?= htmlspecialchars($article['content'] ?? '') ?></textarea>
+          </div>
         </div>
+
+        <!-- Featured Image -->
         <div>
-          <label class="form-label">Meta Description</label>
-          <textarea name="meta_desc" class="form-control" rows="2" maxlength="500"><?= Helper::e($article['meta_desc'] ?? '') ?></textarea>
+          <label class="af-label">Featured Image</label>
+          <input type="hidden" name="media_id" id="mediaId" value="<?= $article['media_id'] ?? '' ?>">
+          <div id="imagePreview" class="<?= empty($article['image_url']) ? 'd-none' : '' ?>">
+            <div class="af-img-preview">
+              <img src="<?= $article['image_url'] ? rtrim(ASSET_URL,'/'). '/public' . htmlspecialchars($article['image_url']) : '' ?>" id="previewImg" alt="">
+              <button type="button" class="af-img-del" onclick="ArticleForm.clearImage()">✕</button>
+            </div>
+            <div class="af-img-replace mt-2">
+              <button type="button" class="af-img-replace-btn" onclick="document.getElementById('directUpload').click()">↺ Replace</button>
+              <button type="button" class="af-img-replace-btn" onclick="ArticleForm.openMediaLibrary()">☰ Library</button>
+            </div>
+          </div>
+          <div id="uploadZone" class="af-dropzone <?= !empty($article['image_url']) ? 'd-none' : '' ?>">
+            <div class="af-dropzone-icon">📷</div>
+            <div class="af-dropzone-label">Add cover image</div>
+            <div class="af-dropzone-hint">JPG · PNG · WebP · Max 5MB</div>
+            <div class="af-dropzone-btns">
+              <button type="button" class="af-dropzone-btn" onclick="document.getElementById('directUpload').click()">Browse</button>
+              <button type="button" class="af-dropzone-btn" onclick="ArticleForm.openMediaLibrary()">Library</button>
+            </div>
+            <div id="uploadError" class="af-upload-error"></div>
+          </div>
+          <input type="file" id="directUpload" accept="image/*" class="d-none">
+          <div id="uploadProgress" style="display:none" class="af-upload-progress">
+            <div class="af-progress-track"><div id="uploadBar" class="af-progress-bar"></div></div>
+          </div>
         </div>
+
       </div>
     </div>
 
-  </div><!-- /col left -->
+  </div><!-- /main -->
 
-  <!-- ════ RIGHT COLUMN ════ -->
-  <div class="col-xl-4 col-lg-5">
-    <div class="art-right-sticky">
+  <!-- ════ RIGHT — SIDEBAR ════ -->
+  <div class="af-col-side">
 
-      <!-- PUBLISH & STATUS — top of right col -->
-      <div class="tn-card mb-3">
-        <div class="tn-card-header"><span><i class="bi bi-send me-2"></i>Publish</span></div>
-        <div class="tn-card-body">
-          <div class="mb-3">
-            <label class="form-label fw-600">Status</label>
-            <select name="status" class="form-select" id="statusSelect">
-              <option value="draft"   <?= ($article['status']??'draft')==='draft'     ? 'selected':'' ?>>Draft</option>
-              <option value="review"  <?= ($article['status']??'')==='review'          ? 'selected':'' ?>>Submit for Review</option>
-              <?php if (Auth::can('publish_articles')): ?>
-              <option value="published" <?= ($article['status']??'')==='published'    ? 'selected':'' ?>>Published</option>
-              <option value="scheduled" <?= ($article['status']??'')==='scheduled'    ? 'selected':'' ?>>Scheduled</option>
-              <?php endif; ?>
-            </select>
-          </div>
-          <div id="scheduledAtWrap" class="mb-3" style="display:none">
-            <label class="form-label">Publish At</label>
-            <input type="datetime-local" name="scheduled_at" class="form-control"
-                   value="<?= !empty($article['scheduled_at']) ? date('Y-m-d\TH:i', strtotime($article['scheduled_at'])) : '' ?>">
-          </div>
-          <!-- SUBMIT BUTTON — always visible at top of right panel -->
-          <div class="d-grid gap-2">
-            <button type="submit" class="btn btn-primary btn-lg fw-600">
-              <i class="bi bi-save me-2"></i><?= $isEdit ? 'Update Article' : 'Create Article' ?>
-            </button>
-            <?php if ($isEdit && !empty($article['slug'])): ?>
-            <a href="<?= $r ?>/article/<?= Helper::e($article['slug']) ?>" target="_blank" class="btn btn-outline-secondary">
-              <i class="bi bi-eye me-2"></i>Preview
-            </a>
-            <?php endif; ?>
-          </div>
+    <!-- SECTION 2: Details -->
+    <div class="af-card">
+      <div class="af-card-head"><i class="bi bi-list-check me-2"></i>Details</div>
+      <div class="af-card-body">
+
+        <!-- Excerpt -->
+        <div class="mb-3">
+          <label class="af-label">Excerpt <small class="af-hint">auto if blank</small></label>
+          <textarea name="excerpt" id="excerptInput" class="af-textarea"
+                    rows="3" placeholder="Short summary…"><?= Helper::e($article['excerpt'] ?? '') ?></textarea>
         </div>
-      </div>
 
-      <!-- FEATURED IMAGE -->
-      <div class="tn-card mb-3">
-        <div class="tn-card-header"><span><i class="bi bi-image me-2"></i>Featured Image</span></div>
-        <div class="tn-card-body">
-          <input type="hidden" name="media_id" id="mediaId" value="<?= $article['media_id'] ?? '' ?>">
-          <div id="imagePreview" class="mb-3 <?= empty($article['image_url']) ? 'd-none' : '' ?>">
-            <div style="position:relative">
-              <img src="<?= htmlspecialchars($article['image_url'] ?? '') ?>"
-                   id="previewImg" class="img-fluid rounded" alt=""
-                   style="max-height:180px;width:100%;object-fit:cover">
-              <button type="button" onclick="clearImage()"
-                style="position:absolute;top:6px;right:6px;background:rgba(0,0,0,.6);color:white;border:none;border-radius:50%;width:28px;height:28px;cursor:pointer;font-size:14px">✕</button>
-            </div>
-          </div>
-          <div id="uploadZone"
-            style="border:2px dashed #D8D6CE;border-radius:8px;padding:20px;text-align:center;cursor:pointer;<?= !empty($article['image_url']) ? 'display:none' : '' ?>"
-            onclick="document.getElementById('directUpload').click()"
-            ondragover="event.preventDefault();this.style.borderColor='#10b981'"
-            ondragleave="this.style.borderColor=''"
-            ondrop="handleImageDrop(event)">
-            <div id="uploadZoneContent">
-              <div style="font-size:28px;margin-bottom:6px">🖼️</div>
-              <div style="font-weight:600;font-size:13px;margin-bottom:4px">Click or drag image</div>
-              <div style="font-size:11px;color:#6B6A64">JPG, PNG, WebP — max 5MB</div>
-              <div id="uploadError" style="display:none;color:#C0001A;font-size:11px;margin-top:4px"></div>
-            </div>
-            <div id="uploadProgress" style="display:none">
-              <div style="font-size:12px;margin-bottom:6px">⏳ Uploading...</div>
-              <div style="background:#F0EFE9;border-radius:4px;height:4px">
-                <div id="uploadBar" style="background:#10b981;height:4px;border-radius:4px;width:0%;transition:width .3s"></div>
-              </div>
-            </div>
-          </div>
-          <input type="file" id="directUpload" accept="image/*" style="display:none" onchange="uploadImage(this.files[0])">
-          <?php if (Auth::role() === 'admin'): ?>
-          <div class="mt-2 text-center">
-            <button type="button" class="btn btn-sm btn-outline-secondary" onclick="openMediaModal()">
-              <i class="bi bi-folder2-open me-1"></i>Media Library
-            </button>
-          </div>
-          <?php endif; ?>
-        </div>
-      </div>
 
-      <!-- TAGS -->
-      <div class="tn-card mb-3">
-        <div class="tn-card-header"><span><i class="bi bi-tags me-2"></i>Tags</span></div>
-        <div class="tn-card-body">
+        <!-- Tags -->
+        <div class="mb-3">
+          <label class="af-label">Tags</label>
           <div id="tagPicker" class="tn-tag-picker">
             <?php foreach ($tags as $tag): ?>
-            <div class="tn-tag-item" data-id="<?= $tag['id'] ?>"><?= Helper::e($tag['name']) ?> <i class="bi bi-x"></i></div>
+            <div class="tn-tag-item" data-id="<?= $tag['id'] ?>"><?= Helper::e($tag['name_tamil'] ?: $tag['name']) ?> <i class="bi bi-x"></i></div>
             <?php endforeach; ?>
           </div>
           <div id="selectedTagIds">
+            <input type="hidden" name="tags_managed" value="1">
             <?php foreach ($tags as $tag): ?>
             <input type="hidden" name="tag_ids[]" value="<?= $tag['id'] ?>">
             <?php endforeach; ?>
           </div>
-          <input type="text" id="tagSearch" class="form-control mt-2" placeholder="Search & add tags…">
+          <input type="text" id="tagSearch" class="af-input mt-2" placeholder="Search & add tags…">
           <div id="tagSuggestions" class="tn-tag-suggestions"></div>
         </div>
-      </div>
 
-      <!-- FLAGS -->
-      <div class="tn-card mb-3">
-        <div class="tn-card-header"><span><i class="bi bi-flag me-2"></i>Flags</span></div>
-        <div class="tn-card-body">
-          <div class="form-check form-switch mb-2">
-            <input class="form-check-input" type="checkbox" name="is_breaking" value="1" id="isBreaking"
-                   <?= !empty($article['is_breaking']) ? 'checked' : '' ?>>
-            <label class="form-check-label" for="isBreaking"><i class="bi bi-lightning-charge text-danger me-1"></i>Breaking News</label>
-          </div>
-          <div class="form-check form-switch mb-2">
-            <input class="form-check-input" type="checkbox" name="is_editors_pick" value="1" id="isEditorsPick"
-                   <?= !empty($article['is_editors_pick']) ? 'checked' : '' ?>>
-            <label class="form-check-label" for="isEditorsPick"><i class="bi bi-star text-warning me-1"></i>Editor's Pick</label>
-          </div>
-          <div class="form-check form-switch mb-2">
-            <input class="form-check-input" type="checkbox" name="is_featured" value="1" id="isFeatured"
-                   <?= !empty($article['is_featured']) ? 'checked' : '' ?>>
-            <label class="form-check-label" for="isFeatured"><i class="bi bi-pin-angle text-primary me-1"></i>Featured</label>
-          </div>
-          <div class="form-check form-switch">
-            <input class="form-check-input" type="checkbox" name="is_premium" value="1" id="isPremium"
-                   <?= !empty($article['is_premium']) ? 'checked' : '' ?>>
-            <label class="form-check-label" for="isPremium"><i class="bi bi-lock text-warning me-1"></i>Premium</label>
-          </div>
-        </div>
-      </div>
-
-      <!-- YOUTUBE -->
-      <div class="tn-card mb-3">
-        <div class="tn-card-header"><span><i class="bi bi-youtube text-danger me-2"></i>YouTube</span></div>
-        <div class="tn-card-body">
-          <input type="url" name="youtube_url" class="form-control"
+        <!-- YouTube -->
+        <div class="mb-3">
+          <label class="af-label"><span style="color:#6B7280">▶</span> YouTube <span class="text-muted" style="font-size:11px;font-weight:400">(optional)</span></label>
+          <input type="url" name="youtube_url" class="af-input"
                  placeholder="https://youtube.com/watch?v=…"
                  value="<?= Helper::e($article['youtube_url'] ?? '') ?>">
-          <small class="text-muted">Paste URL to embed video</small>
           <input type="hidden" name="youtube_video_id" id="youtubeVideoId" value="<?= Helper::e($article['youtube_video_id'] ?? '') ?>">
         </div>
-      </div>
 
-      <!-- BOTTOM SUBMIT (mobile convenience) -->
-      <div class="d-grid mb-4">
-        <button type="submit" class="btn btn-primary fw-600 btn-lg">
-          <i class="bi bi-save me-2"></i><?= $isEdit ? 'Update Article' : 'Create Article' ?>
+        <!-- SEO -->
+        <div class="mb-3">
+          <label class="af-label">Meta Title <small class="af-hint">blank = title</small></label>
+          <input type="text" name="meta_title" id="metaTitleInput" class="af-input"
+                 value="<?= Helper::e($article['meta_title'] ?? '') ?>"
+                 maxlength="300"
+                 <?= !empty($article['meta_title']) ? 'data-edited="1"' : '' ?>>
+        </div>
+        <div class="mb-3">
+          <label class="af-label">Meta Description</label>
+          <textarea name="meta_desc" id="metaDescInput" class="af-textarea" rows="2"
+                    maxlength="500"><?= Helper::e($article['meta_desc'] ?? '') ?></textarea>
+        </div>
+
+        <!-- Flags -->
+        <div>
+          <label class="af-label">Flags</label>
+          <div class="af-flags">
+            <label class="af-flag">
+              <input type="checkbox" name="is_breaking" value="1" <?= !empty($article['is_breaking']) ? 'checked' : '' ?>>
+              <span>⚡ Breaking</span>
+            </label>
+            <label class="af-flag">
+              <input type="checkbox" name="is_editors_pick" value="1" <?= !empty($article['is_editors_pick']) ? 'checked' : '' ?>>
+              <span>⭐ Editor's Pick</span>
+            </label>
+            <label class="af-flag">
+              <input type="checkbox" name="is_featured" value="1" <?= !empty($article['is_featured']) ? 'checked' : '' ?>>
+              <span>📌 Featured</span>
+            </label>
+            <label class="af-flag">
+              <input type="checkbox" name="is_premium" value="1" <?= !empty($article['is_premium']) ? 'checked' : '' ?>>
+              <span>🔒 Premium</span>
+            </label>
+          </div>
+        </div>
+
+      </div>
+    </div>
+
+    <!-- SECTION 3: Status + Submit -->
+    <div class="af-card">
+      <div class="af-card-head"><i class="bi bi-send me-2"></i>Status &amp; Publish</div>
+      <div class="af-card-body">
+        <?php
+        $canPublish     = \App\Core\Auth::can('publish_articles');
+        // Default status: if user can publish and this is a new article → pre-select Published
+        $currentStatus  = $article['status'] ?? ($canPublish && !$isEdit ? 'published' : 'draft');
+        ?>
+        <label class="af-label">Status</label>
+        <select name="status" class="af-select af-status-select mb-2" id="statusSelect">
+          <option value="draft"     <?= $currentStatus === 'draft'     ? 'selected' : '' ?>>📝 Draft</option>
+          <option value="review"    <?= $currentStatus === 'review'    ? 'selected' : '' ?>>🔍 Submit for Review</option>
+          <?php if ($canPublish): ?>
+          <option value="published" <?= $currentStatus === 'published' ? 'selected' : '' ?>>✅ Publish Now</option>
+          <option value="scheduled" <?= $currentStatus === 'scheduled' ? 'selected' : '' ?>>🗓 Scheduled</option>
+          <?php endif; ?>
+        </select>
+        <div id="scheduledAtWrap" style="display:none" class="mb-2">
+          <label class="af-label">Publish At</label>
+          <input type="datetime-local" name="scheduled_at" class="af-input"
+                 value="<?= !empty($article['scheduled_at']) ? date('Y-m-d\TH:i', strtotime($article['scheduled_at'])) : '' ?>">
+        </div>
+        <!-- Push notification option -->
+        <?php if (in_array(\App\Core\Auth::role(), ['admin','chief_editor'])): ?>
+        <div class="mb-3 p-3 rounded" style="background:rgba(251,191,36,.07);border:1px solid rgba(251,191,36,.25)">
+          <label class="d-flex align-items-center gap-2" style="cursor:pointer">
+            <input type="checkbox" name="send_push" value="1" class="form-check-input" id="sendPushChk">
+            <span class="small fw-600">🔔 Send push notification when published</span>
+          </label>
+          <div class="form-text mt-1 ms-4" id="pushTargetWrap" style="display:none">
+            Push to: <strong>all subscribers</strong>
+            <?php if (!empty($districts)): ?>
+            or select district →
+            <select name="push_district_id" class="form-select form-select-sm mt-1">
+              <option value="">All districts</option>
+              <?php foreach ($districts as $d): ?>
+              <option value="<?= $d['id'] ?>"><?= \App\Core\Helper::e($d['name']) ?></option>
+              <?php endforeach; ?>
+            </select>
+            <?php endif; ?>
+          </div>
+        </div>
+        <script>
+        document.getElementById('sendPushChk')?.addEventListener('change',function(){
+          document.getElementById('pushTargetWrap').style.display = this.checked ? '' : 'none';
+        });
+        </script>
+        <?php endif; ?>
+
+        <button type="submit" class="af-submit">
+          <i class="bi bi-<?= $isEdit ? 'save' : 'send' ?>"></i>
+          <?= $isEdit ? 'Update Article' : 'Create Article' ?>
         </button>
       </div>
+    </div>
 
-    </div><!-- /art-right-sticky -->
-  </div><!-- /col right -->
+  </div><!-- /sidebar -->
 
-</div><!-- /row -->
+</div><!-- /af-grid -->
 </form>
 
-<?php
-// Include media modal and JS only for admin
-if (Auth::role() === 'admin'): ?>
-<?php include VIEW_PATH . '/admin/media/_modal.php'; ?>
-<?php endif; ?>
+<!-- Media Library modal -->
+<div id="artMediaModal" class="ad-media-modal-overlay">
+  <div class="ad-media-modal">
+    <div class="ad-media-modal-header">
+      <span>Choose from Media Library</span>
+      <button type="button" onclick="ArticleForm.closeMediaLibrary()">✕</button>
+    </div>
+    <div id="artMediaModalBody" class="ad-media-modal-body">Loading…</div>
+  </div>
+</div>
 
 <script>
-// Slug auto-generate
-const titleInput = document.getElementById('titleInput');
-const slugInput  = document.getElementById('slugInput');
-titleInput?.addEventListener('input', () => {
-  if (!slugInput.dataset.manual) {
-    slugInput.value = titleInput.value
-      .toLowerCase()
-      .replace(/[^\w\s-]/g, '')
-      .trim()
-      .replace(/\s+/g, '-')
-      .replace(/-+/g, '-')
-      .substring(0, 120);
-  }
-});
-slugInput?.addEventListener('input', () => { slugInput.dataset.manual = '1'; });
-document.getElementById('regenSlug')?.addEventListener('click', () => {
-  delete slugInput.dataset.manual;
-  titleInput.dispatchEvent(new Event('input'));
-});
-
-// Subcategory loader
-function loadSubcats(parentId) {
-  const wrap = document.getElementById('subcatWrap');
-  const sel  = document.getElementById('subcatSelect');
-  const fin  = document.getElementById('finalCategoryId');
-  const opt  = document.querySelector(`#parentCatSelect option[value="${parentId}"]`);
-  const children = opt ? JSON.parse(opt.dataset.children || '[]') : [];
-  fin.value = parentId;
-  if (!children.length) {
-    wrap.style.visibility = 'hidden';
-    return;
-  }
-  wrap.style.visibility = 'visible';
-  sel.innerHTML = `<option value="${parentId}">-- All --</option>`;
-  children.forEach(c => {
-    sel.innerHTML += `<option value="${c.id}">${c.name_tamil || c.name}</option>`;
-  });
-  sel.onchange = () => { fin.value = sel.value; };
-}
-// Init subcats on load
-document.getElementById('parentCatSelect')?.dispatchEvent(new Event('change'));
-
-// Scheduled date toggle
-document.getElementById('statusSelect')?.addEventListener('change', function() {
-  document.getElementById('scheduledAtWrap').style.display = this.value === 'scheduled' ? 'block' : 'none';
-});
-if (document.getElementById('statusSelect')?.value === 'scheduled') {
-  document.getElementById('scheduledAtWrap').style.display = 'block';
-}
-
-// Image upload
-function uploadImage(file) {
-  if (!file) return;
-  const fd = new FormData();
-  fd.append('image', file);
-  fd.append('_token', document.querySelector('[name=_token]')?.value || document.querySelector('[name=csrf_token]')?.value || '');
-  document.getElementById('uploadZoneContent').style.display = 'none';
-  document.getElementById('uploadProgress').style.display = 'block';
-  const bar = document.getElementById('uploadBar');
-  let p = 0;
-  const timer = setInterval(() => { if (p < 80) { p += 10; bar.style.width = p + '%'; } }, 150);
-  fetch('<?= $r ?>/admin/media/upload-ajax', { method:'POST', body:fd })
-    .then(r => r.json())
-    .then(d => {
-      clearInterval(timer);
-      if (d.success) {
-        document.getElementById('mediaId').value = d.media_id;
-        document.getElementById('previewImg').src = d.url;
-        document.getElementById('imagePreview').classList.remove('d-none');
-        document.getElementById('uploadZone').style.display = 'none';
-        bar.style.width = '100%';
-      } else {
-        const errEl = document.getElementById('uploadError');
-        if (errEl) { errEl.textContent = d.error || 'Upload failed'; errEl.style.display = 'block'; }
-        resetUploadZone();
-      }
-    })
-    .catch(() => { clearInterval(timer); resetUploadZone(); resetUploadZone(); });
-}
-function handleImageDrop(e) {
-  e.preventDefault();
-  e.currentTarget.style.borderColor = '';
-  const file = e.dataTransfer.files[0];
-  if (file && file.type.startsWith('image/')) uploadImage(file);
-}
-function clearImage() {
-  document.getElementById('mediaId').value = '';
-  document.getElementById('imagePreview').classList.add('d-none');
-  document.getElementById('uploadZone').style.display = 'block';
-  resetUploadZone();
-}
-function resetUploadZone() {
-  document.getElementById('uploadZoneContent').style.display = 'block';
-  document.getElementById('uploadProgress').style.display = 'none';
-  document.getElementById('uploadBar').style.width = '0%';
-}
-
-// Tag search
-const tagSearch = document.getElementById('tagSearch');
-const tagSugBox  = document.getElementById('tagSuggestions');
-tagSearch?.addEventListener('input', function() {
-  const q = this.value.trim();
-  if (!q) { tagSugBox.innerHTML = ''; return; }
-  fetch(`<?= $r ?>/admin/tags/search?q=${encodeURIComponent(q)}`)
-    .then(r => r.json())
-    .then(tags => {
-      tagSugBox.innerHTML = tags.map(t =>
-        `<div class="tn-tag-suggestion" onclick="addTag(${t.id},'${t.name.replace(/'/g,"\\'")}')">
-          ${t.name}</div>`
-      ).join('');
-    });
-});
-function addTag(id, name) {
-  if (document.querySelector(`[data-id="${id}"]`)) return;
-  const picker = document.getElementById('tagPicker');
-  const selIds = document.getElementById('selectedTagIds');
-  const div = document.createElement('div');
-  div.className = 'tn-tag-item'; div.dataset.id = id;
-  div.innerHTML = `${name} <i class="bi bi-x"></i>`;
-  div.querySelector('i').onclick = () => {
-    div.remove();
-    selIds.querySelector(`[value="${id}"]`)?.remove();
-  };
-  picker.appendChild(div);
-  const inp = document.createElement('input');
-  inp.type = 'hidden'; inp.name = 'tag_ids[]'; inp.value = id;
-  selIds.appendChild(inp);
-  tagSearch.value = ''; tagSugBox.innerHTML = '';
-}
-document.getElementById('tagPicker')?.addEventListener('click', e => {
-  const item = e.target.closest('.tn-tag-item');
-  if (e.target.tagName === 'I' && item) {
-    const id = item.dataset.id;
-    document.querySelector(`#selectedTagIds [value="${id}"]`)?.remove();
-    item.remove();
-  }
-});
+window.ArticleFormConfig = {
+  uploadUrl:        '<?= BASE_URL ?>/public/admin/media/upload-ajax',
+  mediaModalUrl:    '<?= BASE_URL ?>/public/admin/media/modal',
+  tagSearchUrl:     '<?= BASE_URL ?>/public/admin/tags/suggest',
+  tagQuickCreateUrl:'<?= BASE_URL ?>/public/admin/tags/quick-create',
+  categories:       <?= json_encode($childMap) ?>,
+  selectedParent:   <?= (int)$selectedParent ?>,
+  isPublished:      <?= ($isEdit && ($article['status'] ?? '') === 'published') ? 'true' : 'false' ?>
+};
 </script>
-
-<?php
-// Admin-only: add sticky right panel CSS override
-?>
-<style>
-.art-right-sticky {
-  position: sticky;
-  top: 60px;
-}
-@media (max-width: 991px) {
-  /* Mobile: right col flows normally after left, no sticky */
-  .art-right-sticky { position: static; }
-  .col-xl-8, .col-xl-4 { /* already handled by Bootstrap col-12 */ }
-}
-</style>
-
-<script>
-tinymce.init({
-  selector: '#content',
-  height: 500,
-  plugins: [
-    'anchor', 'autolink', 'charmap', 'codesample', 'emoticons',
-    'image', 'link', 'lists', 'media', 'searchreplace',
-    'table', 'visualblocks', 'wordcount'
-  ],
-  toolbar: 'undo redo | blocks fontsize | bold italic underline | ' +
-           'alignleft aligncenter alignright alignjustify | ' +
-           'bullist numlist | link image media table | ' +
-           'removeformat | searchreplace',
-  toolbar_mode: 'wrap',
-  content_style: 'body { font-family: Noto Sans Tamil, Source Sans 3, sans-serif; font-size: 16px; line-height: 1.7; direction: ltr; }',
-  language: 'en',
-  directionality: 'ltr',
-  statusbar: true,
-  branding: false,
-  promotion: false,
-  paste_as_text: false,
-  images_upload_url: '<?= $r ?>/admin/media/upload-ajax',
-  images_upload_handler: function(blobInfo, progress) {
-    return new Promise((resolve, reject) => {
-      const fd = new FormData();
-      fd.append('image', blobInfo.blob(), blobInfo.filename());
-      fd.append('csrf_token', document.querySelector('[name=csrf_token]')?.value || '');
-      fetch('<?= $r ?>/admin/media/upload-ajax', { method: 'POST', body: fd })
-        .then(r => r.json())
-        .then(d => { if (d.success) resolve(d.url); else reject(d.error || 'Upload failed'); })
-        .catch(e => reject(e.toString()));
-    });
-  },
-  setup: function(editor) {
-    // Sync content back to textarea on form submit
-    document.getElementById('articleForm')?.addEventListener('submit', function() {
-      editor.save();
-    });
-  }
-});
-</script>
+<script src="<?= ASSET_URL ?>/public/assets/js/article-form.js"></script>

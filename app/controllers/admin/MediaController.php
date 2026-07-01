@@ -30,12 +30,17 @@ class MediaController extends Controller
 
     public function upload(): void
     {
-        CSRF::validate();
-        if (empty($_FILES['file'])) { $this->json(['error'=>'No file uploaded'],400); }
+        header('Content-Type: application/json');
+        $token = $_POST['_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+        if (!\App\Core\CSRF::verify($token)) {
+            echo json_encode(['success'=>false,'error'=>'Session expired. Refresh the page.']);
+            exit;
+        }
+        if (empty($_FILES['file'])) { echo json_encode(['success'=>false,'error'=>'No file uploaded']); exit; }
         $id = $this->media->upload($_FILES['file'], Auth::id());
-        if (!$id) { $this->json(['error'=>'Upload failed — invalid type or size exceeded'],422); }
+        if (!$id) { echo json_encode(['success'=>false,'error'=>'Upload failed — invalid type or size exceeded']); exit; }
         $file = $this->media->find($id);
-        $this->json(['success'=>true,'media'=>$file]);
+        echo json_encode(['success'=>true,'media'=>$file]);
     }
 
     public function delete(string $id): void
@@ -63,6 +68,33 @@ class MediaController extends Controller
         $this->json(['success'=>true]);
     }
 
+    /** POST /admin/media/update/{id} — edit alt text / folder */
+    public function update(string $id): void
+    {
+        \App\Core\CSRF::validate();
+        $mediaId = (int)$id;
+        $file    = $this->media->find($mediaId);
+        if (!$file) {
+            if (\App\Core\Helper::isAjax()) { $this->json(['success'=>false,'error'=>'Not found']); return; }
+            $this->flash('danger','File not found.'); $this->redirect('/admin/media');
+        }
+
+        $data = [
+            'alt_text' => \App\Core\Helper::sanitize($this->post('alt_text','')),
+        ];
+        $folder = $this->post('folder', '');
+        if ($folder !== '') $data['folder'] = \App\Core\Helper::sanitize($folder);
+
+        $this->media->update($mediaId, $data);
+
+        if (\App\Core\Helper::isAjax()) {
+            $this->json(['success'=>true, 'media'=>$this->media->find($mediaId)]);
+            return;
+        }
+        $this->flash('success','Media updated.');
+        $this->redirect('/admin/media');
+    }
+
 
     /** POST /admin/media/upload-ajax — returns JSON with url for article form */
     public function uploadAjax(): void
@@ -82,7 +114,7 @@ class MediaController extends Controller
             if (!$id) { echo json_encode(['success'=>false,'error'=>'Upload failed. Check file type (JPG/PNG/WebP) and size (max 5MB).']); exit; }
             $file = $this->media->find($id);
             $fp   = ltrim($file['filepath'] ?? '', '/');
-            $url  = rtrim(ASSET_URL, '/') . '/' . $fp;
+            $url  = rtrim(ASSET_URL, '/') . '/public/' . $fp;
             echo json_encode(['success'=>true,'media_id'=>$id,'url'=>$url]);
         } catch (\Exception $e) {
             error_log('Upload error: '.$e->getMessage());

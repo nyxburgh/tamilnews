@@ -6,7 +6,11 @@
   </button>
 </div>
 <div class="tn-card">
-  <div class="tn-card-header"><span><i class="bi bi-grid-3x3-gap me-2"></i><?= count($categories) ?> categories — drag to reorder</span></div>
+  <div class="tn-card-header d-flex align-items-center justify-content-between flex-wrap gap-2">
+    <span><i class="bi bi-grid-3x3-gap me-2"></i><?= count($categories) ?> categories — drag to reorder<span id="sortSaveStatus" class="badge ms-2"></span></span>
+    <input type="text" id="catSearchBox" class="form-control form-control-sm" style="max-width:220px"
+           placeholder="Search by name or slug…">
+  </div>
   <div class="table-responsive">
     <table class="table tn-table mb-0">
       <thead><tr><th width="30"></th><th>Name</th><th>Tamil</th><th>Slug</th><th>Parent</th><th>Articles</th><th>Active</th><th>Actions</th></tr></thead>
@@ -18,14 +22,31 @@
           <td><?= Helper::e($cat['name_tamil'] ?? '—') ?></td>
           <td><code><?= Helper::e($cat['slug']) ?></code></td>
           <td><?= Helper::e($cat['parent_name'] ?? '—') ?></td>
-          <td><span class="badge bg-secondary">—</span></td>
-          <td><span class="badge <?= $cat['is_active'] ? 'bg-success' : 'bg-secondary' ?>"><?= $cat['is_active'] ? 'Yes' : 'No' ?></span></td>
+          <td>
+            <?php if ((int)$cat['article_count'] > 0): ?>
+            <a href="<?= $r ?>/admin/articles?category_id=<?= $cat['id'] ?>" class="badge bg-secondary text-decoration-none">
+              <?= (int)$cat['article_count'] ?>
+            </a>
+            <?php else: ?>
+            <span class="badge bg-light text-muted border">0</span>
+            <?php endif; ?>
+          </td>
+          <td>
+            <form action="<?= $r ?>/admin/categories/toggle/<?= $cat['id'] ?>" method="POST" class="d-inline">
+              <?= CSRF::field() ?>
+              <button type="submit" class="btn btn-link p-0 text-decoration-none" title="Click to toggle active status">
+                <span class="badge <?= $cat['is_active'] ? 'bg-success' : 'bg-secondary' ?>"><?= $cat['is_active'] ? 'Yes' : 'No' ?></span>
+              </button>
+            </form>
+          </td>
           <td>
             <button class="btn btn-sm btn-outline-primary" onclick="editCat(<?= htmlspecialchars(json_encode($cat)) ?>)">
               <i class="bi bi-pencil"></i>
             </button>
             <form action="<?= $r ?>/admin/categories/delete/<?= $cat['id'] ?>" method="POST" class="d-inline"
-                  onsubmit="return confirm('Delete category?')">
+                  onsubmit="return confirm(<?= (int)$cat['article_count'] > 0
+                      ? "'This category has " . (int)$cat['article_count'] . " article(s) linked to it. It cannot be deleted until those are moved or removed. Continue anyway?'"
+                      : "'Delete this category? This cannot be undone.'" ?>)">
               <?= CSRF::field() ?>
               <button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button>
             </form>
@@ -100,15 +121,34 @@ function editCat(cat) {
   new bootstrap.Modal(document.getElementById('editCatModal')).show();
 }
 
+// Live search filter
+document.getElementById('catSearchBox')?.addEventListener('input', function() {
+  const q = this.value.trim().toLowerCase();
+  document.querySelectorAll('#catSortable tr').forEach(function(row) {
+    const text = row.textContent.toLowerCase();
+    row.style.display = !q || text.includes(q) ? '' : 'none';
+  });
+});
+
 // Drag-sort
 const sortable = Sortable.create(document.getElementById('catSortable'), {
   handle: '.drag-handle', animation: 150,
   onEnd: function() {
-    const ids = [...document.querySelectorAll('#catSortable tr')].map(r => r.dataset.id);
+    const ids = [...document.querySelectorAll('#catSortable tr')].map(row => row.dataset.id);
+    const badge = document.getElementById('sortSaveStatus');
+    if (badge) { badge.textContent = 'Saving order…'; badge.className = 'badge bg-warning ms-2'; }
     fetch(r + '/admin/categories/sort', {
       method: 'POST',
       headers: { 'Content-Type': 'application/json', 'X-CSRF-TOKEN': document.querySelector('meta[name="csrf-token"]').content },
       body: JSON.stringify({ ids })
+    })
+    .then(res => res.ok ? res.json() : Promise.reject())
+    .then(() => {
+      if (badge) { badge.textContent = '✓ Order saved'; badge.className = 'badge bg-success ms-2'; }
+      setTimeout(() => { if (badge) badge.textContent = ''; badge.className = 'badge ms-2'; }, 2000);
+    })
+    .catch(() => {
+      if (badge) { badge.textContent = '✕ Save failed — try again'; badge.className = 'badge bg-danger ms-2'; }
     });
   }
 });

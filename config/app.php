@@ -21,7 +21,7 @@ return [
         'max_size' => 5 * 1024 * 1024,
         'allowed'  => ['image/jpeg','image/png','image/webp','image/gif'],
         'path'     => __DIR__ . '/../public/uploads/',
-        'url_path' => '/thinathulir/public/uploads/',
+        'url_path' => '/uploads/',
     ],
 
     'pagination' => [

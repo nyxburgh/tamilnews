@@ -71,7 +71,7 @@
 /* ── NEWS CARD IMAGES ── */
 .nc img {
   width: 100%;
-  height: 170px;
+  height: 100px;
   object-fit: contain;
   object-position: center;
   background: #F5F5F0;
@@ -115,7 +115,73 @@
 }
 
 /* ── AD IMAGES: contain, centered, background ── */
-.ad-rotator { background: #F5F5F0; }
+.ad-rotator { background: #F5F5F0; position: relative; }
+.ad-rotator::after {
+  content: 'ⓘ Click for details';
+  position: absolute;
+  bottom: 6px; right: 6px;
+  padding: 3px 8px;
+  border-radius: 12px;
+  background: rgba(0,0,0,.45);
+  color: #fff;
+  font-size: 10px;
+  font-weight: 500;
+  white-space: nowrap;
+  pointer-events: none;
+  z-index: 2;
+}
+/* Smaller slots: icon only, no room for label */
+.masthead-ad::after {
+  content: 'ⓘ';
+  padding: 0;
+  width: 18px; height: 18px;
+  border-radius: 50%;
+  display: flex; align-items: center; justify-content: center;
+  font-size: 11px;
+}
+/* Horizontal ads (mobile top bar + desktop banner): no badge — too thin a strip for it */
+.mob-top-ad::after, .header-banner-ad-inner::after { content: none; display: none; }
+
+/* Mobile horizontal ad — was undefined/uncontrolled before, now properly
+   responsive via aspect-ratio matching the 728:100 upload target */
+.mob-top-ad {
+  width: 100%;
+  aspect-ratio: 900 / 150;
+  overflow: hidden;
+  background: #F5F5F0;
+  border-top: 2px solid var(--red, #C0001A);
+  border-bottom: 2px solid var(--red, #C0001A);
+}
+.mob-top-ad .ad-rotator {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+.mob-top-ad .ad-rotator img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center !important;
+  display: block;
+}
+
+/* Desktop vertical sidebar ad — was completely undefined before (no
+   width/height anywhere), now properly responsive via aspect-ratio
+   matching the 220:750 upload target. Fills the 220px sidebar column. */
+.sb-vertical-ad {
+  width: 100%;
+  aspect-ratio: 220 / 750;
+  overflow: hidden;
+  background: #F5F5F0;
+  border-radius: 6px;
+}
+.sb-vertical-ad .ad-rotator,
+.sb-vertical-ad .ad-rotator img {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  display: block;
+}
 .ad-rotator img {
   object-fit: contain !important;
   object-position: center center !important;
@@ -170,4 +236,68 @@
 @media (max-width: 480px) {
   .nc img          { height: 110px !important; }
   .hero4-big > img { height: 180px !important; }
+}
+
+/* ── MOBILE VERTICAL AD — fixed bottom-right corner ── */
+.mob-vertical-ad {
+  position: fixed;
+  bottom: 70px;
+  right: 0;
+  width: 40vw;
+  height: 75vh;
+  z-index: 500;
+  overflow: hidden;
+  border-radius: 8px 0 0 8px;
+  box-shadow: -2px 0 12px rgba(0,0,0,.2);
+  background: #fff;
+}
+.mob-vertical-ad .ad-rotator {
+  width: 100% !important;
+  height: 100% !important;
+  display: block;
+}
+.mob-vertical-ad .ad-rotator img {
+  width: 100% !important;
+  height: 100% !important;
+  object-fit: cover !important;
+  object-position: center top !important;
+  display: block;
+}
+
+/* ── Mobile floating horizontal ad above bottom nav ── */
+.mob-footer-ad {
+  display: none;                   /* hidden on desktop */
+}
+
+@media (max-width: 768px) {
+  .mob-footer-ad {
+    display: block;
+    position: fixed;
+    bottom: 62px;                  /* sits exactly above 62px bottom nav */
+    left: 0;
+    right: 0;
+    width: 100%;
+    aspect-ratio: 900 / 150;
+    overflow: hidden;
+    background: #F5F5F0;
+    border-top: 2px solid var(--red, #C0001A);
+    border-bottom: 2px solid var(--red, #C0001A);
+    z-index: 190;                  /* below bottom nav (z:200) */
+  }
+  .mob-footer-ad .ad-rotator {
+    width: 100% !important;
+    height: 100% !important;
+    display: block;
+  }
+  .mob-footer-ad .ad-rotator img {
+    width: 100% !important;
+    height: 100% !important;
+    object-fit: cover !important;
+    object-position: center !important;
+    display: block;
+  }
+  /* Push body content up to account for footer ad + bottom nav */
+  body {
+    padding-bottom: calc(62px + (100vw * 150 / 900)) !important;
+  }
 }

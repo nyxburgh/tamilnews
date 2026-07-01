@@ -8,7 +8,7 @@ abstract class Controller
         extract($data);
         $csrf    = CSRF::token();
         $auth    = Auth::user();
-        $r       = defined('ASSET_URL') ? ASSET_URL : '';
+        $r       = defined('ASSET_URL') ? rtrim(ASSET_URL, '/') . '/public' : '/public';
         $baseUrl = defined('BASE_URL')  ? BASE_URL  : '';
 
         ob_start();
@@ -65,7 +65,11 @@ abstract class Controller
 
     protected function requireRole(string ...$roles): void
     {
-        if (!Auth::check()) { Helper::redirect('/login'); }
+        if (!Auth::check()) {
+            $uri = $_SERVER['REQUEST_URI'] ?? '';
+            $isAdminUrl = (strpos($uri, '/admin/') !== false);
+            Helper::redirect($isAdminUrl ? '/admin/login' : '/login');
+        }
         if (!in_array(Auth::role(), $roles)) {
             http_response_code(403);
             require VIEW_PATH . '/errors/403.php';
@@ -75,7 +79,11 @@ abstract class Controller
 
     protected function requireCan(string $permission): void
     {
-        if (!Auth::check()) { Helper::redirect('/login'); }
+        if (!Auth::check()) {
+            $uri = $_SERVER['REQUEST_URI'] ?? '';
+            $isAdminUrl = (strpos($uri, '/admin/') !== false);
+            Helper::redirect($isAdminUrl ? '/admin/login' : '/login');
+        }
         if (!Auth::can($permission)) {
             http_response_code(403);
             require VIEW_PATH . '/errors/403.php';

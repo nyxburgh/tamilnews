@@ -28,7 +28,7 @@ class ApprovalService
 {
     private ArticleModel     $articles;
     private NotificationModel $notif;
-    private Database         $db;
+    private \PDO              $db;
 
     public function __construct()
     {
@@ -196,6 +196,7 @@ class ApprovalService
 
     private function findDistrictEditor(array $article): ?int
     {
+        try {
         // Match by district (via city) OR by category
         $cityId     = $article['city_id']     ?? null;
         $categoryId = $article['category_id'] ?? null;
@@ -237,6 +238,11 @@ class ApprovalService
         }
 
         return null;
+        } catch (\Exception $e) {
+            // tn_editor_permissions schema mismatch — run editor_permissions_migration.sql
+            error_log('ApprovalService::findDistrictEditor — ' . $e->getMessage());
+            return null;
+        }
     }
 
     public function editorApprove(int $articleId, int $editorId): void

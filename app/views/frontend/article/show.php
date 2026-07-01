@@ -2,8 +2,9 @@
 use App\Core\Helper;
 function e(string $s): string { return htmlspecialchars($s, ENT_QUOTES, 'UTF-8'); }
 function artImg(array $a, string $size='thumb'): string {
-    $path = $size === 'full' ? ($a['image_url'] ?? '') : ($a['thumb_url'] ?? $a['image_url'] ?? '');
-    return $path ?: 'https://images.unsplash.com/photo-1504711434969-e33886168f5c?w=600&q=80';
+    $raw  = $size === 'full' ? ($a['image_url'] ?? '') : ($a['thumb_url'] ?? $a['image_url'] ?? '');
+    $path = $raw ? rtrim(ASSET_URL,'/').'/public/'.ltrim($raw,'/') : '';
+    return $path ?: '';
 }
 function catClass(string $slug): string {
     $map = ['tamil-nadu'=>'red','india'=>'blue','world'=>'teal','cinema'=>'purple','sports'=>'green','technology'=>'blue'];
@@ -13,6 +14,13 @@ $_articleUrl = rtrim(BASE_URL, '/') . '/public/article/' . $article['slug'];
 $whatsappMsg = urlencode($article['title'] . "\n\n" . $_articleUrl);
 $_fbUrl      = urlencode($_articleUrl);
 $_twText     = urlencode($article['title'] . ' ' . $_articleUrl);
+
+// Generate short URL
+$_shortCode = '';
+try {
+    $_shortCode = (new \App\Models\ShortUrlModel())->forArticle((int)$article['id'], $_articleUrl);
+} catch (\Exception $e) {}
+$_shortUrl = $_shortCode ? rtrim(BASE_URL, '/') . '/public/s/' . $_shortCode : $_articleUrl;
 $tags     = array_filter(explode('||', $article['tag_names'] ?? ''));
 $tagSlugs = array_filter(explode('||', $article['tag_slugs'] ?? ''));
 $isVideo  = !empty($article['youtube_video_id']);
@@ -25,51 +33,57 @@ $isVideo  = !empty($article['youtube_video_id']);
   <a href="<?= $r ?>/tamil-news/<?= e($article['category_slug'] ?? '') ?>"><?= e($article['category_tamil'] ?: $article['category_name']) ?></a>
   <span>›</span>
   <span><?= e(mb_substr($article['title'], 0, 50)) ?>…</span>
+  <div class="breadcrumb-right">
+    <?php if (!empty($article['district_name'])): ?>
+    <span class="bread-district">📍 <?= e($article['district_name']) ?></span>
+    <?php endif; ?>
+    <div class="font-size-toggle">
+      <button class="font-btn" onclick="setFont('sm')" id="fsm">A-</button>
+      <button class="font-btn active" onclick="setFont('md')" id="fmd">A</button>
+      <button class="font-btn" onclick="setFont('lg')" id="flg">A+</button>
+      <button class="font-btn" onclick="setFont('xl')" id="fxl">A++</button>
+    </div>
+  </div>
 </div>
 
+    <!-- TITLE -->
+    <?php if (($article['content_type'] ?? '') === 'special'): ?>
+    <span class="ctag" style="background:#7F4FE0;color:#fff;margin-bottom:8px;display:inline-block">சிறப்பு கட்டுரை · Special Article</span>
+    <?php elseif (($article['content_type'] ?? '') === 'sponsored'): ?>
+    <span class="ctag sponsored-badge">Sponsored · விளம்பர செய்தி</span>
+    <?php endif; ?>
+    <h1 class="art-title art-headline" translate="no"><?= e($article['title']) ?></h1>
 
-    <!-- TITLE (category removed — in breadcrumb already) -->
-    <h1 class="art-title"><?= e($article['title']) ?></h1>
-
-    <!-- SHARE ICONS — right under title -->
-    <div class="art-share-inline">
-      <a href="https://wa.me/?text=<?= $whatsappMsg ?>" target="_blank" rel="noopener" class="sbc sbc-wa" onclick="trackWA()" title="Share on WhatsApp">
-        <i class="bi bi-whatsapp"></i><span>WhatsApp</span>
-      </a>
-      <a href="https://www.facebook.com/sharer/sharer.php?u=<?= $_fbUrl ?>" target="_blank" rel="noopener" class="sbc sbc-fb" title="Share on Facebook">
-        <i class="bi bi-facebook"></i><span>Facebook</span>
-      </a>
-      <a href="https://twitter.com/intent/tweet?text=<?= $_twText ?>" target="_blank" rel="noopener" class="sbc sbc-tw" title="Share on X">
-        <i class="bi bi-twitter-x"></i><span>X</span>
-      </a>
-      <button class="sbc sbc-cp" onclick="copyLink()" title="Copy link">
-        <i class="bi bi-link-45deg"></i><span>Copy</span>
-      </button>
-    </div>
-
-    <!-- REPORTER + POST DETAILS — single compact row -->
-    <div class="art-byline">
-      <span class="art-byline-author"><?= e($article['contributor_name'] ?: $article['author_name'] ?: 'Admin') ?></span>
-      <span class="art-byline-sep">·</span>
-      <span class="art-byline-date"><?= Helper::formatDate($article['published_at'], 'd M Y, h:i A') ?></span>
-      <span class="art-byline-sep">·</span>
-      <span class="art-byline-detail">⏱ <?= $article['read_time'] ?> நிமிடம்</span>
-      <?php if ($article['view_count'] > 0): ?>
-      <span class="art-byline-sep">·</span>
-      <span class="art-byline-detail">👁 <?= number_format($article['view_count']) ?></span>
-      <?php endif; ?>
-      <?php if ($ratingStats['total'] > 0): ?>
-      <span class="art-byline-sep">·</span>
-      <span class="art-byline-detail">⭐ <?= number_format((float)$ratingStats['average'],1) ?></span>
-      <?php endif; ?>
-      <!-- font size toggle inline right end -->
-      <div class="font-size-toggle" style="margin-left:auto">
-        <button class="font-btn" onclick="setFont('sm')" id="fsm">A-</button>
-        <button class="font-btn active" onclick="setFont('md')" id="fmd">A</button>
-        <button class="font-btn" onclick="setFont('lg')" id="flg">A+</button>
-        <button class="font-btn" onclick="setFont('xl')" id="fxl">A++</button>
+    <!-- SHARE left + REPORTER DETAILS right -->
+    <div class="art-meta-bar notranslate" translate="no">
+      <div class="art-share-inline">
+        <a href="https://wa.me/?text=<?= $whatsappMsg ?>" target="_blank" rel="noopener" class="sbc sbc-wa" onclick="trackWA()" title="Share on WhatsApp">
+          <i class="bi bi-whatsapp"></i><span>WhatsApp</span>
+        </a>
+        <a href="https://www.facebook.com/sharer/sharer.php?u=<?= $_fbUrl ?>" target="_blank" rel="noopener" class="sbc sbc-fb" title="Share on Facebook">
+          <i class="bi bi-facebook"></i><span>Facebook</span>
+        </a>
+        <a href="https://twitter.com/intent/tweet?text=<?= $_twText ?>" target="_blank" rel="noopener" class="sbc sbc-tw" title="Share on X">
+          <i class="bi bi-twitter-x"></i><span>X</span>
+        </a>
+        <button class="sbc sbc-cp" data-url="<?= Helper::e($_shortUrl) ?>" onclick="copyShortLink(this)" title="Copy short link">
+          <i class="bi bi-link-45deg"></i><span>Copy Link</span>
+        </button>
       </div>
-    </div>
+      <div class="art-byline">
+        <span class="art-byline-author"><?= e($article['contributor_name'] ?: $article['author_name'] ?: 'Reporter') ?></span>
+        <span class="art-byline-sep">·</span>
+        <span class="art-byline-date"><?= Helper::formatDate($article['published_at'], 'd M Y, h:i A') ?></span>
+        <?php if (!empty($article['view_count']) && $article['view_count'] > 0): ?>
+        <span class="art-byline-sep">·</span>
+        <span class="art-byline-detail">👁 <?= number_format($article['view_count']) ?></span>
+        <?php endif; ?>
+        <?php if (!empty($ratingStats['total']) && $ratingStats['total'] > 0): ?>
+        <span class="art-byline-sep">·</span>
+        <span class="art-byline-detail">⭐ <?= number_format((float)$ratingStats['average'], 1) ?></span>
+        <?php endif; ?>
+      </div>
+    </div><!-- /art-meta-bar -->
 
     <!-- HERO IMAGE or VIDEO -->
     <?php if ($isVideo): ?>
@@ -80,7 +94,7 @@ $isVideo  = !empty($article['youtube_video_id']);
     </div>
     <?php elseif (!empty($article['image_url'])): ?>
     <div class="art-image-col">
-      <img src="<?= e($article['image_url']) ?>" alt="<?= e($article['title']) ?>"
+      <img src="<?= ($article['image_url'] ?? '' ? rtrim(ASSET_URL,'/').'/public/'.ltrim($article['image_url'],'/')  : '') ?>" alt="<?= e($article['title']) ?>"
            class="art-hero-img" loading="eager">
     </div>
     <?php endif; ?>
@@ -116,7 +130,7 @@ $isVideo  = !empty($article['youtube_video_id']);
 
     <?php else: ?>
     <!-- FULL CONTENT -->
-    <div class="art-body">
+    <div class="art-body" translate="yes">
       <?php
       // Split content at midpoint for mobile mid-article ad
       $_content = $article['content'] ?? '';
@@ -142,20 +156,13 @@ $isVideo  = !empty($article['youtube_video_id']);
       <?php if ($_part2): ?>
       <!-- Mid-article ad (mobile only) -->
       <div class="mid-article-ad mob-only-ad" id="midArticleAd">
-        <div class="ad-rotator" data-slot="square" data-cat="<?= $article['category_id'] ?? 0 ?>"></div>
+        <div class="ad-rotator" data-slot="square_a" data-cat="<?= $article['category_id'] ?? 0 ?>"></div>
         <div class="mid-ad-label">Advertisement</div>
       </div>
       <?= $_part2 ?>
       <?php endif; ?>
     </div>
     <?php endif; ?>
-
-    <!-- Square ad after article content (mobile only) -->
-    <div class="art-after-ad mob-only-ad">
-      <div class="ad-rotator" data-slot="square" data-cat="<?= $article['category_id'] ?? 0 ?>"></div>
-    </div>
-
-
 
     <!-- TAGS — always shown, category as fallback -->
     <div class="art-tags">
@@ -182,21 +189,42 @@ $isVideo  = !empty($article['youtube_video_id']);
       </a>
     </div>
 
+    <!-- Horizontal ad between article and related news -->
+    <div class="art-between-ad notranslate" translate="no">
+      <div class="ad-rotator" data-slot="horizontal" data-cat="<?= $article['category_id'] ?? 0 ?>"></div>
+    </div>
+
     <!-- RELATED ARTICLES -->
     <?php if (!empty($related)): ?>
     <div class="related-section">
-      <div class="related-title">தொடர்புடைய செய்திகள்</div>
-      <div class="related-grid">
-        <?php foreach ($related as $r): ?>
-        <a href="<?= $r ?>/article/<?= e($r['slug']) ?>" class="related-item">
-          <img class="related-img" src="<?= artImg($r) ?>" alt="<?= e($r['title']) ?>" loading="lazy">
-          <div class="related-body">
-            <div class="related-cat"><?= e($r['category_name']) ?></div>
-            <div class="related-title-text"><?= e($r['title']) ?></div>
-            <div class="related-time"><?= Helper::timeAgo($r['published_at']) ?></div>
+      <div class="sec-head sec-head-mt">
+        <span class="sec-head-bar-dyn" style="--ac:#C0001A"></span>
+        <span class="sec-head-title">தொடர்புடைய செய்திகள்</span>
+        <span class="sec-head-ta">Related News</span>
+      </div>
+      <div class="g4">
+        <?php foreach (array_slice($related, 0, 3) as $_ri => $ri):
+          $hasImg = !empty($ri['image_url']); ?>
+        <a href="<?= $r ?>/article/<?= e($ri['slug']) ?>"
+           class="nc <?= $hasImg ? '' : 'nc-no-img' ?>">
+          <?php if ($hasImg): ?>
+          <img src="<?= ( ($ri['thumb_url'] ?: ($ri['image_url'] ?? '')) ? rtrim(ASSET_URL,'/').'/public/'.ltrim($ri['thumb_url'] ?: $ri['image_url'] ,'/')  : '') ?>" alt="<?= e($ri['title']) ?>" loading="lazy">
+          <?php endif; ?>
+          <div class="nc-body">
+            <span class="ctag"><?= e($ri['category_tamil'] ?: $ri['category_name']) ?></span>
+            <div class="nc-title <?= $hasImg ? '' : 'nc-title-lg' ?>"><?= e($ri['title']) ?></div>
+            <?php if (!$hasImg && !empty($ri['excerpt'])): ?>
+            <div class="nc-no-img-excerpt"><?= e(mb_substr(strip_tags($ri['excerpt']),0,140)) ?></div>
+            <?php endif; ?>
+            <div class="hero4-meta notranslate" translate="no"><?= Helper::timeAgo($ri['published_at']) ?></div>
           </div>
         </a>
         <?php endforeach; ?>
+        <!-- 4th slot: in-feed ad -->
+        <div class="nc nc-ad notranslate" translate="no">
+          <span class="nc-ad-label">Ad</span>
+          <div class="ad-rotator" data-slot="square_b" data-cat="<?= $article['category_id'] ?? 0 ?>"></div>
+        </div>
       </div>
     </div>
     <?php endif; ?>
@@ -338,7 +366,7 @@ function updateCount() {
 }
 
 async function submitReview(articleId) {
-  if (!selectedStar) return;
+  if (!selectedStar) { showToast('முதலில் ஒரு நட்சத்திரத்தை தேர்வு செய்யுங்கள்.'); return; }
   const review = document.getElementById('reviewText')?.value || '';
   const btn    = document.getElementById('submitBtn');
   if (btn) { btn.disabled = true; btn.textContent = 'சமர்ப்பிக்கிறது...'; }
@@ -351,14 +379,24 @@ async function submitReview(articleId) {
 
   try {
     const res  = await fetch(window._baseUrl + '/api/rate', { method: 'POST', body: fd });
-    const data = await res.json();
+    let data;
+    try { data = await res.json(); }
+    catch { data = { error: 'Server error. Please refresh the page and try again.' }; }
+
     if (data.success) {
       showToast('✓ உங்கள் மதிப்பீடு சமர்ப்பிக்கப்பட்டது! நன்றி.');
-      if (btn) btn.textContent = '✓ சமர்ப்பிக்கப்பட்டது';
+      if (btn) { btn.textContent = '✓ சமர்ப்பிக்கப்பட்டது'; btn.disabled = true; }
+      // Refresh rating stats display after 1s
+      setTimeout(() => location.reload(), 1200);
+    } else if (data.redirect) {
+      showToast('உள்நுழையவும் — திருப்பி அனுப்புகிறோம்...');
+      setTimeout(() => { window.location = window._baseUrl + data.redirect; }, 1500);
     } else {
+      showToast(data.error || 'ஏதோ தவறு நடந்தது. மீண்டும் முயற்சிக்கவும்.');
       if (btn) { btn.disabled = false; btn.textContent = 'சமர்ப்பி'; }
     }
-  } catch {
+  } catch(e) {
+    showToast('நெட்வொர்க் பிழை. மீண்டும் முயற்சிக்கவும்.');
     if (btn) { btn.disabled = false; btn.textContent = 'சமர்ப்பி'; }
   }
 }

@@ -100,3 +100,54 @@
 $queryExtra = '';
 include VIEW_PATH . '/partials/pagination.php';
 ?>
+<!-- Add Contributor Modal -->
+<div class="modal fade" id="addContribModal" tabindex="-1">
+  <div class="modal-dialog">
+    <div class="modal-content">
+      <form action="<?= $r ?>/admin/contributors/create" method="POST">
+        <?= \App\Core\CSRF::field() ?>
+        <div class="modal-header">
+          <h5 class="modal-title"><i class="bi bi-person-plus me-2"></i>Add Contributor</h5>
+          <button type="button" class="btn-close" data-bs-dismiss="modal"></button>
+        </div>
+        <div class="modal-body">
+          <div class="mb-3">
+            <label class="form-label fw-600">Name <span class="text-danger">*</span></label>
+            <input type="text" name="name" class="form-control" required placeholder="Full name">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Email <span class="text-danger">*</span></label>
+            <input type="email" name="email" class="form-control" required placeholder="email@example.com">
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Temporary Password</label>
+            <input type="text" name="temp_password" class="form-control" value="Welcome@123" placeholder="Welcome@123">
+            <div class="form-text">Contributor can change this after first login.</div>
+          </div>
+          <div class="mb-3">
+            <label class="form-label fw-600">Bio</label>
+            <textarea name="bio" class="form-control" rows="2" placeholder="Short bio..."></textarea>
+          </div>
+          <?php if (!empty($allCategories)): ?>
+          <div class="mb-0">
+            <label class="form-label fw-600">Allowed Categories</label>
+            <div style="max-height:140px;overflow-y:auto;border:1px solid #dee2e6;border-radius:6px;padding:8px">
+              <?php foreach ($allCategories as $cat): if ($cat['parent_id']) continue; ?>
+              <div class="form-check">
+                <input class="form-check-input" type="checkbox" name="category_ids[]"
+                       value="<?= $cat['id'] ?>" id="cc<?= $cat['id'] ?>">
+                <label class="form-check-label" for="cc<?= $cat['id'] ?>"><?= \App\Core\Helper::e($cat['name_tamil'] ?: $cat['name']) ?></label>
+              </div>
+              <?php endforeach; ?>
+            </div>
+          </div>
+          <?php endif; ?>
+        </div>
+        <div class="modal-footer">
+          <button type="button" class="btn btn-outline-secondary" data-bs-dismiss="modal">Cancel</button>
+          <button type="submit" class="btn btn-primary"><i class="bi bi-person-check me-1"></i>Add Contributor</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>

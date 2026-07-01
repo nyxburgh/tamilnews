@@ -1,4 +1,5 @@
 <?php use App\Core\{Helper, CSRF}; ?>
+<link rel="stylesheet" href="<?= ASSET_URL ?>/assets/css/article-form.css">
 <div class="portal-page-header">
   <div>
     <h2 class="portal-page-title"><?= $isEdit ? 'Edit Article' : 'Submit Article' ?></h2>
@@ -17,7 +18,7 @@
         <div class="portal-card-body">
           <div class="mb-3">
             <label class="form-label fw-600">Article Title <span class="text-danger">*</span></label>
-            <input type="text" name="title" class="form-control form-control-lg"
+            <input type="text" name="title" id="titleInput" class="form-control form-control-lg"
                    placeholder="Enter your article headline…"
                    value="<?= Helper::e($article['title'] ?? '') ?>" required>
           </div>
@@ -25,7 +26,7 @@
             <label class="form-label fw-600">URL Slug</label>
             <div class="input-group">
               <span class="input-group-text text-muted">/article/</span>
-              <input type="text" name="slug" class="form-control"
+              <input type="text" name="slug" id="slugInput" class="form-control"
                      value="<?= Helper::e($article['slug'] ?? '') ?>" placeholder="auto-generated">
             </div>
           </div>
@@ -34,8 +35,22 @@
 
       <div class="portal-card mb-4">
         <div class="portal-card-header"><span><i class="bi bi-pencil-square me-2"></i>Article Content <span class="text-danger">*</span></span></div>
-        <div class="portal-card-body">
-          <textarea id="content" name="content"><?= htmlspecialchars($article['content'] ?? '') ?></textarea>
+        <div class="portal-card-body p-0">
+          <div class="art-toolbar">
+            <button type="button" data-fmt="bold" title="Bold"><b>B</b></button>
+            <button type="button" data-fmt="italic" title="Italic"><i>I</i></button>
+            <button type="button" data-fmt="underline" title="Underline"><u>U</u></button>
+            <span class="sep"></span>
+            <button type="button" data-tag="h2" title="Heading">H2</button>
+            <button type="button" data-tag="h3" title="Sub-heading">H3</button>
+            <button type="button" data-tag="p" title="Paragraph">P</button>
+            <span class="sep"></span>
+            <button type="button" data-tag="blockquote" title="Quote">&#10078;</button>
+            <button type="button" id="insertUlBtn" title="Bullet List">&bull; List</button>
+            <span class="sep"></span>
+            <button type="button" id="insertLinkBtn" title="Link">&#128279;</button>
+          </div>
+          <textarea id="content" name="content" class="form-control art-content-area"><?= htmlspecialchars($article['content'] ?? '') ?></textarea>
         </div>
       </div>
 
@@ -82,6 +97,15 @@
       <div class="portal-card mb-4">
         <div class="portal-card-header"><span><i class="bi bi-send me-2"></i>Submit</span></div>
         <div class="portal-card-body">
+          <div class="mb-3">
+            <label class="form-label fw-600">Article Type</label>
+            <select name="content_type" class="form-select">
+              <?php $curType = $article['content_type'] ?? 'special'; ?>
+              <option value="special" <?= $curType === 'special' ? 'selected' : '' ?>>Special Article</option>
+              <option value="news"    <?= $curType === 'news'    ? 'selected' : '' ?>>News</option>
+            </select>
+            <div class="form-text">Special Articles appear in a dedicated section as well as their category page.</div>
+          </div>
           <div class="cntr-status-info mb-3 p-3 rounded" style="background:rgba(245,158,11,0.1);border:1px solid rgba(245,158,11,0.2)">
             <i class="bi bi-info-circle text-warning me-2"></i>
             <span class="small text-muted">Articles go directly to <strong>editor review</strong> upon submission.</span>
@@ -117,7 +141,7 @@
             }
           }
           ?>
-          <select id="cParentSel" onchange="cLoadSubs(this.value)" id="cParentSel" onchange="cLoadSubs(this.value)" class="form-select mb-2" onchange="cLoadSubs(this.value)">
+          <select id="cParentSel" class="form-select mb-2">
             <option value="">-- Category தேர்வு செய்யுங்கள் --</option>
             <?php foreach ($cParents as $cat): ?>
             <option value="<?= $cat['id'] ?>"
@@ -128,7 +152,7 @@
             <?php endforeach; ?>
           </select>
           <div id="cSubcatWrap" style="<?= empty($cChildMap[$curParent]) ? 'display:none' : '' ?>">
-            <select name="category_id" id="cSubSel" class="form-select">
+            <select id="cSubSel" class="form-select">
               <option value="<?= $curParent ?>">-- அனைத்தும் (subcat இல்லை) --</option>
               <?php foreach ($cChildMap[$curParent] ?? [] as $sub): ?>
               <option value="<?= $sub['id'] ?>" <?= $curChild === (int)$sub['id'] ? 'selected' : '' ?>>
@@ -137,7 +161,7 @@
               <?php endforeach; ?>
             </select>
           </div>
-          <input type="hidden" name="category_id" id="cCatFallback" value="<?= $curParent ?: '' ?>">
+          <input type="hidden" name="category_id" id="cCatFallback" value="<?= $curCatId ?: $curParent ?>">
           <?php endif; ?>
         </div>
       </div>
@@ -148,7 +172,7 @@
         <div class="portal-card-body">
           <div id="tagPicker" class="tn-tag-picker mb-2">
             <?php foreach ($tags as $tag): ?>
-            <div style="display:inline-flex;align-items:center;gap:4px;padding:3px 10px;border-radius:20px;font-size:12px;font-weight:600;background:rgba(16,185,129,.12);color:#10b981" data-id="<?= $tag['id'] ?>"><?= Helper::e($tag['name']) ?> <i class="bi bi-x"></i></div>
+            <div class="tn-tag-item" data-id="<?= $tag['id'] ?>"><?= Helper::e($tag['name_tamil'] ?: $tag['name']) ?> <i class="bi bi-x"></i></div>
             <?php endforeach; ?>
           </div>
           <div id="selectedTagIds">
@@ -157,7 +181,7 @@
             <?php endforeach; ?>
           </div>
           <input type="text" id="tagSearch" class="form-control form-control-sm" placeholder="Search and add tags…">
-          <div id="tagSuggestions" style="background:white;border:1px solid #D8D6CE;border-radius:6px;margin-top:4px;max-height:200px;overflow-y:auto"></div>
+          <div id="tagSuggestions" class="tn-tag-suggestions"></div>
         </div>
       </div>
 
@@ -178,78 +202,10 @@
   </div>
 </form>
 
-<script src="https://cdn.jsdelivr.net/npm/tinymce@6/tinymce.min.js">
-function cLoadSubs(parentId) {
-  const wrap = document.getElementById('cSubcatWrap');
-  const sel  = document.getElementById('cSubSel');
-  const fb   = document.getElementById('cCatFallback');
-  const pSel = document.getElementById('cParentSel');
-  const children = JSON.parse(pSel.options[pSel.selectedIndex]?.dataset.children || '[]');
-  fb.value = parentId;
-  if (children.length > 0) {
-    wrap.style.display = '';
-    sel.innerHTML = '<option value="' + parentId + '">-- அனைத்தும் (subcat இல்லை) --</option>';
-    children.forEach(s => sel.innerHTML += '<option value="' + s.id + '">' + (s.name_tamil || s.name) + '</option>');
-    sel.name = 'category_id'; fb.name = 'cat_fb_ignore';
-  } else {
-    wrap.style.display = 'none';
-    sel.name = 'cat_sub_ignore'; fb.name = 'category_id';
-  }
-}
-document.addEventListener('DOMContentLoaded', () => {
-  const p = document.getElementById('cParentSel');
-  if (p && p.value) cLoadSubs(p.value);
-  else if (p) { document.getElementById('cSubSel').name='cat_sub_ignore'; document.getElementById('cCatFallback').name='category_id'; }
-});
-</script>
 <script>
-const r = document.querySelector('meta[name="csrf-token"]')?.closest('head')?.querySelector('meta[name="base-url"]')?.content || '<?= $r ?>';
+window.ContributeFormConfig = {
+  tagSearchUrl: '<?= $r ?>/admin/tags/suggest',
+  tagQuickCreateUrl: '<?= $r ?>/admin/tags/quick-create'
+};
 </script>
-<script>
-tinymce.init({
-  selector: '#content', height: 460, skin: 'oxide-dark', content_css: 'dark',
-  plugins: 'lists link image code',
-  toolbar: 'undo redo | formatselect | bold italic underline | alignleft aligncenter | bullist numlist | link | code',
-  menubar: false, branding: false,
-});
-
-// Tag search
-const r = '<?= $r ?>';
-let tagDebounce;
-document.getElementById('tagSearch')?.addEventListener('input', function() {
-  clearTimeout(tagDebounce);
-  const q = this.value.trim();
-  if (!q) { document.getElementById('tagSuggestions').innerHTML = ''; return; }
-  tagDebounce = setTimeout(async () => {
-    const res  = await fetch(r + '/admin/tags/suggest?q=' + encodeURIComponent(q));
-    const tags = await res.json();
-    const box  = document.getElementById('tagSuggestions');
-    box.innerHTML = tags.map(t => `<div style="padding:8px 12px;cursor:pointer;font-size:13px;border-bottom:1px solid #F0EFE9" data-id="${t.id}" data-name="${t.name}">${t.name}</div>`).join('') || '<div class="p-2 text-muted small">No tags found</div>';
-    box.querySelectorAll('.tn-tag-suggest-item').forEach(el => {
-      el.addEventListener('click', () => addTag(el.dataset.id, el.dataset.name));
-    });
-  }, 300);
-});
-
-function addTag(id, name) {
-  if (document.querySelector(`.tn-tag-item[data-id="${id}"]`)) return;
-  const picker = document.getElementById('tagPicker');
-  const hidden = document.getElementById('selectedTagIds');
-  const div    = document.createElement('div');
-  div.className = 'tn-tag-item'; div.dataset.id = id;
-  div.innerHTML = `${name} <i class="bi bi-x"></i>`;
-  div.querySelector('i').onclick = () => { div.remove(); document.querySelector(`input[value="${id}"]`)?.remove(); };
-  picker.appendChild(div);
-  const inp = document.createElement('input'); inp.type='hidden'; inp.name='tag_ids[]'; inp.value=id;
-  hidden.appendChild(inp);
-  document.getElementById('tagSearch').value = '';
-  document.getElementById('tagSuggestions').innerHTML = '';
-}
-document.querySelectorAll('.tn-tag-item i').forEach(btn => {
-  btn.addEventListener('click', function() {
-    const item = this.closest('.tn-tag-item');
-    document.querySelector(`input[name="tag_ids[]"][value="${item.dataset.id}"]`)?.remove();
-    item.remove();
-  });
-});
-</script>
+<script src="<?= ASSET_URL ?>/assets/js/contribute-article-form.js"></script>

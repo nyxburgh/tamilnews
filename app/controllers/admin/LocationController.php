@@ -25,6 +25,12 @@ class LocationController extends Controller
         ], $this->layout());
     }
 
+    public function citiesByDistrict(string $districtId): void
+    {
+        $cities = $this->locs->allCities((int)$districtId);
+        $this->json(array_map(fn($c) => ['id' => $c['id'], 'name' => $c['name']], $cities));
+    }
+
     public function storeState(): void
     {
         CSRF::validate();

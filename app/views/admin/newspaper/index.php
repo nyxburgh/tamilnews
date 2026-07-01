@@ -58,7 +58,7 @@
           </span>
         </td>
         <td>
-          <a href="<?= $r ?>/public<?= Helper::e($p['pdf_path']) ?>" target="_blank"
+          <a href="<?= $r ?><?= Helper::e($p['pdf_path']) ?>" target="_blank"
              class="btn btn-sm btn-outline-primary" title="Preview">
             <i class="bi bi-eye"></i>
           </a>

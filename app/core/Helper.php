@@ -5,15 +5,15 @@ class Helper
 {
     public static function slug(string $text): string
     {
-        // Handle Tamil and other Unicode
+        // Unicode-aware slug: keeps Tamil script + Latin letters/numbers.
+        // (Previous version ran an ASCII-only iconv transliteration afterward,
+        // which silently dropped every Tamil character, leaving a random
+        // fallback hash as the "slug" for any Tamil-only title.)
         $text = mb_strtolower(trim($text));
         $text = preg_replace('/[\s\-]+/', '-', $text);
         $text = preg_replace('/[^\p{L}\p{N}\-]/u', '', $text);
         $text = trim($text, '-');
-        // Transliterate basic latin
-        $text = iconv('UTF-8', 'ASCII//TRANSLIT//IGNORE', $text) ?: $text;
-        $text = preg_replace('/[^a-z0-9\-]/', '', strtolower($text));
-        return trim($text, '-') ?: substr(md5(uniqid()), 0, 8);
+        return $text !== '' ? mb_substr($text, 0, 120) : substr(md5(uniqid()), 0, 8);
     }
 
     public static function uniqueSlug(string $table, string $slug, int $excludeId = 0): string
@@ -57,14 +57,33 @@ class Helper
         return date($format, strtotime($date));
     }
 
+    /**
+     * Normalize a stored filepath to a full URL, handling old/new path formats.
+     */
+    public static function assetUrl(?string $path): string
+    {
+        if (!$path) return '';
+        if (str_starts_with($path, 'http')) return $path;
+        // Strip any legacy /public prefix variants
+        $path = preg_replace('#^/[^/]+/public/#', '/uploads/', $path);
+        $path = preg_replace('#^/public/#', '/uploads/', $path);
+        return rtrim(ASSET_URL, '/') . '/' . ltrim($path, '/');
+    }
+
     public static function timeAgo(string $date): string
     {
-        $diff = time() - strtotime($date);
-        if ($diff < 60)       return 'Just now';
-        if ($diff < 3600)     return (int)($diff/60) . ' min ago';
-        if ($diff < 86400)    return (int)($diff/3600) . ' hr ago';
-        if ($diff < 604800)   return (int)($diff/86400) . ' days ago';
-        return date('d M Y', strtotime($date));
+        try {
+            $then = new \DateTime($date, new \DateTimeZone('UTC'));
+            $now  = new \DateTime('now', new \DateTimeZone('UTC'));
+            $diff = $now->getTimestamp() - $then->getTimestamp();
+        } catch (\Exception $e) {
+            $diff = time() - strtotime($date);
+        }
+        if ($diff < 60)     return 'இப்போது';
+        if ($diff < 3600)   return (int)($diff/60) . ' நிமிடம் முன்';
+        if ($diff < 86400)  return (int)($diff/3600) . ' மணி முன்';
+        if ($diff < 604800) return (int)($diff/86400) . ' நாள் முன்';
+        return self::formatDate($date, 'd M Y');
     }
 
     public static function formatBytes(int $bytes): string

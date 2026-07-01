@@ -15,6 +15,11 @@ class PackageController extends Controller
         return 'portal';
     }
 
+    private function pkgBase(): string
+    {
+        return \App\Core\Auth::role() === 'admin' ? '/admin/packages' : '/portal/packages';
+    }
+
     public function __construct() { $this->model = new AdPackageModel(); }
 
     public function index(): void
@@ -45,7 +50,7 @@ class PackageController extends Controller
         if ($qr) $data['qr_code_path'] = $qr;
         $this->model->insert($data);
         $this->flash('success','Package created.');
-        $this->redirect('/admin/packages');
+        $this->redirect($this->pkgBase());
     }
 
     public function update(string $id): void
@@ -63,7 +68,7 @@ class PackageController extends Controller
         if ($qr) $data['qr_code_path'] = $qr;
         $this->model->update((int)$id, $data);
         $this->flash('success','Package updated.');
-        $this->redirect('/admin/packages');
+        $this->redirect($this->pkgBase());
     }
 
     /** Handle optional QR code image upload, returns relative path or null */

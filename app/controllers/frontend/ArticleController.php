@@ -46,6 +46,7 @@ class ArticleController extends Controller
 
         // Nav
         $categories    = (new CategoryModel())->allWithParent();
+        $navCategories = $categories;
         $settings      = new SettingModel();
         $siteName      = $settings->getValue('site_name', 'தமிழ் செய்தி');
 
@@ -60,9 +61,11 @@ class ArticleController extends Controller
 
         // SEO
         $siteUrl   = rtrim($settings->getValue('site_url', BASE_URL . '/public'), '/');
-        $metaTitle = $article['meta_title'] ?: $article['title'] . ' | ' . $siteName;
-        $rawDesc   = $article['meta_desc']  ?: strip_tags($article['excerpt'] ?? '');
-        $metaDesc  = mb_substr($rawDesc, 0, 160);
+        $metaTitle = $article['meta_title'] ?: $article['title'] . ' | Thinathulir';
+        $rawDesc   = $article['meta_desc'] ?: strip_tags($article['excerpt'] ?? '');
+        if (!$rawDesc) $rawDesc = mb_substr(strip_tags($article['content'] ?? ''), 0, 200);
+        if (!$rawDesc) $rawDesc = $article['title'] ?? '';
+        $metaDesc  = mb_strimwidth(strip_tags($rawDesc), 0, 155, '…') . ' | Thinathulir';
         $canonical = $siteUrl . '/article/' . $article['slug'];
 
         // OG image — use article thumbnail or fallback to site default
@@ -81,7 +84,7 @@ class ArticleController extends Controller
 
         $this->view('frontend.article.show', compact(
             'article', 'related', 'ratingStats', 'reviews',
-            'readerId', 'userRating', 'categories', 'siteName',
+            'readerId', 'userRating', 'categories', 'navCategories', 'siteName',
             'trending', 'ads', 'metaTitle', 'metaDesc', 'canonical', 'ogImage', 'csrf',
             'categoryId', 'noWidgets',
         ), 'frontend');

@@ -8,7 +8,7 @@
   <?php if (!str_starts_with($m['mime_type'], 'image/')): continue; endif; ?>
   <div class="tn-media-item tn-media-selectable" onclick="selectMedia(<?= $m['id'] ?>, '<?= Helper::e($m['filepath']) ?>')">
     <div class="tn-media-thumb">
-      <img src="<?= Helper::e($m['thumb_path'] ?: $m['filepath']) ?>" alt="" loading="lazy">
+      <img src="<?= rtrim(ASSET_URL,'/') . '/public' . Helper::e($m['thumb_path'] ?: $m['filepath']) ?>" alt="" loading="lazy">
       <div class="tn-media-select-overlay"><i class="bi bi-check-circle-fill"></i></div>
     </div>
     <div class="tn-media-info">

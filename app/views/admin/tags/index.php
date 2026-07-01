@@ -1,10 +1,15 @@
 <?php use App\Core\{Helper, CSRF}; ?>
 <div class="tn-page-header">
-  <h2 class="tn-page-title">Tags <span class="text-muted fw-300 fs-5">(<?= number_format($total) ?>)</span></h2>
-  <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTagModal"><i class="bi bi-plus-circle me-2"></i>Add Tag</button>
+  <div>
+    <h2 class="tn-page-title">Tags <span class="text-muted fw-300 fs-5">(<?= number_format($total) ?>)</span></h2>
+  </div>
+  <div class="d-flex gap-2 align-items-center">
+    <input type="text" id="tagSearchBox" class="form-control form-control-sm" style="width:200px" placeholder="Search tags…">
+    <button class="btn btn-primary" data-bs-toggle="modal" data-bs-target="#addTagModal"><i class="bi bi-plus-circle me-1"></i>Add Tag</button>
+  </div>
 </div>
 <div class="tn-card">
-  <div class="table-responsive"><table class="table tn-table mb-0">
+  <div class="table-responsive"><table class="table tn-table mb-0" id="tagsTable">
     <thead><tr><th>Name</th><th>Tamil</th><th>Slug</th><th>Usage</th><th>Actions</th></tr></thead>
     <tbody>
     <?php foreach ($tags as $tag): ?>
@@ -12,26 +17,42 @@
       <td><strong><?= Helper::e($tag['name']) ?></strong></td>
       <td><?= Helper::e($tag['name_tamil'] ?? '—') ?></td>
       <td><code><?= Helper::e($tag['slug']) ?></code></td>
-      <td><span class="badge bg-secondary"><?= $tag['usage_count'] ?></span></td>
+      <td>
+        <?php if ((int)$tag['usage_count'] > 0): ?>
+        <a href="<?= $r ?>/admin/articles?tag_id=<?= $tag['id'] ?>" class="badge bg-secondary text-decoration-none" title="View articles with this tag">
+          <?= (int)$tag['usage_count'] ?>
+        </a>
+        <?php else: ?>
+        <span class="badge bg-light text-muted border">0</span>
+        <?php endif; ?>
+      </td>
       <td>
         <button class="btn btn-sm btn-outline-primary" onclick="editTag(<?= htmlspecialchars(json_encode($tag)) ?>)"><i class="bi bi-pencil"></i></button>
-        <form action="<?= $r ?>/admin/tags/delete/<?= $tag['id'] ?>" method="POST" class="d-inline" onsubmit="return confirm('Delete?')"><?= CSRF::field() ?><button class="btn btn-sm btn-outline-danger"><i class="bi bi-trash"></i></button></form>
+        <form action="<?= $r ?>/admin/tags/delete/<?= $tag['id'] ?>" method="POST" class="d-inline"
+              onsubmit="return confirm('Delete tag \'<?= Helper::e(addslashes($tag['name'])) ?>\'? It will be removed from all linked articles.')">
+          <?= CSRF::field() ?>
+          <button class="btn btn-sm btn-outline-danger" title="Delete"><i class="bi bi-trash"></i></button>
+        </form>
       </td>
     </tr>
     <?php endforeach; ?>
     </tbody>
   </table></div>
 </div>
+
+<!-- Add Tag Modal -->
 <div class="modal fade" id="addTagModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
   <form action="<?= $r ?>/admin/tags/create" method="POST"><?= CSRF::field() ?>
   <div class="modal-header"><h5 class="modal-title">Add Tag</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
   <div class="modal-body">
-    <div class="mb-3"><label class="form-label">Name *</label><input type="text" name="name" class="form-control" required></div>
+    <div class="mb-3"><label class="form-label">Name <span class="text-danger">*</span></label><input type="text" name="name" class="form-control" required></div>
     <div class="mb-0"><label class="form-label">Tamil Name</label><input type="text" name="name_tamil" class="form-control"></div>
   </div>
   <div class="modal-footer"><button type="submit" class="btn btn-primary">Create</button></div>
   </form>
 </div></div></div>
+
+<!-- Edit Tag Modal -->
 <div class="modal fade" id="editTagModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">
   <form id="editTagForm" method="POST"><?= CSRF::field() ?>
   <div class="modal-header"><h5 class="modal-title">Edit Tag</h5><button type="button" class="btn-close" data-bs-dismiss="modal"></button></div>
@@ -42,4 +63,19 @@
   <div class="modal-footer"><button type="submit" class="btn btn-primary">Update</button></div>
   </form>
 </div></div></div>
-<script>function editTag(t){document.getElementById('editTagForm').action='/admin/tags/edit/'+t.id;document.getElementById('etName').value=t.name;document.getElementById('etTamil').value=t.name_tamil||'';new bootstrap.Modal(document.getElementById('editTagModal')).show();}</script>
+
+<script>
+function editTag(t) {
+  document.getElementById('editTagForm').action = '<?= $r ?>/admin/tags/edit/' + t.id;
+  document.getElementById('etName').value  = t.name;
+  document.getElementById('etTamil').value = t.name_tamil || '';
+  new bootstrap.Modal(document.getElementById('editTagModal')).show();
+}
+// Live search filter
+document.getElementById('tagSearchBox').addEventListener('input', function () {
+  var q = this.value.trim().toLowerCase();
+  document.querySelectorAll('#tagsTable tbody tr').forEach(function (row) {
+    row.style.display = !q || row.textContent.toLowerCase().includes(q) ? '' : 'none';
+  });
+});
+</script>

@@ -146,6 +146,10 @@ class ArticleController extends Controller
         $slug    = Helper::uniqueSlug('tn_articles', $_POST['slug'] ?? '' ?: Helper::slug($title));
         $content = $_POST['content'] ?? '';
 
+        $allowedTypes = ['news', 'special'];
+        $contentType  = in_array($_POST['content_type'] ?? '', $allowedTypes, true)
+            ? $_POST['content_type'] : 'special';
+
         return [
             'contributor_id' => $this->contributorId,
             'user_id'        => 1, // system user
@@ -154,7 +158,7 @@ class ArticleController extends Controller
             'slug'           => $slug,
             'excerpt'        => $_POST['excerpt'] ?? '' ?: Helper::excerpt($content),
             'content'        => $content,
-            'content_type'   => 'news',
+            'content_type'   => $contentType,
             'youtube_url'    => $_POST['youtube_url'] ?? '' ?: null,
             'youtube_video_id' => $_POST['youtube_url'] ? Helper::youtubeId($_POST['youtube_url']) : null,
             'status'         => 'review', // always goes to review

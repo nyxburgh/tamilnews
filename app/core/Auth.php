@@ -81,9 +81,10 @@ class Auth
             'approve_escalated'     => ['admin','chief_editor'],
             'escalate_articles'     => ['admin','editor','district_editor','category_editor'],
             'create_ad'             => ['admin','chief_editor','editor','district_editor','category_editor','reporter','senior_reporter','ads_manager'],
-            'manage_own_ads'        => ['admin','chief_editor','editor','district_editor','category_editor','reporter','senior_reporter','ads_manager'],
+            'manage_own_ads'        => ['admin','chief_editor','editor','district_editor','category_editor','reporter','senior_reporter','ads_manager','ad_owner'],
             'approve_ad'            => ['admin','chief_editor'],
             'confirm_ad_payment'    => ['admin','chief_editor'],
+            'view_own_analytics'    => ['ad_owner'],
             'promote_user'          => ['admin'],
         ];
 

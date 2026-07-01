@@ -10,7 +10,8 @@ class CategoryModel extends Model
     public function allWithParent(): array
     {
         return $this->fetchAll(
-            "SELECT c.*, p.name AS parent_name
+            "SELECT c.*, p.name AS parent_name,
+                    (SELECT COUNT(*) FROM tn_articles a WHERE a.category_id = c.id) AS article_count
              FROM tn_categories c
              LEFT JOIN tn_categories p ON p.id = c.parent_id
              ORDER BY c.sort_order ASC, c.id ASC"

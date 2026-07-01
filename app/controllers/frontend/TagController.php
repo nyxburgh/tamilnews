@@ -17,13 +17,15 @@ class TagController extends Controller
             return;
         }
 
-        $page    = max(1, (int)($_GET['page'] ?? 1));
-        $result  = (new FrontendArticleModel())->byTag($slug, $page, 6);
-        $settings= new SettingModel();
-        $siteName= $settings->getValue('site_name', 'வேள் சுடர்');
+        $page       = max(1, (int)($_GET['page'] ?? 1));
+        $articleModel = new FrontendArticleModel();
+        $result     = $articleModel->byTag($slug, $page, 6);
+        $settings   = new SettingModel();
+        $siteName   = $settings->getValue('site_name', 'வேள் சுடர்');
 
         // Sidebar data
-        try { $trending = $articleModel->trending(6); } catch(\Exception $e) { $trending = []; }
+        try { $trending = $articleModel->trending(6); } catch (\Exception $e) { $trending = []; }
+
         $this->view('frontend.tag.show', [
             'tag'           => $tag,
             'articles'      => $result['data'],
@@ -33,6 +35,9 @@ class TagController extends Controller
             'navCategories' => (new CategoryModel())->allWithParent(),
             'siteName'      => $siteName,
             'metaTitle'     => $tag['name'] . ' | ' . $siteName,
+            // Thin content (fewer than 3 articles) shouldn't be indexed —
+            // avoids diluting crawl budget / duplicate-content signals
+            'robotsContent' => $result['total'] < 3 ? 'noindex, follow' : 'index, follow',
             'breaking'      => [],
         ], 'frontend');
     }

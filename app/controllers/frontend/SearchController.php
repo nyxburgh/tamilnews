@@ -32,6 +32,7 @@ class SearchController extends Controller
             'siteName'      => $settings->getValue('site_name', 'தமிழ் செய்தி'),
             'metaTitle'     => $q ? "'{$q}' தேடல் முடிவுகள்" : 'தேடல்',
             'trending'      => $trending ?? [],
+            'robotsContent' => 'noindex, follow',
             'categoryId'    => 0,
         ], 'frontend');
     }

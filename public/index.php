@@ -34,7 +34,7 @@ define('APP_DEBUG', $debug);
 // ── BASE & ASSET URL ─────────────────────────────
 $_appUrl = rtrim($_ENV['APP_URL'] ?? 'http://localhost/thinathulir', '/');
 define('BASE_URL',  $_appUrl);
-define('ASSET_URL', $_appUrl . '/public');
+define('ASSET_URL', $_appUrl);  // No /public — root .htaccess forwards to public/
 if ($debug) {
     error_reporting(E_ALL);
     ini_set('display_errors', '1');

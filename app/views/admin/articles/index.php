@@ -1,4 +1,7 @@
-<?php use App\Core\{Helper, Auth, CSRF}; ?>
+<?php use App\Core\{Helper, Auth, CSRF};
+$_artBase = Auth::role() === 'admin' ? '/admin/articles' : '/portal/all-articles';
+$_pnBase  = Auth::role() === 'admin' ? '/admin/photo-news' : '/portal/photo-news';
+?>
 
 <div class="tn-page-header">
   <div>
@@ -36,28 +39,20 @@
       <div class="col-sm-2">
         <select name="content_type" class="form-select">
           <option value="">All Types</option>
-          <?php foreach (['news','video','short_news','live_update','gallery'] as $t): ?>
+          <?php foreach (['news','video','short_news','live_update','gallery','special'] as $t): ?>
           <option value="<?= $t ?>" <?= $filters['content_type'] === $t ? 'selected' : '' ?>><?= ucwords(str_replace('_',' ',$t)) ?></option>
           <?php endforeach; ?>
         </select>
       </div>
-      <div class="col-auto">
+      <div class="col-auto d-flex align-items-center gap-2">
         <button type="submit" class="btn btn-primary"><i class="bi bi-search"></i></button>
-        <a href="<?= $r ?>/admin/articles" class="btn btn-outline-secondary ms-1"><i class="bi bi-x"></i></a>
-      <div class="ms-auto d-flex gap-2">
-        <form class="d-flex gap-2" method="GET" action="<?= $r ?>/admin/articles">
-          <input type="hidden" name="status" value="<?= htmlspecialchars($filters['status'] ?? '') ?>">
-          <input type="text" name="q" class="form-control form-control-sm" style="width:220px"
-                 placeholder="Search articles..." value="<?= htmlspecialchars($_GET['q'] ?? '') ?>">
-          <button class="btn btn-sm btn-outline-secondary"><i class="bi bi-search"></i></button>
-        </form>
+        <a href="<?= $r ?>/admin/articles" class="btn btn-outline-secondary" title="Clear filters"><i class="bi bi-x"></i></a>
         <?php $pendingCount = []; // pending_edit removed from schema ?>
         <?php if (!empty($pendingCount)): ?>
-        <a href="<?= $r ?>/admin/articles/pending-edits" class="btn btn-sm btn-warning fw-600">
+        <a href="<?= $r ?>/admin/articles/pending-edits" class="btn btn-sm btn-warning fw-600 ms-auto">
           ✏️ <?= count($pendingCount) ?> Pending Edits
         </a>
         <?php endif; ?>
-      </div>
       </div>
     </form>
   </div>
@@ -73,8 +68,12 @@
     <span>
       <i class="bi bi-file-earmark-text me-2"></i>
       <?= number_format($total) ?> article<?= $total !== 1 ? 's' : '' ?>
+      <a href="<?= $r ?>/admin/articles/create" class="btn btn-sm btn-primary ms-2">
+        <i class="bi bi-plus-circle me-1"></i>New
+      </a>
     </span>
-    <div class="d-flex gap-2">
+    <div class="d-flex gap-2 d-none" id="bulkActionBtns">
+      <span class="small text-muted align-self-center me-1" id="bulkSelCount"></span>
       <?php if (Auth::can('publish_articles')): ?>
       <button type="button" class="btn btn-sm btn-success" onclick="bulkDo('publish')">
         <i class="bi bi-check2-all me-1"></i>Publish
@@ -112,7 +111,7 @@
         <tr>
           <td><input type="checkbox" name="ids[]" value="<?= $a['id'] ?>" class="form-check-input row-check"></td>
           <td>
-            <a href="<?= $r ?>/admin/articles/edit/<?= $a['id'] ?>" class="tn-article-link">
+            <a href="<?= $r . $_artBase ?>/edit/<?= $a['id'] ?>" class="tn-article-link">
               <?= Helper::e(mb_substr($a['title'], 0, 60)) ?>
             </a>
           </td>
@@ -129,20 +128,34 @@
           <td>
             <form action="<?= $r ?>/admin/articles/toggle-breaking/<?= $a['id'] ?>" method="POST" class="d-inline">
               <?= CSRF::field() ?>
-              <button type="submit" class="btn btn-link p-0 text-decoration-none" title="Toggle Breaking">
+              <button type="submit" class="btn btn-link p-0 text-decoration-none" title="Click to toggle breaking news">
                 <?php if ($a['is_breaking']): ?>
                 <span class="badge bg-danger">BREAKING</span>
                 <?php else: ?>
-                <span class="text-muted">—</span>
+                <span class="badge bg-light text-muted border" style="cursor:pointer">Set Breaking</span>
                 <?php endif; ?>
               </button>
             </form>
           </td>
-          <td class="text-muted small"><?= Helper::timeAgo($a['created_at']) ?></td>
+          <td class="text-muted small" title="<?= date('d M Y, h:i A', strtotime($a['created_at'])) ?>">
+            <?= Helper::timeAgo($a['created_at']) ?>
+          </td>
           <td>
-            <a href="<?= $r ?>/admin/articles/edit/<?= $a['id'] ?>" class="btn btn-sm btn-outline-primary" title="Edit">
+            <a href="<?= $r . $_artBase ?>/edit/<?= $a['id'] ?>" class="btn btn-sm btn-outline-primary" title="Edit">
               <i class="bi bi-pencil"></i>
             </a>
+            <?php if (!empty($pnLinked[$a['id']])): ?>
+            <a href="<?= $r . $_pnBase ?>/edit/<?= $pnLinked[$a['id']] ?>" class="btn btn-sm btn-primary" title="View Photo News">
+              <i class="bi bi-camera-fill"></i>
+            </a>
+            <?php else: ?>
+            <a href="<?= $r . $_pnBase ?>/create?article_id=<?= $a['id'] ?>" class="btn btn-sm btn-outline-secondary" title="Add new Photo News">
+              <i class="bi bi-camera"></i>
+            </a>
+            <a href="<?= $r . $_pnBase ?>/connect-from-article/<?= $a['id'] ?>" class="btn btn-sm btn-outline-secondary" title="Connect existing Photo News">
+              <i class="bi bi-link-45deg"></i>
+            </a>
+            <?php endif; ?>
             <form action="<?= $r ?>/admin/articles/delete/<?= $a['id'] ?>" method="POST" class="d-inline"
                   onsubmit="return confirm('Delete this article?')">
               <?= CSRF::field() ?>
@@ -160,17 +173,33 @@
 $queryExtra = http_build_query(array_filter([
     'status'      => $filters['status']      ?? '',
     'category_id' => $filters['category_id'] ?? '',
-    'q'           => $_GET['q']              ?? '',
+    'search'      => $filters['search']      ?? '',
 ]));
 if ($queryExtra) $queryExtra = '&' . $queryExtra;
 include VIEW_PATH . '/partials/pagination.php';
 ?>
+</div><!-- close tn-card -->
 </form>
 
 <script>
 document.getElementById('checkAll')?.addEventListener('change', function() {
   document.querySelectorAll('.row-check').forEach(c => c.checked = this.checked);
+  updateBulkVisibility();
 });
+document.querySelectorAll('.row-check').forEach(function(cb) {
+  cb.addEventListener('change', updateBulkVisibility);
+});
+function updateBulkVisibility() {
+  const checked = document.querySelectorAll('.row-check:checked');
+  const wrap  = document.getElementById('bulkActionBtns');
+  const count = document.getElementById('bulkSelCount');
+  if (checked.length > 0) {
+    wrap.classList.remove('d-none');
+    count.textContent = checked.length + ' selected';
+  } else {
+    wrap.classList.add('d-none');
+  }
+}
 function bulkDo(action) {
   const checked = document.querySelectorAll('.row-check:checked');
   if (!checked.length) { alert('Select at least one article.'); return; }
@@ -179,8 +208,6 @@ function bulkDo(action) {
   document.getElementById('bulkForm').submit();
 }
 </script>
-
-</div><!-- close tn-card -->
 
 <!-- REJECT MODAL -->
 <div class="modal fade" id="rejectModal" tabindex="-1"><div class="modal-dialog"><div class="modal-content">

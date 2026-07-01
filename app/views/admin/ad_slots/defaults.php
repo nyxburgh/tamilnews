@@ -13,7 +13,7 @@
       <div class="tn-card-header"><?= $slot['label'] ?></div>
       <div class="tn-card-body">
         <?php if (!empty($slot['current'])): ?>
-        <img src="<?= ASSET_URL . Helper::e($slot['current']) ?>" alt="Default"
+        <img src="<?= rtrim(ASSET_URL,'/') . '/public' . Helper::e($slot['current']) ?>" alt="Default"
              style="max-width:100%;max-height:120px;object-fit:contain;border:1px solid #E8E6E0;border-radius:4px;display:block;margin-bottom:12px">
         <?php endif; ?>
         <form method="POST" action="<?= $r ?>/admin/ad-defaults/upload" enctype="multipart/form-data">

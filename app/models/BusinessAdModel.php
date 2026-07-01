@@ -39,9 +39,10 @@ class BusinessAdModel extends Model
 
         if (!move_uploaded_file($file['tmp_name'], $tmpPath)) return false;
 
-        // Normalize "square" slot ads to a fixed 2:1 preset (300x150 / 600x300 / 900x450)
-        if ($slotType === 'square') {
-            $this->resizeToAdPreset($tmpPath);
+        // Normalize ad images to a fixed preset per slot type — keeps every
+        // ad in a slot visually consistent regardless of what size was uploaded.
+        if (in_array($slotType, ['square', 'horizontal', 'vertical'], true)) {
+            $this->resizeToAdPreset($tmpPath, $slotType);
         }
 
         // Convert to WebP to save storage (skip if already webp)
@@ -56,21 +57,35 @@ class BusinessAdModel extends Model
     }
 
     /**
-     * Resize + center-crop an ad image to the nearest fixed preset size:
-     * 300×150, 600×300, or 900×450 (all 2:1 ratio). Picks the preset
-     * closest to the source width, capped at 900×450 max. Overwrites
-     * the file in place.
+     * Resize an ad image to a fixed target size per slot type, preserving
+     * the FULL uploaded image (contain-fit — scale to fit within bounds,
+     * center on a canvas of the target size, fill any leftover space with
+     * a neutral background). Never crops. Overwrites the file in place.
+     *
+     *   square     — nearest of 3 tiers: 300×150 / 600×300 / 900×450 (2:1)
+     *   horizontal — single fixed target: 900×150 (matches the desktop
+     *                banner container; scales responsively on mobile)
+     *   vertical   — single fixed target: 220×750 (matches the desktop
+     *                sidebar column width exactly)
      */
-    private function resizeToAdPreset(string $path): void
+    private function resizeToAdPreset(string $path, string $slotType): void
     {
+        if (!function_exists('imagecreatetruecolor')) return; // GD not available — skip resize, keep original upload
+
         $info = @getimagesize($path);
         if (!$info) return;
         [$srcW, $srcH, $type] = $info;
 
-        // Choose nearest preset based on source width
-        if ($srcW <= 450)      { $tgtW = 300; $tgtH = 150; }
-        elseif ($srcW <= 750)  { $tgtW = 600; $tgtH = 300; }
-        else                   { $tgtW = 900; $tgtH = 450; }
+        if ($slotType === 'square') {
+            // Choose nearest preset based on source width
+            if ($srcW <= 450)      { $tgtW = 300; $tgtH = 150; }
+            elseif ($srcW <= 750)  { $tgtW = 600; $tgtH = 300; }
+            else                   { $tgtW = 900; $tgtH = 450; }
+        } elseif ($slotType === 'horizontal') {
+            $tgtW = 900; $tgtH = 150;
+        } else { // vertical
+            $tgtW = 220; $tgtH = 750;
+        }
 
         $src = match ($type) {
             IMAGETYPE_JPEG => @imagecreatefromjpeg($path),
@@ -81,18 +96,20 @@ class BusinessAdModel extends Model
         };
         if (!$src) return;
 
-        // Cover-fit: scale to fill target, then crop center
+        // Contain-fit: scale to fit WITHIN target bounds (never crops),
+        // then center on a target-size canvas, filling any leftover space
+        // with a neutral background.
         $srcRatio = $srcW / $srcH;
         $tgtRatio = $tgtW / $tgtH;
 
         if ($srcRatio > $tgtRatio) {
-            // source wider than target → scale by height, crop width
-            $scaleH = $tgtH;
-            $scaleW = (int)round($srcW * ($tgtH / $srcH));
-        } else {
-            // source taller/narrower → scale by width, crop height
+            // source relatively wider than target → fit by width, letterbox top/bottom
             $scaleW = $tgtW;
             $scaleH = (int)round($srcH * ($tgtW / $srcW));
+        } else {
+            // source relatively taller than target → fit by height, letterbox left/right
+            $scaleH = $tgtH;
+            $scaleW = (int)round($srcW * ($tgtH / $srcH));
         }
 
         $scaled = imagecreatetruecolor($scaleW, $scaleH);
@@ -100,13 +117,16 @@ class BusinessAdModel extends Model
         imagesavealpha($scaled, true);
         imagecopyresampled($scaled, $src, 0, 0, 0, 0, $scaleW, $scaleH, $srcW, $srcH);
 
-        $cropX = (int)round(($scaleW - $tgtW) / 2);
-        $cropY = (int)round(($scaleH - $tgtH) / 2);
+        $pasteX = (int)round(($tgtW - $scaleW) / 2);
+        $pasteY = (int)round(($tgtH - $scaleH) / 2);
 
         $final = imagecreatetruecolor($tgtW, $tgtH);
         imagealphablending($final, false);
         imagesavealpha($final, true);
-        imagecopy($final, $scaled, 0, 0, $cropX, $cropY, $tgtW, $tgtH);
+        // Neutral light-gray background fills any letterbox space
+        $bgColor = imagecolorallocate($final, 245, 245, 240);
+        imagefill($final, 0, 0, $bgColor);
+        imagecopy($final, $scaled, $pasteX, $pasteY, 0, 0, $scaleW, $scaleH);
 
         match ($type) {
             IMAGETYPE_PNG => imagepng($final, $path, 8),
@@ -423,36 +443,66 @@ class BusinessAdModel extends Model
     }
 
     /** Get active approved ads for rotation — up to 5 images per ad */
-    public function activeForRotation(string $slotType, ?int $categoryId = null): array
+    public function activeForRotation(string $slotType, ?int $categoryId = null, ?int $districtId = null): array
     {
         try {
+            // Phase 4: District ad first, fallback to global (Phase 5)
+            $conditions = ["b.display_type = 'global'"];
+            $params      = [$slotType];
+
+            if ($districtId) {
+                $conditions[] = "(b.display_type = 'location' AND b.district_id = ?)";
+                $params[]      = $districtId;
+            }
+            if ($categoryId) {
+                $conditions[]  = "(b.display_type = 'category' AND b.category_id = ?)";
+                $params[]      = $categoryId;
+            }
+
+            $cond = implode(' OR ', $conditions);
+
             $rows = $this->fetchAll(
                 "SELECT b.id, b.business_name, b.website_url, b.contact_phone, b.contact_email,
+                        b.display_type, b.district_id,
                         d.name AS district_name,
-                        ai.filepath, ai.alt_text, ai.link_url, ai.sort_order
+                        ai.filepath, ai.alt_text, ai.link_url, ai.sort_order,
+                        CASE b.display_type
+                            WHEN 'location' THEN 3
+                            WHEN 'category' THEN 2
+                            ELSE 1
+                        END AS priority
                  FROM tn_business_ads b
                  JOIN tn_ad_slots s ON s.id = b.slot_id AND s.type = ?
-                 LEFT JOIN tn_districts d ON d.id = b.district_id
+                 LEFT JOIN tn_districts d  ON d.id  = b.district_id
                  LEFT JOIN tn_ad_images ai ON ai.ad_id = b.id AND ai.is_active = 1
                  WHERE b.status IN ('active','approved')
                    AND (b.valid_from IS NULL OR b.valid_from <= CURDATE())
                    AND (b.valid_until IS NULL OR b.valid_until >= CURDATE())
-                   AND (b.display_type = 'global' OR (b.display_type = 'category' AND b.category_id = ?))
-                 ORDER BY b.id ASC, ai.sort_order ASC",
-                [$slotType, $categoryId ?? 0]
+                   AND ({$cond})
+                 ORDER BY priority DESC, b.id ASC, ai.sort_order ASC",
+                $params
             );
         } catch (\Exception $e) { return []; }
 
-        // Group images by ad (max 5 each)
+        // Group images by ad, keep highest-priority ad type only
         $ads = [];
+        $topPriority = 0;
         foreach ($rows as $row) {
             $id = $row['id'];
             if (!isset($ads[$id])) {
-                $ads[$id] = ['ad_id'=>$id, 'business_name'=>$row['business_name'],
-                             'website_url'=>$row['website_url'] ?? '#', 'images'=>[]];
+                $ads[$id] = [
+                    'ad_id'        => $id,
+                    'business_name'=> $row['business_name'],
+                    'website_url'  => $row['website_url'] ?? '#',
+                    'display_type' => $row['display_type'],
+                    'priority'     => (int)$row['priority'],
+                    'images'       => [],
+                ];
+                if ($row['priority'] > $topPriority) $topPriority = $row['priority'];
             }
             if ($row['filepath'] && count($ads[$id]['images']) < 5) {
                 $ads[$id]['images'][] = [
+                    'ad_id'    => $id,
                     'src'      => $row['filepath'],
                     'alt'      => $row['alt_text'] ?? '',
                     'link'     => $row['link_url'] ?: ($row['website_url'] ?? '#'),
@@ -464,16 +514,20 @@ class BusinessAdModel extends Model
             }
         }
 
-        // If no active DB ads → return default image
-        if (empty($ads)) {
+        // Phase 5: keep only top-priority ads (district > category > global)
+        $filtered = array_values(array_filter($ads, fn($a) => $a['priority'] === $topPriority));
+
+        if (empty($filtered)) {
             $default = $this->getDefaultImage($slotType);
-            return [['ad_id'=>0, 'business_name'=>'Advertisement', 'website_url'=>'#',
-                     'images'=>[['src'=>$default, 'alt'=>'Advertisement', 'link'=>'#']]]];
+            return [['ad_id'=>0,'business_name'=>'Advertisement','website_url'=>'#',
+                     'display_type'=>'global','priority'=>1,
+                     'images'=>[['src'=>$default,'alt'=>'Advertisement','link'=>'#']]]];
         }
 
-        return array_values($ads);
+        return $filtered;
     }
-    public function deleteWithFiles(int $adId): void
+
+        public function deleteWithFiles(int $adId): void
     {
         $images = $this->fetchAll("SELECT filepath FROM tn_ad_images WHERE ad_id = ?", [$adId]);
         foreach ($images as $img) {

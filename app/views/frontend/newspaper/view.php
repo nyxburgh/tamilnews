@@ -31,7 +31,7 @@
   <div id="pdfViewer" style="background:#404040;min-height:80vh">
     <!-- Full-width embedded PDF reader -->
     <iframe
-      src="<?= $r ?>/public<?= htmlspecialchars($paper['pdf_path']) ?>#toolbar=1&navpanes=1&scrollbar=1"
+      src="<?= $r ?><?= htmlspecialchars($paper['pdf_path']) ?>#toolbar=1&navpanes=1&scrollbar=1"
       style="width:100%;height:85vh;border:none;display:block"
       title="<?= htmlspecialchars($paper['title']) ?>">
       <p style="text-align:center;padding:40px;color:white">

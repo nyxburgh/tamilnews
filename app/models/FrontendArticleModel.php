@@ -12,16 +12,18 @@ class FrontendArticleModel extends Model
         return "SELECT a.id, a.title, a.slug, a.excerpt, a.content_type,
                        a.youtube_video_id, a.is_breaking, a.is_editors_pick, a.is_featured,
                        a.view_count, a.share_count, 0 AS rating_avg, 0 AS rating_count,
-                       a.published_at, a.read_time,
+                       a.published_at, a.updated_at, a.read_time,
                        c.name AS category_name, c.name_tamil AS category_tamil, c.slug AS category_slug,
                        m.filepath AS image_url, m.thumb_path AS thumb_url,
                        u.name AS author_name,
-                       ct.name AS contributor_name, ct.avatar AS contributor_avatar
+                       ct.name AS contributor_name, ct.avatar AS contributor_avatar,
+                       d.name AS district_name
                 FROM tn_articles a
                 LEFT JOIN tn_categories c  ON c.id  = a.category_id
                 LEFT JOIN tn_media m       ON m.id  = a.media_id
                 LEFT JOIN tn_users u       ON u.id  = a.user_id
-                LEFT JOIN tn_contributors ct ON ct.id = a.contributor_id";
+                LEFT JOIN tn_contributors ct ON ct.id = a.contributor_id
+                LEFT JOIN tn_districts d   ON d.id  = a.district_id";
     }
 
     public function breaking(int $limit = 8): array
@@ -78,19 +80,20 @@ class FrontendArticleModel extends Model
         );
     }
 
-    public function byCategory(string $categorySlug, int $page = 1, int $perPage = 6): array
+    public function byCategory(string $categorySlug, int $page = 1, int $perPage = 6, int $districtId = 0): array
     {
-        $offset = ($page - 1) * $perPage;
-        $data   = $this->fetchAll(
+        $offset      = ($page - 1) * $perPage;
+        $districtSQL = $districtId ? " AND a.district_id = {$districtId}" : '';
+        $data        = $this->fetchAll(
             $this->baseSelect() .
-            " WHERE a.status='published' AND c.slug = ?
+            " WHERE a.status='published' AND c.slug = ?{$districtSQL}
               ORDER BY a.published_at DESC LIMIT ? OFFSET ?",
             [$categorySlug, $perPage, $offset]
         );
         $total = (int)$this->fetchColumn(
             "SELECT COUNT(*) FROM tn_articles a
              JOIN tn_categories c ON c.id = a.category_id
-             WHERE a.status='published' AND c.slug = ?",
+             WHERE a.status='published' AND c.slug = ?{$districtSQL}",
             [$categorySlug]
         );
         return ['data' => $data, 'total' => $total, 'page' => $page, 'per_page' => $perPage];
@@ -106,16 +109,47 @@ class FrontendArticleModel extends Model
         );
     }
 
+    /** Small strip for home page — e.g. byContentType('special', 4) */
+    public function byContentType(string $type, int $limit = 4): array
+    {
+        return $this->fetchAll(
+            $this->baseSelect() .
+            " WHERE a.status='published' AND a.content_type = ?
+              ORDER BY a.published_at DESC LIMIT ?",
+            [$type, $limit]
+        );
+    }
+
+    /** Paginated listing — powers the dedicated /special-articles page */
+    public function byContentTypePaginated(string $type, int $page = 1, int $perPage = 12): array
+    {
+        $offset = ($page - 1) * $perPage;
+        $data   = $this->fetchAll(
+            $this->baseSelect() .
+            " WHERE a.status='published' AND a.content_type = ?
+              ORDER BY a.published_at DESC LIMIT ? OFFSET ?",
+            [$type, $perPage, $offset]
+        );
+        $total = (int)$this->fetchColumn(
+            "SELECT COUNT(*) FROM tn_articles WHERE status='published' AND content_type = ?",
+            [$type]
+        );
+        return ['data' => $data, 'total' => $total, 'page' => $page, 'per_page' => $perPage];
+    }
+
     public function bySlug(string $slug): array|false
     {
         return $this->fetchOne(
             "SELECT a.id, a.title, a.slug, a.excerpt, a.content, a.content_type,
                     a.youtube_url, a.youtube_video_id, a.is_breaking, a.is_editors_pick,
-                    a.is_featured, a.view_count, a.share_count, 0 AS rating_avg, 0 AS rating_count, a.published_at, a.read_time, a.meta_title, a.meta_desc,
+                    a.is_featured, a.view_count, a.share_count, 0 AS rating_avg, 0 AS rating_count,
+                    a.published_at, a.updated_at, a.read_time, a.meta_title, a.meta_desc,
+                    a.category_id, a.media_id,
                     c.name AS category_name, c.name_tamil AS category_tamil, c.slug AS category_slug,
                     m.filepath AS image_url, m.thumb_path AS thumb_url,
                     u.name AS author_name,
                     ct.name AS contributor_name, ct.avatar AS contributor_avatar,
+                    d.name AS district_name,
                     GROUP_CONCAT(DISTINCT t.name ORDER BY t.usage_count DESC SEPARATOR '||') AS tag_names,
                     GROUP_CONCAT(DISTINCT t.slug ORDER BY t.usage_count DESC SEPARATOR '||') AS tag_slugs
              FROM tn_articles a
@@ -123,6 +157,7 @@ class FrontendArticleModel extends Model
              LEFT JOIN tn_media m         ON m.id  = a.media_id
              LEFT JOIN tn_users u         ON u.id  = a.user_id
              LEFT JOIN tn_contributors ct ON ct.id = a.contributor_id
+             LEFT JOIN tn_districts d     ON d.id  = a.district_id
              LEFT JOIN tn_article_tags at2 ON at2.article_id = a.id
              LEFT JOIN tn_tags t           ON t.id = at2.tag_id
              WHERE a.slug = ? AND a.status = 'published'

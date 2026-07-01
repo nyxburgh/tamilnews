@@ -14,7 +14,13 @@ class TagController extends Controller
     }
 
     private TagModel $tags;
-    public function middleware(): void { $this->requireRole('admin'); }
+    public function middleware(): void {
+        $uri = $_SERVER['REQUEST_URI'] ?? '';
+        if (str_contains($uri, '/tags/suggest') || str_contains($uri, '/tags/quick-create')) {
+            $this->requireAuth(); return;
+        }
+        $this->requireRole('admin');
+    }
     public function __construct() { $this->tags = new TagModel(); }
 
     public function index(): void
@@ -50,6 +56,22 @@ class TagController extends Controller
         $this->tags->delete((int)$id);
         $this->flash('success','Tag deleted.');
         $this->redirect('/admin/tags');
+    }
+
+    public function quickCreate(): void
+    {
+        header('Content-Type: application/json');
+        $token = $_POST['_token'] ?? $_SERVER['HTTP_X_CSRF_TOKEN'] ?? '';
+        if (!CSRF::verify($token)) {
+            echo json_encode(['error' => 'Session expired. Please refresh the page.']); exit;
+        }
+        $name  = Helper::sanitize($this->post('name',''));
+        $tamil = Helper::sanitize($this->post('name_tamil',''));
+        if (!$name && !$tamil) { $this->json(['error'=>'Name required']); return; }
+        $label = $name ?: $tamil;
+        $slug  = Helper::uniqueSlug('tn_tags', Helper::slug($label));
+        $id = $this->tags->insert(['name'=>$name ?: $tamil,'name_tamil'=>$tamil ?: null,'slug'=>$slug]);
+        $this->json(['success'=>true,'id'=>$id,'name'=>$name ?: $tamil,'name_tamil'=>$tamil]);
     }
 
     public function suggest(): void

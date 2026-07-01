@@ -40,10 +40,11 @@ class NotificationModel extends Model
     public function notifyChiefEditors(string $type, string $message, ?int $articleId = null, ?int $fromId = null): void
     {
         try {
-            // Notify admin + editor (role 1 + 2)
             $users = $this->fetchAll(
                 "SELECT u.id FROM tn_users u
-                 WHERE u.role_id IN (1,2) AND u.is_active = 1 AND u.is_blocked = 0"
+                 JOIN tn_roles r ON r.id = u.role_id
+                 WHERE r.slug IN ('admin','chief_editor')
+                 AND u.is_active = 1 AND u.is_blocked = 0"
             );
             foreach ($users as $u) {
                 $this->send($u['id'], $type, $message, $articleId, $fromId);

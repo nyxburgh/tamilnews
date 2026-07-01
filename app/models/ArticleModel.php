@@ -8,6 +8,12 @@ class ArticleModel extends Model
 {
     protected string $table = 'tn_articles';
 
+    public function update(int $id, array $data): bool
+    {
+        $data['updated_at'] = date('Y-m-d H:i:s');
+        return parent::update($id, $data);
+    }
+
     public function listPaginated(array $filters = [], int $page = 1, int $perPage = 20): array
     {
         $where  = [];
@@ -45,13 +51,22 @@ class ArticleModel extends Model
     public function findFull(int $id): array|false
     {
         return $this->fetchOne(
-            "SELECT a.*, c.name AS category_name, u.name AS author_name, ci.name AS city_name
+            "SELECT a.*, c.name AS category_name, u.name AS author_name,
+                    ci.name AS city_name, ci.district_id AS city_district_id
              FROM tn_articles a
              LEFT JOIN tn_categories c ON c.id = a.category_id
              LEFT JOIN tn_users u ON u.id = a.user_id
              LEFT JOIN tn_cities ci ON ci.id = a.city_id
              WHERE a.id = ?",
             [$id]
+        );
+    }
+
+    public function mediaStillUsed(int $mediaId, int $excludeId = 0): bool
+    {
+        return (bool)$this->fetchColumn(
+            "SELECT COUNT(*) FROM tn_articles WHERE media_id = ? AND id != ?",
+            [$mediaId, $excludeId]
         );
     }
 
@@ -201,12 +216,10 @@ class ArticleModel extends Model
 
     public function submitEdit(int $id, array $data, int $userId): void
     {
-        // Store pending edit as JSON — admin reviews before applying
-        $pending = json_encode($data);
-        $this->query(
-            "UPDATE tn_articles SET updated_at = NOW() WHERE id = ?", // pending_edit removed
-            [$pending, $userId, $id]
-        );
+        // Direct update — applies changes immediately, sets status back to pending review
+        $data['updated_at'] = date('Y-m-d H:i:s');
+        $data['status']     = 'review';
+        $this->update($id, $data);
     }
 
     public function applyEdit(int $id): void
@@ -284,4 +297,10 @@ class ArticleModel extends Model
         return ['data' => $data, 'total' => $total, 'page' => $page, 'per_page' => $perPage];
     }
 
+
+    public function updateField(int $id, string $field, mixed $value): void
+    {
+        $db = \App\Core\Database::getInstance();
+        $db->prepare("UPDATE tn_articles SET `$field` = ? WHERE id = ?")->execute([$value, $id]);
+    }
 }

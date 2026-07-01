@@ -13,6 +13,24 @@ class AdSlotController extends Controller
         $this->requireCan('manage_ads');
     }
 
+    /** GET /api/ads/track-view/{id} — fires when an ad image is shown */
+    public function trackView(string $id): void
+    {
+        header('Content-Type: application/json');
+        try { (new BusinessAdModel())->trackImpression((int)$id); } catch (\Exception $e) {}
+        echo json_encode(['ok' => true]);
+        exit;
+    }
+
+    /** GET /api/ads/track-click/{id} — fires when an ad image is clicked */
+    public function trackClick(string $id): void
+    {
+        header('Content-Type: application/json');
+        try { (new BusinessAdModel())->trackClick((int)$id); } catch (\Exception $e) {}
+        echo json_encode(['ok' => true]);
+        exit;
+    }
+
     /** GET /admin/ad-defaults — manage default images per slot type */
     public function defaults(): void
     {
@@ -21,6 +39,7 @@ class AdSlotController extends Controller
             'pageTitle'   => 'Ad Default Images',
             'squareDefault'     => $ads->getDefaultImage('square'),
             'horizontalDefault' => $ads->getDefaultImage('horizontal'),
+            'verticalDefault'   => $ads->getDefaultImage('vertical'),
         ], Auth::role() === 'admin' ? 'admin' : 'editor_portal');
     }
 
@@ -29,7 +48,7 @@ class AdSlotController extends Controller
     {
         CSRF::validate();
         $type = $this->post('slot_type', 'square');
-        if (!in_array($type, ['square','horizontal'])) {
+        if (!in_array($type, ['square','horizontal','vertical'])) {
             $this->flash('danger','Invalid slot type.'); $this->redirect('/admin/ad-defaults');
         }
         if (empty($_FILES['default_image']['tmp_name'])) {

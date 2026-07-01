@@ -46,6 +46,12 @@ class UserAuthController extends Controller
 
         Auth::login($user);
         $this->users->updateLastLogin($user['id']);
+
+        // Route by role
+        $role = $user['role_slug'] ?? '';
+        if ($role === 'ad_owner') {
+            $this->redirect('/portal/my-ads');
+        }
         $this->redirect('/portal/dashboard');
     }
 

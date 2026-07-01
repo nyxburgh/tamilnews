@@ -76,11 +76,9 @@
 .masthead {
   display: grid;
   grid-template-columns: 300px 1fr 300px;
-  align-items: center;
+  align-items: stretch;
   gap: 16px;
   padding: 8px 20px 6px;
-  
-  
   background: #fff;
 }
 .masthead-ad {
@@ -97,7 +95,14 @@
 }
 .masthead-ad img,
 .masthead-ad a img { max-width: 100%; height: auto; object-fit: contain; display: block; }
-.masthead-center { text-align: center; }
+.masthead-center {
+  text-align: center;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  flex: 1;
+}
 .vel-logo-link { text-decoration: none; display: inline-block; }
 .vel-brand-wrap { display: inline-flex; align-items: center; gap: 12px; justify-content: center; }
 .vel-logo {
@@ -144,10 +149,12 @@
   border-bottom: 1px solid #E8E6E0;
 }
 .header-banner-ad-inner {
-   
-  padding: 6px 20px;
-  height: 112px;
+  width: 100%;
+  max-width: 728px;
+  margin: 0 auto;
+  aspect-ratio: 900 / 150;
   display: flex; align-items: center; justify-content: center;
+  overflow: hidden;
 }
 .header-banner-ad-placeholder {
   width: 728px; max-width: 100%; height: 100px;
@@ -285,20 +292,89 @@
   /* Sticky mobile top bar */
   .mob-topbar {
     display: flex !important;
+    flex-direction: column;
+    align-items: center;
     position: sticky;
     top: 0;
     z-index: 300;
     background: #fff;
+    border-top: 3px solid #C0001A;
     border-bottom: 3px solid #C0001A;
-    padding: 7px 14px;
-    align-items: center;
-    justify-content: space-between;
+    padding: 8px 12px 6px;
     box-shadow: 0 2px 6px rgba(0,0,0,.1);
+    width: 100%;
+    box-sizing: border-box;
+    overflow: hidden;
   }
-  .mob-topbar-logo  { text-decoration: none; }
-  .mob-topbar-date  { font-size: 10px; color: #9A9890; }
-  .mob-logo-w1      { font-family:'Noto Sans Tamil',sans-serif; font-weight:900; color:#C0001A; font-size:18px; }
-  .mob-logo-w2      { font-family:'Noto Sans Tamil',sans-serif; font-weight:900; color:#fff; background:#C0001A; padding:1px 6px; border-radius:3px; margin-left:2px; font-size:18px; }
+  /* Row 1: Logo centered */
+  .mob-topbar-logo-row {
+    width: 100%;
+    text-align: center;
+    margin-bottom: 2px;
+  }
+  .mob-topbar-logo { text-decoration: none; }
+
+  /* Mobile weather badge */
+  .mob-weather-badge {
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    gap: 2px;
+    background: linear-gradient(135deg, #EFF6FF, #DBEAFE);
+    border: 1px solid rgba(3,105,161,.2);
+    border-radius: 16px;
+    padding: 4px 10px;
+    animation: mob-weather-pulse 3s ease-in-out infinite;
+  }
+  .mob-weather-badge.loaded { animation: mob-weather-fadein .4s ease both; }
+  .mob-weather-city {
+    font-size: 9px;
+    font-weight: 800;
+    color: #0369A1;
+    text-transform: uppercase;
+    letter-spacing: .3px;
+    line-height: 1;
+    max-width: 72px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  .mob-weather-bottom {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+  }
+  .mob-weather-icon { font-size: 13px; line-height: 1; }
+  .mob-weather-temp { font-size: 12px; font-weight: 800; color: #0369A1; line-height: 1; }
+  .mob-weather-city {
+    font-size: 10px;
+    font-weight: 600;
+    color: #0369A1;
+    max-width: 80px;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
+  }
+  @keyframes mob-weather-pulse {
+    0%, 100% { opacity: 1; }
+    50%       { opacity: .6; }
+  }
+  @keyframes mob-weather-fadein {
+    from { opacity: 0; transform: scale(.9); }
+    to   { opacity: 1; transform: scale(1); }
+  }
+  .mob-logo-w1 { font-family:'Noto Sans Tamil',sans-serif; font-weight:900; color:#C0001A; font-size:20px; }
+  .mob-logo-w2 { font-family:'Noto Sans Tamil',sans-serif; font-weight:900; color:#fff; background:#C0001A; padding:1px 6px; border-radius:3px; margin-left:2px; font-size:20px; }
+  /* Row 2: Reg number + date */
+  .mob-topbar-meta-row { display:flex; gap:8px; align-items:center; justify-content:center; width:100%; margin-bottom:4px; }
+  .mob-topbar-reg  { font-size:9px; color:#9A9890; white-space:nowrap; }
+  .mob-topbar-date { font-size:9px; color:#9A9890; white-space:nowrap; }
+  /* Row 3: Language switcher centered */
+  .mob-topbar-lang-row { width:100%; display:flex; align-items:center; justify-content:space-between; margin-bottom:4px; gap:8px; }
+  .lang-switcher-mob { justify-content:flex-start; flex-shrink:0; }
+  /* Row 4: Ad */
+  .mob-topbar-ad-row { width:100%; }
+  .mob-topbar-ad-row .mob-top-ad { width:100%; }
 
   /* Hide desktop masthead and canvas */
   .masthead         { display: none !important; }
@@ -345,11 +421,11 @@
   .mob-topbar        { display: none !important; }
   .mobile-square-ad  { display: none !important; }
   .mob-float-ad      { display: none !important; }
+  .nav               { display: block !important; }
   .masthead          { display: grid !important; grid-template-columns: 300px 1fr 300px !important; }
   .masthead-ad       { width: 300px !important; height: 150px !important; }
   .header            { position: relative !important; border-bottom: none !important; box-shadow: none !important; }
   .header-banner-ad  { display: block !important; }
-  .nav-inner         { padding-right: 110px !important; }
 }
 
 /* ── MOBILE FLOATING RATE ICONS ── */
@@ -463,13 +539,12 @@
   max-height: 100px !important;
 }
 
-/* ── Horizontal banner ad (728×100 desktop) ── */
+/* ── Horizontal banner ad (728×100 desktop, scales responsively) ── */
 .header-banner-ad {
   background: #fff;
   border-top: 1px solid #E8E6E0;
   border-bottom: 1px solid #E8E6E0;
-  overflow: hidden !important;
-  height: 112px;
+  overflow: hidden;
   display: flex;
   align-items: center;
   justify-content: center;
@@ -478,9 +553,8 @@
 .header-banner-ad-inner .ad-rotator,
 .header-banner-ad img,
 .header-banner-ad-inner img {
-  max-width: 728px !important;
   width: 100% !important;
-  height: 100px !important;
+  height: 100% !important;
   object-fit: contain !important;
   display: block;
 }
@@ -567,17 +641,25 @@
   padding: 0 8px;
   gap: 8px;
 }
-.mob-rate-sheet-btn {
-  display: flex; flex-direction: column;
-  align-items: center; gap: 4px;
-  font-size: 11px; font-weight: 600;
-  color: #1A1A1A; cursor: pointer;
-  padding: 10px 8px;
-  background: #F5F5F2; border-radius: 10px;
-  flex: 1; text-align: center;
+.mob-rate-sheet-grid {
+  display: grid;
+  grid-template-columns: repeat(5, 1fr);
+  gap: 8px;
+  padding: 0 12px 12px;
 }
-.mob-rate-sheet-btn:active { background: #E8E6E0; }
-.mob-rate-sheet-icon { font-size: 24px; line-height: 1; }
+.mob-rate-card {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 4px;
+  padding: 12px 6px;
+  background: #F5F5F2;
+  border-radius: 10px;
+  text-align: center;
+}
+.mob-rate-card-icon  { font-size: 26px; line-height: 1; }
+.mob-rate-card-label { font-size: 10px; font-weight: 700; color: #C0001A; text-transform: uppercase; letter-spacing: .3px; }
+.mob-rate-card-val   { font-size: 13px; font-weight: 900; color: #1A1A1A; }
 
 /* ── Mobile vertical ad ── */
 .mob-vertical-ad {
@@ -615,3 +697,77 @@
   .mob-rate-sheet,
   .mob-vertical-ad { display: none !important; }
 }
+
+/* ── Rates inside masthead-center — desktop only ── */
+.masthead-rates {
+  display: flex;
+  align-items: stretch;
+  justify-content: center;
+  flex-wrap: nowrap;
+  gap: 6px;
+  margin-top: 10px;
+  padding: 6px 0 4px;
+  border-top: 1px solid #EDE9E0;
+  width: 100%;
+}
+.mrate-item {
+  display: inline-flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 3px;
+  padding: 7px 16px;
+  background: linear-gradient(135deg, #FFF8F8 0%, #FFF3F3 100%);
+  border: 1px solid rgba(192,0,26,.12);
+  border-radius: 12px;
+  white-space: nowrap;
+  box-shadow: 0 1px 3px rgba(192,0,26,.07);
+  transition: box-shadow .15s, transform .15s;
+  min-width: 70px;
+}
+.mrate-item:hover {
+  box-shadow: 0 3px 10px rgba(192,0,26,.14);
+  transform: translateY(-1px);
+}
+.mrate-item-top {
+  display: flex;
+  align-items: center;
+  gap: 4px;
+}
+.mrate-icon  { font-size: 14px; line-height: 1; }
+.mrate-label {
+  color: #C0001A;
+  font-size: 10px;
+  font-weight: 800;
+  text-transform: uppercase;
+  letter-spacing: .5px;
+  line-height: 1;
+}
+.mrate-val {
+  font-weight: 900;
+  color: #1A1A1A;
+  font-size: 14px;
+  line-height: 1;
+}
+/* Weather pill — blue theme, city top / icon+temp bottom */
+.mrate-weather { min-width: 80px; }
+.mrate-weather .mrate-city {
+  font-size: 10px;
+  font-weight: 800;
+  color: #0369A1;
+  text-transform: uppercase;
+  letter-spacing: .4px;
+  line-height: 1;
+  text-align: center;
+  max-width: 90px;
+  white-space: nowrap;
+  overflow: hidden;
+  text-overflow: ellipsis;
+}
+.mrate-weather .mrate-item-top {
+  justify-content: center;
+  gap: 4px;
+}
+.mrate-weather .mrate-icon { font-size: 14px; }
+.mrate-weather .mrate-val  { color: #0369A1; font-size: 14px; }
+

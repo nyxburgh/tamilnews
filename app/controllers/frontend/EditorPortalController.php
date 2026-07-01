@@ -21,11 +21,15 @@ class EditorPortalController extends Controller
         } elseif (Auth::check()) {
             $this->userId = Auth::id();
             $this->role   = Auth::role();
+            if ($this->role === 'ad_owner') {
+                Helper::redirect('/portal/my-ads');
+            }
             if (!in_array($this->role, ['admin','chief_editor','editor','district_editor','category_editor','senior_reporter','reporter','ads_manager'])) {
                 http_response_code(403); exit;
             }
         } else {
-            Helper::redirect('/admin/login');
+            $uri = $_SERVER['REQUEST_URI'] ?? '';
+            Helper::redirect(strpos($uri, '/admin/') !== false ? '/admin/login' : '/login');
         }
         $this->articles = new ArticleModel();
     }

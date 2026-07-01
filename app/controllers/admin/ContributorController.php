@@ -36,6 +36,7 @@ class ContributorController extends Controller
             'page'         => $result['page'],
             'per_page'     => $result['per_page'],
             'pending'      => $this->contributors->pendingApprovalCount(),
+            'allCategories'=> (new \App\Models\CategoryModel())->allWithParent(),
         ], $this->layout());
     }
 

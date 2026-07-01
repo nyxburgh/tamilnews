@@ -12,7 +12,7 @@ class CategoryController extends Controller
     }
 
     private CategoryModel $cats;
-    public function middleware(): void { $this->requireRole('admin'); }
+    public function middleware(): void { $this->requireCan('manage_categories'); }
     public function __construct() { $this->cats = new CategoryModel(); }
 
     public function index(): void
@@ -60,8 +60,23 @@ class CategoryController extends Controller
     public function delete(string $id): void
     {
         CSRF::validate();
-        $this->cats->delete((int)$id);
-        $this->flash('success', 'Category deleted.');
+        try {
+            $this->cats->delete((int)$id);
+            $this->flash('success', 'Category deleted.');
+        } catch (\PDOException $e) {
+            $this->flash('danger', 'Cannot delete — this category still has articles linked to it. Move or delete those articles first.');
+        }
+        $this->redirect('/admin/categories');
+    }
+
+    public function toggleActive(string $id): void
+    {
+        CSRF::validate();
+        $cat = $this->cats->find((int)$id);
+        if ($cat) {
+            $this->cats->update((int)$id, ['is_active' => $cat['is_active'] ? 0 : 1]);
+        }
+        $this->flash('success', 'Status updated.');
         $this->redirect('/admin/categories');
     }
 

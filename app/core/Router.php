@@ -19,6 +19,11 @@ class Router
     public function dispatch(string $method, string $uri): void
     {
         $path = rtrim(parse_url($uri, PHP_URL_PATH) ?? '/', '/') ?: '/';
+        // Decode percent-encoded characters (e.g. Tamil/Unicode slugs) — browsers
+        // always percent-encode non-ASCII characters in URLs, but the database
+        // stores slugs as raw decoded UTF-8 text. Without this, any non-ASCII
+        // slug (Tamil article titles) would never match and 404.
+        $path = rawurldecode($path);
 
         // Strip subdirectory base path  e.g. /tamilnews/public
         // APP_URL = http://localhost/tamilnews  → basePath = /tamilnews

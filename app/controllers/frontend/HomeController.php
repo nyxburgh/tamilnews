@@ -18,7 +18,7 @@ class HomeController extends Controller
         // Core homepage data
         $breaking    = $articles->breaking(10);
         $hero        = $articles->featured(1);
-        $heroSide    = $articles->topStories(2);   // 2 cards beside hero
+        $heroSide    = $articles->topStories(4);   // 4 cards in right-side 2x2 grid
         $topStories  = $articles->topStories(3);   // 3-col row below hero
         $trending    = $articles->trending(5);
         $editorsPick = $articles->editorsPicks(3);
@@ -30,6 +30,7 @@ class HomeController extends Controller
         $sports     = $articles->categoryBlock('sports', 4);
         $india      = $articles->categoryBlock('india', 3);
         $technology = $articles->categoryBlock('technology', 3);
+        $special    = $articles->byContentType('special', 4);
 
         // Nav categories
         $navCategories = $categories->allWithParent();
@@ -48,11 +49,19 @@ class HomeController extends Controller
         // Ad slots
         $ads = $this->getAdSlots($settings);
 
+        // SEO — Home page
+        $siteUrlClean = rtrim($siteUrl ?: (BASE_URL . '/public'), '/');
+        $metaTitle    = 'தினத்துளிர் | Thinathulir | Tamil News Daily | Tamil Nadu News';
+        $metaDesc     = 'தினத்துளிர் — Tamil Nadu\'s trusted Tamil news portal. Latest breaking news, politics, cinema, sports and district news in Tamil. | Thinathulir | Tamil News Daily';
+        $canonical    = $siteUrlClean . '/';
+        $ogImage      = BASE_URL . '/public/uploads/vaqua.jpeg';
+
         $this->view('frontend.home.index', compact(
             'breaking', 'hero', 'heroSide', 'topStories', 'trending',
             'editorsPick', 'videos', 'tamilNadu', 'cinema', 'sports',
-            'india', 'technology', 'navCategories', 'cities',
-            'siteName', 'siteUrl', 'ads', 'liveBlogs'
+            'india', 'technology', 'special', 'navCategories', 'cities',
+            'siteName', 'siteUrl', 'ads', 'liveBlogs',
+            'metaTitle', 'metaDesc', 'canonical', 'ogImage'
         ), 'frontend');
     }
 

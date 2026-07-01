@@ -87,4 +87,21 @@ class LocationModel extends Model
         return $row ? (int)$row['id'] : null;
     }
 
+    public function findCityByName(string $name, int $districtId = 0): ?int
+    {
+        if (!trim($name)) return null;
+        if ($districtId) {
+            $row = $this->fetchOne(
+                "SELECT id FROM tn_cities WHERE name LIKE ? AND district_id=? LIMIT 1",
+                ['%' . trim($name) . '%', $districtId]
+            );
+            if ($row) return (int)$row['id'];
+        }
+        $row = $this->fetchOne(
+            "SELECT id FROM tn_cities WHERE name LIKE ? LIMIT 1",
+            ['%' . trim($name) . '%']
+        );
+        return $row ? (int)$row['id'] : null;
+    }
+
 }

@@ -1,4 +1,41 @@
-<?php use App\Core\{Helper, Auth, CSRF}; ?>
+<?php use App\Core\{Helper, Auth, CSRF};
+$_adsBase = Auth::role() === 'admin' ? '/admin/business-ads' : '/portal/ads';
+?>
+
+<?php if (!empty($upgradeRequests)): ?>
+<div class="tn-card mb-4" style="border-left:4px solid #F59E0B">
+  <div class="tn-card-header" style="background:#FEF3C7">
+    <span class="fw-600">⬆ Pending Package Upgrade Requests (<?= count($upgradeRequests) ?>)</span>
+  </div>
+  <div class="tn-card-body p-0">
+    <table class="table table-sm mb-0">
+      <thead><tr><th>Business</th><th>Current</th><th>Requested</th><th>By</th><th>Note</th><th>Date</th><th></th></tr></thead>
+      <tbody>
+        <?php foreach ($upgradeRequests as $req): ?>
+        <tr>
+          <td><a href="<?= $r . $_adsBase ?>/show/<?= $req['ad_id'] ?>"><?= Helper::e($req['business_name']) ?></a></td>
+          <td><?= Helper::e($req['current_pkg_name']) ?></td>
+          <td><strong><?= Helper::e($req['requested_pkg_name']) ?></strong> — ₹<?= number_format($req['new_amount'],0) ?></td>
+          <td><?= Helper::e($req['requested_by_name']) ?></td>
+          <td><?= Helper::e($req['note'] ?? '—') ?></td>
+          <td><?= substr($req['created_at'],0,10) ?></td>
+          <td>
+            <form method="POST" action="<?= $r . $_adsBase ?>/upgrade-request/<?= $req['id'] ?>/approve" class="d-inline">
+              <?= CSRF::field() ?>
+              <button class="btn btn-xs btn-success">✓ Approve</button>
+            </form>
+            <form method="POST" action="<?= $r . $_adsBase ?>/upgrade-request/<?= $req['id'] ?>/reject" class="d-inline">
+              <?= CSRF::field() ?>
+              <button class="btn btn-xs btn-outline-danger">✗</button>
+            </form>
+          </td>
+        </tr>
+        <?php endforeach; ?>
+      </tbody>
+    </table>
+  </div>
+</div>
+<?php endif; ?>
 
 <div class="tn-page-header">
   <div>
@@ -8,7 +45,7 @@
       <?= $status ? '· filtered by <strong>' . htmlspecialchars($status) . '</strong>' : '' ?>
     </p>
   </div>
-  <a href="<?= $r ?>/admin/business-ads/create" class="btn btn-primary">
+  <a href="<?= $r ?><?= \App\Core\Auth::role() === 'admin' ? '/admin/business-ads' : '/portal/ads' ?>/create" class="btn btn-primary">
     <i class="bi bi-plus-circle me-1"></i> New Ad
   </a>
 </div>
@@ -138,20 +175,23 @@
         </td>
         <td style="font-size:11px;color:var(--text-muted)"><?= Helper::e($ad['submitted_by_name'] ?? '—') ?></td>
         <td>
-          <div class="d-flex gap-1">
-            <a href="<?= $r ?>/admin/business-ads/show/<?= $ad['id'] ?>" class="btn btn-sm btn-outline-primary" title="View">
+          <div class="d-flex gap-1 flex-wrap">
+            <a href="<?= $r . $_adsBase ?>/show/<?= $ad['id'] ?>" class="btn btn-sm btn-outline-primary" title="View">
               <i class="bi bi-eye"></i>
             </a>
-            <a href="<?= $r ?>/admin/business-ads/edit/<?= $ad['id'] ?>" class="btn btn-sm btn-outline-secondary" title="Edit">
+            <a href="<?= $r . $_adsBase ?>/edit/<?= $ad['id'] ?>" class="btn btn-sm btn-outline-secondary" title="Edit">
               <i class="bi bi-pencil"></i>
             </a>
+            <a href="<?= $r . $_adsBase ?>/show/<?= $ad['id'] ?>#owner-profile" class="btn btn-sm btn-outline-info" title="Owner Profile">
+              <i class="bi bi-person-badge"></i>
+            </a>
             <?php if ($canApprove && $ad['status'] === 'pending'): ?>
-            <form method="POST" action="<?= $r ?>/admin/business-ads/approve/<?= $ad['id'] ?>" class="d-inline">
+            <form method="POST" action="<?= $r . $_adsBase ?>/approve/<?= $ad['id'] ?>" class="d-inline">
               <?= CSRF::field() ?>
               <button class="btn btn-sm btn-success" title="Approve">✓</button>
             </form>
             <?php endif; ?>
-            <form method="POST" action="<?= $r ?>/admin/business-ads/delete/<?= $ad['id'] ?>"
+            <form method="POST" action="<?= $r . $_adsBase ?>/delete/<?= $ad['id'] ?>"
                   class="d-inline"
                   onsubmit="return confirm('Delete this ad and all its images permanently?')">
               <?= CSRF::field() ?>

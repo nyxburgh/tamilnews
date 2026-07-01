@@ -45,7 +45,7 @@
       <!-- PDF THUMBNAIL / ICON -->
       <a href="<?= $r ?>/newspaper/read/<?= htmlspecialchars($p['edition_date']) ?>" class="np-card-cover">
         <?php if ($p['thumb_path']): ?>
-        <img src="<?= $r ?>/public<?= htmlspecialchars($p['thumb_path']) ?>" alt="<?= htmlspecialchars($p['title']) ?>">
+        <img src="<?= $r ?><?= htmlspecialchars($p['thumb_path']) ?>" alt="<?= htmlspecialchars($p['title']) ?>">
         <?php else: ?>
         <div class="np-card-placeholder">
           <div style="font-size:48px">📰</div>

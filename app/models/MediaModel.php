@@ -109,6 +109,8 @@ class MediaModel extends Model
 
     private function createThumbnail(string $src, string $dest, int $maxW): void
     {
+        if (!function_exists('imagecreatetruecolor')) { copy($src, $dest); return; } // GD not available — use original as thumb
+
         [$w, $h, $type] = @getimagesize($src) ?: [0, 0, 0];
         if (!$w || $w <= $maxW) { copy($src, $dest); return; }
 
